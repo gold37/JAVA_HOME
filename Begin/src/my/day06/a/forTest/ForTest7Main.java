@@ -73,21 +73,14 @@ public class ForTest7Main {
 			*****
 		 */
 		
-<<<<<<< HEAD
-=======
 
->>>>>>> java06/master
 		for(int i=5; i>0; i--) {
 			for(int j=i; j<6; j++) {
 				System.out.print("*");
 			}
 			System.out.print("\n");
 		}
-<<<<<<< HEAD
-		
-=======
 
->>>>>>> java06/master
 		
 		System.out.println("\n==============숙제3==============");
 		
@@ -98,10 +91,7 @@ public class ForTest7Main {
 			 ****
 			*****
 		 */
-<<<<<<< HEAD
-=======
 		
->>>>>>> java06/master
 		for(int i=0; i<6; i++) {  
 			for(int j=5; j>0; j--) {
 				if(j>i) {
@@ -123,8 +113,6 @@ public class ForTest7Main {
 		  
 		 */
 		
-<<<<<<< HEAD
-=======
 		int s=3;
 		for(int i=3; i>0; i--) {
 			for(int j=0; j<6; j++) 
@@ -136,7 +124,6 @@ public class ForTest7Main {
 			s++;
 			System.out.print("\n");
 		}
->>>>>>> java06/master
 		
 		
 		System.out.println("\n==============숙제5==============");
@@ -150,11 +137,8 @@ public class ForTest7Main {
 		 */
 	
 		
-<<<<<<< HEAD
-=======
 		
 		
->>>>>>> java06/master
 		System.out.println("\n==============숙제6==============");
 		
 		/*
@@ -165,9 +149,5 @@ public class ForTest7Main {
 		   	*
 		 */
 	
-<<<<<<< HEAD
-	
-=======
->>>>>>> java06/master
 	}
 }

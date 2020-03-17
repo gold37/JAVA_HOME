@@ -97,7 +97,8 @@ public class WhileTestMain {
 		System.out.println("\n----------------------------");
 		//실무에서 자주 쓰이는 while문 작성 법 
 		//while 조건식에 탈출 조건을 써라
-		i=0;
+		i=0; 
+		
 		while(!(++i>9)) { // !false == true
 			// ++i>9 참이면 while문을 빠져나가라 
 			System.out.println("5"+"*"+i+"="+(5*i));
@@ -143,8 +144,30 @@ public class WhileTestMain {
 			6x8=48	7x8=56	8x8=64	9x8=72
 			6x9=54	7x9=63	8x9=72	9x9=81
 				
+				19행 4열
 		 */
 		
+		row=0; col=0;
+		while(!(++row>19)) { // 바깥 while문 (==행) 19행
+			while(!(++col>4)) { // 안쪽 while문 (==열) 4열
+				
+				if(row==10) {
+					System.out.print("\n");
+					break;
+				}
+				
+				if(row < 10) {
+					String str = ((col+1)<5)?"\t":"\n";
+					System.out.print((col+1)+"x"+row+"="+((col+1)*row) + str);
+				}
+				else {
+					String str = ((col+5)<9)?"\t":"\n";
+					System.out.print((col+5)+"x"+(row-10)+"="+((col+5)*(row-10)) + str);
+				}
+				
+			}//end of while ---------------
+			col=0;
+		}//end of while ---------------
 
 	}
 }

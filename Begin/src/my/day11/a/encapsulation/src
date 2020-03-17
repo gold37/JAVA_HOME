@@ -1,0 +1,463 @@
+==================================
+package my.day11.a.encapsulation;
+
+import java.util.Calendar;
+
+
+public class Gujikja {
+
+// 클래스 멤버 => (field,attribute,property,속성) + (behavior,기능)
+//           instance변수(==non-static변수),static변수 + method  	
+//                        멤버변수	
+	
+/*
+	접근제한자(접근지정자, accessmodifier)   자기자신클래스내부      동일패키지에있는다른클래스      다른패키지에있는하위(자식)클래스        그외의영역  
+	----------------------------------------------------------------------------------------------------------------------- 
+	public                                    O                    O                         O                 O  
+	protected                                 O                    O                         O                 X
+	default                                   O                    O                         X                 X
+	private                                   O                    X                         X                 X
+*/	
+	
+	// *** Gujikja 클래스의 속성 정하기(추상화 작업) *** // 
+	private String userid;   // 아이디
+	private String passwd;   // 암호 
+	private String name;     // 성명
+	private String birthday; // 생년월일(예: 19960510) 
+	
+	public void setUserid(String userid) {
+		if(userid == null || userid.trim().isEmpty()) {
+			System.out.println(">>> 사용자ID는 반드시 입력하셔야 합니다.\n");
+			return; // 메소드 종료
+		}
+		
+		this.userid = userid;
+	}
+		
+	public String getUserid() {
+		return userid;
+	}
+	
+	public void setPasswd(String passwd) {
+		// 암호는 8글자 이상, 15글자 이하이면서, 대문자,소문자,숫자,특수문자가 혼합이 되어야만 사용가능하다.
+		
+		if(passwd == null || passwd.trim().isEmpty()) {
+			System.out.println(">>> 암호는 반드시 입력하셔야 합니다.\n");
+			return; // 메소드 종료
+		}
+		
+		int len = passwd.length();
+		
+		if( !(8 <= len && len <= 15) ) {
+			System.out.println(">>> 암호는 8글자 이상 15글자 이하이어야 합니다.\n");
+			return; // 메소드 종료
+		}
+	
+		char[] chArr = passwd.toCharArray();
+		
+		boolean flagUpper=false, flagLower=false, flagNumber=false, flagSpecial=false;
+		
+		for(int i=0; i<chArr.length; i++) {	
+			char ch = chArr[i];
+			
+			if('A' <= ch && ch <= 'Z') {
+				flagUpper=true;
+			}
+			
+			else if('a' <= ch && ch <= 'z') {
+				flagLower=true;
+			}
+			
+			else if('0' <= ch && ch <= '9') {
+				flagNumber=true;
+			}
+			
+			else {
+				flagSpecial=true;
+			}
+			
+		}// end of for-------------------------------
+		
+		if(flagUpper && flagLower && flagNumber && flagSpecial) {
+			this.passwd = passwd;	
+		}
+		
+	}// end of public void setPasswd(String passwd)-----------------
+	
+	public String getPasswd() {
+		return passwd;
+	}
+
+	public void setName(String name) {
+		
+		if(name == null || name.trim().isEmpty()) {
+			System.out.println(">>> 구직자명은 반드시 입력하셔야 합니다.\n");
+			return; // 메소드 종료
+		}
+				
+		this.name = name;
+		
+	}// end of public void setName(String name)---------------------
+
+	public String getName() {
+		return name;
+	}
+	
+	public void setBirthday(String birthday) {
+		
+		if(birthday == null || birthday.trim().isEmpty()) {
+			System.out.println(">>> 생년월일은 반드시 입력하셔야 합니다.\n");
+			return; // 메소드 종료
+		}
+		
+		int len = birthday.length();
+		
+		if(len != 8) {
+			System.out.println(">>> 생년월일은 8글자 이어야 합니다.\n");
+		}
+		
+		else {
+			// 생년월일이 8글자로 되어진 경우인데 모두가 숫자로만 되어져야 한다.
+		    
+			boolean flag = false;
+			
+			for(int i=0; i<len; i++) {
+				char ch = birthday.charAt(i);
+				if( !('0' <= ch && ch <= '9') ) { // 19980123  OK
+					flag = true;                  // 1998a123  NO 
+					break;                        // 18980123  NO
+					                              // 21980123  NO  
+				}                                 // 20010123  OK    
+			}// end of for-------------------------
+			
+			// 생년월일 앞의 2자리가 19 또는 20 만 가능하도록 검사.
+			if(!flag) { // 입력받은 생년월일(birthday)이 숫자로만 이루어진 경우
+				String str = birthday.substring(0, 2); 
+				// 입력받은 생년월일(birthday)의 앞자리 2개를 얻어온다.
+				
+				if( !("19".equals(str) || "20".equals(str)) )
+					flag = true;
+			}
+						
+			if(!flag) {
+				this.birthday = birthday;
+			}
+		}
+		
+	}// end of public void setBirthday(String birthday)-------------
+
+	public String getBirthday() {
+		return birthday;
+	}
+
+	// *** Gujikja 클래스의 기능 정하기(추상화 작업) *** //
+	boolean isGujikjaExists(String userid, String passwd) {
+		
+		if( this.userid.equals(userid) && 
+			this.passwd.equals(passwd)	) 
+			return true;
+		else
+			return false;
+	}// end of boolean isGujikjaExists(String userid, String passwd)-----------
+	
+	
+	// **** 현재나이를 알려주는 메소드를 생성합니다. **** //
+	int getAge() {
+		
+		Calendar currentDate = Calendar.getInstance(); // 현재날짜와 시간을 얻어온다.
+		int year = currentDate.get(Calendar.YEAR);
+		
+		int age = year - Integer.parseInt(birthday.substring(0, 4)) + 1; 
+		// 현재년도 - 태어난년도 + 1 
+		
+		return age;
+	}
+	
+	// **** Gujikja 클래스의 객체 정보를 조회해주는 메소드를 생성합니다. **** //
+	void showGujikjaInfo() {
+		
+		String info = "";
+		
+		info += "1.아이디: "+userid+"\n";
+		info += "2.암   호: "+passwd+"\n";
+		info += "3.성   명: "+name+"\n";
+		info += "4.생년월일: "+ birthday.substring(0, 4)+"-"+birthday.substring(4, 6)+"-"+birthday.substring(6)+"\n";          
+		info += "5.현재나이: "+ getAge() +"세";
+		
+		System.out.println(info+"\n");
+	}
+	
+	// **** Gujikja 클래스의 객체 정보를 조회해주는 메소드를 생성합니다. **** //
+	String getGujikjaInfo() {
+		
+		String info = userid+"\t"+name+"\t"+
+				      birthday.substring(0, 4)+"-"+birthday.substring(4, 6)+"-"+birthday.substring(6)+ 
+				      "\t"+getAge() +"세";
+		
+		return info;
+	}// end of String getGujikjaInfo() -----------------------------
+	
+	
+	// field, attribute, property, 속성이 적어도 1개가 null 이라면 false를 리턴해주고,
+	// 모두가 null 이 아니라면 true를 리턴해주는 메소드를 생성합니다.
+	public boolean isUseGujikja() {
+		
+		if(userid != null && 
+		   passwd != null && 
+		   name != null && 
+		   birthday != null) return true;
+		else return false;
+	}
+	
+	
+}
+
+===================================
+
+
+
+package my.day11.a.encapsulation;
+
+import java.util.Scanner;
+
+public class AppMain {
+
+	// == 메뉴를 보여주는 메소드 생성하기 == // 
+	static void showMenu(Gujikja loginUser) {
+		
+		String str = "";
+		
+		if(loginUser != null) {
+			str = "("+ loginUser.getName() +" 로그인중)";
+		}
+		
+		System.out.println("======== 메뉴 "+str+" ========\n"
+				         + "1.구직자가입  2.로그인  3.로그아웃  4.나의정보조회  5.모든구직자정보조회  6.프로그램종료\n");         
+		
+		System.out.print("▷메뉴번호 선택 => ");
+	}// end of void showMenu()-------------------------- 
+	
+	
+	// == 로그인을 해주는 메소드 생성하기 == //
+	static Gujikja login(Scanner sc, Gujikja[] gjArr) {
+		
+		Gujikja loginUser = null; // 리턴해줄 Gujikja 인스턴스 변수 
+		
+		System.out.print("▶ 아이디 : ");
+		String userid = sc.nextLine();
+		
+		System.out.print("▶ 암호 : ");
+		String passwd = sc.nextLine();
+		
+		boolean flag = false;
+		
+		for(int i=0; i<gjArr.length; i++) {
+			
+			if(gjArr[i] != null &&
+			   gjArr[i].isGujikjaExists(userid, passwd)) {
+				 flag = true;
+				 loginUser = gjArr[i];
+				 break; // for 문을 빠져나간다.
+			} 
+			
+		}// end of for------------------------------------
+		
+		String result = "";
+		
+		if(flag) {
+			result = ">> 로그인 성공!! <<";	
+		}
+		else {
+			result = ">> 로그인 실패!! <<";	
+		}
+		
+		System.out.println(result+"\n");
+		
+		return loginUser;
+	}// end of static void login()---------------------------
+	
+	
+	// == 구직자로 등록되어진 모든 회원정보를 조회해주는 메소드를 생성합니다. ==
+	static void showAllGujkja(Gujikja[] gjArr) {
+		
+		System.out.println("-------------------------------------");
+		System.out.println("아이디\t성명\t생년월일\t현재나이");
+		System.out.println("-------------------------------------");
+		
+		boolean flag = false;
+		
+		for(int i=0; i<gjArr.length; i++) {
+			if(gjArr[i] != null) {
+				flag = true;
+				break;
+			}
+		}// end of for---------------------------------
+		
+		if(!flag) {
+			// 가입된 구직자가 1명도 없는 경우
+			System.out.println("등록된 구직자가 없습니다.\n");
+		}
+		else {
+			// 가입된 구직자가 최소한 1명이상인  경우
+			for(Gujikja gj : gjArr) {
+				if(gj != null) {
+					System.out.println(gj.getGujikjaInfo());
+				}
+			}// end of for-----------------------------	
+			System.out.println("");
+			
+		}// end of if ~ else----------------------------
+		
+		
+	}// end of static void showAllGujkja(Gujikja[] gjArr)---------------
+	
+	
+	// == 신규 구직자를 등록해주는 메소드를 생성합니다. ==
+	static void register(Scanner sc, Gujikja[] gjArr) {
+		System.out.println("==== 구직자 등록하기 ====");
+		
+		System.out.print("1.아이디 : ");
+		String userid = sc.nextLine(); 
+		
+		System.out.print("2.암   호 : ");
+		String passwd = sc.nextLine();
+		
+		System.out.print("3.성   명 : ");
+		String name = sc.nextLine();
+		
+		System.out.print("4.생년월일 : ");
+		String birthday = sc.nextLine();
+		
+		Gujikja gj = new Gujikja();
+		gj.setUserid(userid);
+		gj.setPasswd(passwd);  
+		gj.setName(name);
+		gj.setBirthday(birthday);
+		
+		if( !gj.isUseGujikja() ) {
+			System.out.println(">>> 구직자로 등록이 불가합니다.\n");
+			return; // 메소드 종료
+		}
+		
+		boolean flag = false;
+		
+		for(int i=0; i<gjArr.length; i++) {
+			
+			if(gjArr[i] == null) {
+				gjArr[i] = gj;
+				flag = true;
+				break;
+			}
+			
+		}// end of for---------------------------
+		
+		if(flag) {
+			System.out.println(">> 가입을 축하드립니다.!!\n");
+		}
+		else {
+			System.out.println(">> 정원이 마감되어 가입이 불가합니다.\n");
+		}
+		
+	}// end of static void register(Gujikja[] gjArr)--------------------
+	
+	
+	public static void main(String[] args) {
+		
+		// 구직자 3명을 생성합니다.
+		// 먼저 생성되어진 구직자를 저장시키는 공간 만들기 
+		Gujikja[] gjArr = new Gujikja[5];
+		
+		gjArr[0] = new Gujikja();
+		gjArr[0].setUserid("hongkd");
+		gjArr[0].setPasswd("qwer1234A$");
+		gjArr[0].setName("홍길동");
+		gjArr[0].setBirthday("19961020");
+		
+		if(!gjArr[0].isUseGujikja()) {
+			gjArr[0] = null;
+		}
+		
+		gjArr[1] = new Gujikja();
+		gjArr[1].setUserid("eomjh");
+		gjArr[1].setPasswd("qwer1234B$");  // 암호로 사용불가하다!!
+		gjArr[1].setName("엄정화");
+		gjArr[1].setBirthday("20011111");
+		
+		if(!gjArr[1].isUseGujikja()) {
+			gjArr[1] = null;
+		}
+		
+		
+		Scanner sc = new Scanner(System.in);
+		
+		Gujikja loginUser = null;
+		
+		do {
+			showMenu(loginUser);
+			
+			String menuNo = sc.nextLine();
+			
+			switch (menuNo) { // switch(변수) 변수의 타입은 byte, short, int, char, String 만 가능하다.
+				case "1":  // 구직자가입
+					register(sc, gjArr);
+					break; // switch 를 빠져나간다는 것이다.
+					
+				case "2":  // 로그인
+					loginUser = login(sc, gjArr);
+					break; 
+					
+				case "3":  // 로그아웃 
+					String msg = "";
+					
+					if(loginUser == null) { // 로그인을 하지 않은 상태(==로그아웃)
+						msg = ">> 로그인을 한 이후에만 로그아웃이 가능합니다.\n";
+					}
+					else { // 로그인을 한 상태
+						loginUser = null;
+						msg = ">> 로그아웃 되었습니다.\n";
+					}
+					
+					System.out.println(msg);
+					break; 		
+					
+				case "4":  // 나의정보조회
+					
+					if(loginUser == null) { // 로그인을 하지 않은 상태(==로그아웃)
+						System.out.println(">> 먼저 로그인 부터 하세요!!\n");
+					}
+					else { // 로그인을 한 상태
+						
+						// 로그인 되어진 구직자의 정보를 조회하도록 메소드를 호출 
+						loginUser.showGujikjaInfo();
+					}
+					
+					break;	
+					
+				case "5":  // 모든구직자정보조회
+					showAllGujkja(gjArr);
+					break;
+					
+				case "6":  // 프로그램종료
+					
+					break; 					
+	
+				default:  // 메뉴에 없는 것을 입력한 경우  
+					System.out.println(">>> 메뉴에 없는 것을 선택하셨습니다.!!\n");
+					break;
+			}// end of switch (menuNo)-----------------------
+			
+			if("6".equals(menuNo))
+				break;  // do~while 문을 빠져나간다.
+			
+		} while (true);
+		
+		
+		sc.close();
+		System.out.println(">>> 프로그램 종료 <<<");
+
+	}// end of main()-----------------
+
+}
+
+
+===================================

@@ -69,7 +69,6 @@ public class PrimeNumberMain {
 		// 1부터 20까지의 소수 구하기
 		
 		String resultStr = "";
-		String comma = "";
 		int cnt=0;
 		int sum=0;
 		
@@ -96,10 +95,19 @@ public class PrimeNumberMain {
 				
 			}//end of for----------------
 			
-			if(isSosu == true) {
-				comma = (i<endNo-1)?",":"";
-				resultStr += i+comma; //문자열 더하기(소수 출력)
-				cnt++;
+			// 콤마 찍기 
+			/*
+			 *  생각의 전환 +ㅁ+ 콤마찍고 숫자를 찍자
+				1~25	,2,19,23
+				1~20	,2,17,19
+				1~19	,2,17,19
+			 */
+			if(isSosu) { // i가 소수라면
+				cnt++; 
+				
+				String comma = (cnt > 1)?",":""; // 두 번째 개수부터 앞에 콤마를 주겠다 그러니까 첫번째 출력값 앞엔 콤마가 없겠지
+				resultStr += comma+i; //문자열 더하기(소수 출력)
+				
 				sum += i; // sum에 i값 누적
 			}
 			
@@ -109,8 +117,6 @@ public class PrimeNumberMain {
 		System.out.println(startNo+"부터 "+endNo+"까지의 소수는?\n"+resultStr);
 		System.out.println("\n"+startNo+"부터 "+endNo+"까지의 소수의 개수? "+cnt+"개");
 		System.out.println("\n"+startNo+"부터 "+endNo+"까지의 소수들의 합? "+sum+"개");
-		
-		
 		
 		sc.close();
 		System.out.println("=== 프로그램 종료 ===");

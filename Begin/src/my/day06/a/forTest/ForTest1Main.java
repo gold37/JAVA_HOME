@@ -42,31 +42,13 @@ public class ForTest1Main {
 		 */
 		
 		for(int i=0;i<10;i++) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-			System.out.println((i+1)+".안녕자바^^");
-=======
 			System.out.println((i+1)+".안녕 자바^^");
->>>>>>> java05/master
-=======
-			System.out.println((i+1)+".안녕 자바^^");
->>>>>>> java06/master
 		}
 		
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~");
 		
-<<<<<<< HEAD
-<<<<<<< HEAD
-		for(int i=0; i<10; i++) {
-			System.out.println(++i+".안녕 이클립스!");
-=======
 		for(int i=0; i<10; i++) { // 0 2 4 6 8
 			System.out.println(++i+".안녕 이클립스!"); // 1 3 5 7 9
->>>>>>> java05/master
-=======
-		for(int i=0; i<10; i++) { // 0 2 4 6 8
-			System.out.println(++i+".안녕 이클립스!"); // 1 3 5 7 9
->>>>>>> java06/master
 		}
 
 		/* ++i 전위 연산자 먼저 계산 --> i=1. ~
@@ -81,18 +63,8 @@ public class ForTest1Main {
 		
 		*/
 		System.out.println("\n~~~~~~~~~~~~~~~~~~~~");
-<<<<<<< HEAD
-<<<<<<< HEAD
-		for(int i=0; i<10; i+=2) {
-			System.out.println((i+1)+".안녕 오라클?");
-=======
 		for(int i=0; i<10; i+=2) { // 0 2 4 6 8
 			System.out.println((i+1)+".안녕 오라클?"); // 1 3 5 7 9
->>>>>>> java05/master
-=======
-		for(int i=0; i<10; i+=2) { // 0 2 4 6 8
-			System.out.println((i+1)+".안녕 오라클?"); // 1 3 5 7 9
->>>>>>> java06/master
 		}
 		
 		/*
@@ -104,13 +76,6 @@ public class ForTest1Main {
 		 * 
 		 */
 		
-<<<<<<< HEAD
-<<<<<<< HEAD
-	}
-
-=======
-=======
->>>>>>> java06/master
 		
 		System.out.println("\n@@@@@@@@@@@@@@@@");
 		for(int i=0, j=0; i<10; i++, j+=2) {
@@ -229,8 +194,4 @@ public class ForTest1Main {
 		 */
 	}
 }
-<<<<<<< HEAD
->>>>>>> java05/master
-=======
->>>>>>> java06/master
 }
