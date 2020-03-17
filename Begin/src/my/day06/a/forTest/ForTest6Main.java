@@ -155,18 +155,34 @@ public class ForTest6Main {
 		String hol="", zak="", plus="";
 		
 		for(int i=0; i<10; i++) { // i=0123456789
+<<<<<<< HEAD
 			if((i+1)%2==1) {
 				box1+=i+1;
 				plus = (i<8)?"+":"";
 				hol += (i+1)+plus;
 			}else {
 				box2+=i+1;
+=======
+			if((i+1)%2!=0) {
+				box1 += (i+1);
+				plus = (i<8)?"+":"";
+				hol += (i+1)+plus;
+			}else {
+				box2 += (i+1);
+>>>>>>> java06/master
 				plus = (i<8)?"+":"";
 				zak += (i+1)+plus;
 			}
 		}
+<<<<<<< HEAD
 		System.out.println("1부터 10까지 중 홀수 누적의 합은?"+hol+"="+box1);
 		System.out.println("1부터 10까지 중 짝수 누적의 합은?"+zak+"="+box2);
+=======
+		System.out.println("1부터 10까지 중 홀수 누적의 합은?");
+		System.out.println(hol+"="+box1);
+		System.out.println("1부터 10까지 중 짝수 누적의 합은?");
+		System.out.println(zak+"="+box2);
+>>>>>>> java06/master
  		
 	}
 }
