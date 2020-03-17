@@ -77,7 +77,46 @@ public class AppMain {
 				
 					
 		}// end of static void showAllGujikja(gjArr)------
+<<<<<<< HEAD
 
+=======
+	
+	static void register(Scanner sc, Gujikja[] gjArr) {
+		System.out.println("==== 구직자 등록하기 ====");
+		
+		System.out.println("1.아이디:");
+		String userid = sc.nextLine();
+
+		System.out.println("2.비밀번호:");
+		String pwd = sc.nextLine();
+		
+		System.out.println("3.이름:");
+		String name = sc.nextLine();
+		
+		System.out.println("4.생년월일:");
+		String birthday = sc.nextLine();
+	
+	
+	Gujikja gj = new Gujikja(userid, pwd, name, birthday);
+	
+	boolean flag = false; // 방에 넣었다는 표식을 하기 위한 깃발
+	
+	for(int i=0; i<gjArr.length; i++) { // 저장장소 비었니 안비었니
+		if(gjArr[i] == null) { // 배열의 방이 비었니?
+			gjArr[i] = gj; // 방금 키보드에 입력한 값을 새로 생성한 방 gj에 넣어라
+			flag = true;
+			break;
+		}
+	}
+
+	if(flag) {
+		System.out.println(">> 가입을 축하드립니다!");
+	}else {
+		System.out.println(">> 정원이 마감되어 가입이 불가합니다.");
+	}
+	}
+	
+>>>>>>> java10/master
 	public static void main(String[] args) {
 
 		// 구직자 3명 생성하기
@@ -99,9 +138,18 @@ public class AppMain {
 			showMenu(loginUser);
 			
       		String menuNo = sc.nextLine();
+<<<<<<< HEAD
       		switch (menuNo) { // 메뉴번호를 기준으로 뭘 할지 결정 
       		// 변수의 타입은 byte,short,int,char,String만 가능
 			case "1": // 회원가입
+=======
+      		
+      		switch (menuNo) { // 메뉴번호를 기준으로 뭘 할지 결정 
+      		// 변수의 타입은 byte,short,int,char,String만 가능
+			case "1": // 회원가입
+				// userid, 4개 받아와서 배열에 저장. 정원마감. 생년월일은 숫자만. 비밀번호 유효성검사. 
+				register(sc, gjArr);
+>>>>>>> java10/master
 				break; // switch를 빠져나감
 
 			case "2": // 로그인
