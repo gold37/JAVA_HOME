@@ -319,9 +319,18 @@ public class ListTestMain {
 		// ==> Wrapper 클래스(Boolean, Byte, Short, Integer, Long, Character, Float, Double)로 
 		//     되어져 있는 객체를 기본자료형(boolean, byte, short, int, long, char, float, double)으로 
 		//     만들어주는 것을 말한다.
+
+			Integer a3 = new Integer(50);
+			int a4 = a3.intValue();
+			System.out.println("a4: "+a4);
 			
-			Double db2 = new Double(1.23456);
-			double db1 = db2; // UnBoxing(언박싱)
+			Double db1 = new Double(1.23456);
+			double db2 = db1.doubleValue(); // UnBoxing(언박싱)
+			System.out.println("db2: " +db2); 
+			
+			Double db3 = new Double(1.23456);
+			double db4 = db3; // Auto UnBoxing(언박싱)
+			System.out.println("db4: " +db4);
 			
 		// JVM이 Auto Boxing(오토박싱, 포장을 자동으로 해주는것)
 		//      Auto UnBoxing(언박싱, 포장을 자동으로 풀어주는것)
