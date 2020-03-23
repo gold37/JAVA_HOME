@@ -1,0 +1,11 @@
+관리자만 할 수 있음
+
+C:\Users\user1>sqlplus /nolog
+
+alter user hr account unlock;
+
+select *
+from dba_users;
+
+alter user hr IDENTIFIED by eclass;
+▶ 암호 부여
