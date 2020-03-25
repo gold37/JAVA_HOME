@@ -273,6 +273,9 @@ values(2, 'HAPPYDAY', 'Lunch Time~~~', 'taeyeon', default, default);
     
     5. FOREIGN KEY : 외래키 ( == 참조키)
                                       FOREIGN KEY는 참조 무결성을 위해 사용되어진다.
+                                      참조 무결성은 어떤 컬럼에 값을 입력하든지 또는 수정할때 그 값은 FOREIGN KEY가 참조하는 컬럼(부모 테이블)의 데이터값만 입력 또는 수정이 가능하다.
+                                      참조받는 테이블(부모 테이블)이 먼저 생성돼야한다. 
+                                      FOREIGN KEY가 참조하는 컬럼은 NOT NULL이어야 하고, 고유한 값만 들어와야 한다. ( ex) Primary key 또는 NOT NULL이면서 Unique key )
         
 */
 
@@ -893,3 +896,423 @@ from tbl_board;
                             else '로그인 실패'
                             end AS 로그인시도
   from dual;
+  
+  
+  
+  
+  
+  
+    ----------- *** 제약조건의 조회 *** -------------3.25
+    select *
+    from user_constraints
+    where table_name = 'TBL_JIKWON';
+    
+    
+    select *
+    from user_constraints
+    where table_name = 'TBL_MEMBER';
+    
+    select *
+    from user_constraints
+    where table_name = 'TBL_BOARD';
+    /*
+    
+    P -- Primary key
+    U -- Unique key
+    C -- Check 
+    C -- NOT NULL
+    R -- (reference key) Foreign key
+    
+    
+    */
+    
+    
+      
+    ----------- *** 컬럼 조회 *** -------------
+    select *
+    from user_cons_columns
+    where table_name = 'TBL_JIKWON';
+    
+    select *
+    from user_cons_columns
+    where table_name = 'TBL_MEMBER';
+    
+    
+    select *
+    from user_cons_columns
+    where table_name = 'TBL_BOARD';
+    
+    
+     ----------- *** TBL_JIKWON 테이블에 존재하는 CHECK제약 내용 변경하기 *** -------------
+     -------- 제약 조건을 변경하려면 변경해주는 명령어가 없기때문에 기존 제약조건을 삭제하고 새로 만들어야한다.
+        
+    ----------- *** 제약조건 삭제하기 *** -------------
+    alter table tbl_jikwon
+    drop constraint CK_TBL_JIKWON_JIK;
+    ----------- *** 제약조건 추가하기 *** -------------
+    alter table tbl_jikwon
+    add constraint CK_TBL_JIKWON_JIK
+    check ( jik in('사장', '전무', '상무', '부장', '과장', '대리', '사원'));
+    
+    
+    ----------- *** NOT NULL제약조건 삭제하기1 *** -------------
+    alter table tbl_jikwon 
+    drop constraint SYS_C007019;
+    ----------- *** NOT NULL제약조건 추가하기 *** -------------
+    alter table tbl_jikwon
+    add constraint NN_TBL_JIKWON_EMAIL email not null;
+    --오류 보고 -
+    --ORA-02263: need to specify the datatype for this column
+    --02263. 00000 -  "need to specify the datatype for this column"
+    alter table tbl_jikwon
+    modify email not null;
+    
+    
+     ----------- *** NOT NULL제약조건 삭제하기2 *** -------------
+    alter table tbl_jikwon
+    modify email not null;
+     ----------- *** NOT NULL제약조건 추가하기 *** -------------
+    alter table tbl_jikwon
+    modify email constraint NN_TBL_JIKWON_EMAIL not null;   --> SYS 블라블라 보기싫어서 이름 바꿈
+    
+     ----------- *** Primary key 제약조건 삭제하기 *** -------------
+    alter table tbl_member
+    drop constraint PK_TBL_MEMBER_USERID;    --자식 테이블의 foreign key가 참조중이라 못 지움
+    --오류 보고 -
+    --ORA-02273: this unique/primary key is referenced by some foreign keys
+    --02273. 00000 -  "this unique/primary key is referenced by some foreign keys"
+    alter table tbl_board
+    drop constraint PK_TBL_BOARD_USERID; -- 자식 테이블의  foreign key(R) 삭제
+    
+    alter table tbl_member
+    drop constraint PK_TBL_MEMBER_USERID; -- 이제 부모테이블의 primary key삭제 됨
+    
+    -- 부모거 안지우고 한번에 삭제 하는 방법 ▼
+    ----------- *** Primary key 제약조건 추가하기 *** -------------
+    alter table tbl_member
+    add constraint PK_TBL_MEMBER_USERID primary key (userid);
+    ----------- *** Foreign key 제약조건 추가하기 *** -------------
+    alter table tbl_board
+    add constraint  PK_TBL_BOARD_USERID foreign key (fk_userid) references tbl_member (userid);
+    
+    ----------- *** Primary key 제약조건 삭제하기 *** -------------
+    alter table tbl_member
+    drop constraint PK_TBL_MEMBER_USERID cascade; 
+    -- cascade를 적어주면 tbl_member 테이블의 "PK_TBL_MEMBER_USERID" Primary key를 참조하고 있는 모든 자식테이블의 Foreign key를 먼저 삭제함
+    -- 그다음 tbl_member 테이블의 "PK_TBL_MEMBER_USERID" Primary key를 삭제함
+    
+    
+    
+    
+    
+    ----------- *** 제약조건 이름 변경하기 *** -------------    
+    alter table tbl_member
+    rename constraint SYS_C007112 to nn_tbl_member_pwd;
+    
+    alter table tbl_member
+    rename constraint PK_TBL_MEMBER_USERID to PK_TBL_MEMBER;
+    
+    --** 제약조건 이름은 중복을 허락하지 않고 반드시 고유해야한다 **   
+
+
+
+    
+    ----------- *** 제약조건 비활성화하기 *** -------------     
+    alter table tbl_jikwon
+    disable constraint CK_TBL_JIKWON_JIK;
+    --제약조건 CK_TBL_JIKWON_JIK가 drop이 아니라서 그대로 남아있지만 status 가 disabled로 됨. 대위, 소위, 중위 이런거 다 들어올 수 있음
+    
+    ----------- *** 제약조건 활성화하기 *** -------------       
+    alter table tbl_jikwon
+    enable constraint CK_TBL_JIKWON_JIK;
+    
+    
+    
+    
+    ----------- *** 테이블 속에 컬럼 추가하기 *** -------------       
+    select *
+    from tbl_board;
+    
+    -- tbl_board 테이블에 passwd 컬럼을 추가하겠다
+    alter table tbl_board
+    add passwd varchar2(20);
+    
+    -- tbl_board 테이블에 passwd 컬럼을 NOT NULL로 추가하겠다
+    alter table tbl_board
+    add passwd varchar2(20) not null;   --> 창과 방패같은 모순. 만들자마자 비번 생성돼야한다????
+    --오류 보고 -
+    --ORA-01758: table must be empty to add mandatory (NOT NULL) column
+    --01758. 00000 -  "table must be empty to add mandatory (NOT NULL) column"
+    alter table tbl_board
+    add passwd varchar2(20) default ' ' not null;
+    
+    ----------- *** 테이블 속에 컬럼 삭제하기 *** -------------       
+    -- tbl_board 테이블에 passwd 컬럼을 삭제하겠다    
+    alter table tbl_board
+    drop column passwd ;
+    
+    desc tbl_board;
+
+    
+    ----------- *** 어떤 테이블 행의 갯수가 아주 많은 대용량 테이블인 경우 컬럼 삭제하기 *** -------------       
+    -- 일반적으로 업무시간에는 데이터베이스의 사용빈도가 높다. 
+    -- 컬럼을 삭제한다라는 말은 실제 데이터가 저장된 파일에 접근하여 데이터를 삭제한다라는 말
+    -- 그런데 위와 같은 조건의 경우라면 컬럼 삭제 시간이 오래 걸린다
+    -- 그래서 업무시간에는 컬럼이 안보이도록 만들어버리고 삭제는 업무 이외 시간에 한다.
+    alter table tbl_board 
+    set unused (passwd);
+    -- 또는
+    alter table tbl_board 
+    set unused column passwd;
+    
+    desc tbl_board;     --> 꼼수 사라져있음
+    
+    select *
+    from user_unused_col_tabs;      --> unused 되어진 해당 테이블명 및 갯수 조회
+    
+    alter table tbl_board
+    drop unused columns;    --> 실제 디스크 파일에서 컬럼 데이터 삭제 ( 이용자가 가장 적은 새벽시간에 함 )
+    
+    
+    
+    
+    
+    ----------- *** 컬럼명 변경하기 *** -------------        
+    select *
+    from tbl_jikwon;
+    
+    -- tbl_jikwon 테이블의 jik 이라는 컬럼명을 spot(직위)로 변경하겠다
+    alter table tbl_jikwon
+    rename column jik to spot;
+    
+    desc tbl_jikwon;
+    -- SPOT            VARCHAR2(10) 
+    
+     ----------- *** 컬럼의 크기(사이즈) 변경하기 *** -------------        
+    alter table tbl_jikwon
+    modify spot varchar2(20);
+    
+    desc tbl_jikwon;
+    --SPOT            VARCHAR2(20) 
+    
+    alter table tbl_jikwon
+    modify spot varchar2(16);
+    --SPOT            VARCHAR2(16) 
+    
+    alter table tbl_jikwon
+    modify spot varchar2(2);
+    --오류 보고 -
+    --ORA-01441: cannot decrease column length because some value is too big
+    --01441. 00000 -  "cannot decrease column length because some value is too big"
+    -- 기존에 입력되어진 데이터 값(4byte)보다 작게는 안됨
+    
+    
+    
+    
+     ----------- *** 테이블명 변경하기 *** -------------           
+     -- tbl_jikwon 이라는 테이블명을 tbl_sawon 이라는 이름으로 변경하겠다
+     rename tbl_jikwon to tbl_sawon;
+     
+     ----------- *** 테이블 삭제하기 *** -------------           
+     select *
+     from tbl_board;
+     
+     select *
+     from tab;  --> 현재 오라클 서버에 접속한 table,과 view의 목록
+     
+     drop table tbl_board;
+     
+     select *
+     from "BIN$O68iBhY9RZGq/Owef+NPuw==$0";     --> 휴지통에 있는 걸로 보는거
+     
+     drop table tbl_sawon;
+     
+     drop table tbl_member;
+     
+      ----------- *** 테이블 영구 삭제하기 *** -------------    
+     drop table tbl_sawon purge;
+     
+     ----------- *** 휴지통에 저장된 정보 조회하기 *** -------------        
+     select *
+     from user_recyclebin;
+     
+     ----------- *** 휴지통에 저장된 특정 테이블 복원하기 *** -------------        
+    flashback table TBL_SAWON to before drop; --> drop하기 전 상태로 가라
+
+    select *
+    from tbl_sawon;
+     
+     ----------- *** 휴지통에 저장된 특정 테이블 영구삭제하기 *** -------------      
+     purge table "BIN$GNDFRsBbStaUoqJrGxTXlQ==$0";  --> orgianl_name 이 tbl_sawon인 object_name
+     
+     ----------- *** 휴지통에 저장된 모든 테이블 영구삭제하기 *** ------------- 
+    purge recyclebin;
+     
+     
+     ----------- *** Index (인덱스) *** ------------- 
+     
+     
+     
+     ----------- *** View (뷰) *** ------------- 
+     
+     
+     
+     
+     ----------- *** Sequence (시퀀스) *** ------------- 
+     -- Sequence란 ?
+     -- 어떤 컬럼에 숫자값을 부여하고자 할때 숫자값이 입력될때마다 자동으로 증가 되도록 할때 사용된다. ex) 은행 대기번호표, 게시판 글 번호 
+     
+     select *
+     from tbl_board;
+     
+    create table tbl_board                                                        -- 게시판 글쓰기 테이블
+    (boardno            number                                                       -- 글 번호   (=컬럼레벨(컬럼수준) PRIMARY KEY)
+    ,subject              varchar2(2000)        not null                    -- 글 제목               
+    ,content            Nvarchar2(2000)     not null                    -- 글 내용                   
+    ,fk_userid           varchar2(40)            not null                    -- 글쓴이 ID
+    ,registerday       date default sysdate                                  -- 작성일자 기본값은 현재시각을 부여함
+    ,readcount         number(10) default 0                                -- 조회수 기본값은 0으로 함
+    ,constraint PK_tbl_board_boardno primary key(boardno)
+    ,constraint PK_tbl_board_userid foreign key (fk_userid)                   
+                                                                references tbl_member(userid)
+    ); 
+
+
+    create sequence seq_boardno
+    start with 1    --> 첫번째 값 1로 주겠음. 첫 게시글 번호 1
+    increment by 1   --> 증가치 2로 주겠음. 다음 게시글 번호 2
+    maxvalue 5
+    minvalue 1      --> minvalue는 start with 값 보다 작거나 같아야한다. 크면 오류 발생!
+    cycle
+    nocache; --> 메모리에 저장시켜두겠다 cache 안시키겠다 nocache
+    
+    drop sequence seq_boardno;
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '첫번째 글쓰기', '안녕하세요1', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '두번째 글쓰기', '안녕하세요2', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '세번째 글쓰기', '안녕하세요3', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '네번째 글쓰기', '안녕하세요4', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '다섯번째 글쓰기', '안녕하세요5', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '여섯번째 글쓰기', '안녕하세요6', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '일곱번째 글쓰기', '안녕하세요7', 'jwon');
+    
+    select *
+    from tbl_board;
+    
+    rollback;
+    
+    select *
+    from tbl_member;
+    
+    alter table tbl_board
+    drop primary key;--> 어차피 Primary key는 1개 밖에 없으므로 이렇게 해도 됨
+
+    
+     ----------- *** 생성되어진 sequence 정보 조회하기 *** -------------     
+    select *
+    from user_sequences;
+    
+     ----------- 시퀀스 seq_boardno를 사용할대 다음번에 들어올 값은 얼마일까?
+     select last_number
+     from user_sequences
+     where sequence_name = 'SEQ_BOARDNO';
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '여덟번째 글쓰기', '안녕하세요8', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '아홉번째 글쓰기', '안녕하세요9', 'jwon');    
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno.nextval, '열번째 글쓰기', '안녕하세요10', 'jwon');        
+    
+    commit;
+    
+    select *
+    from tbl_board;
+    
+    
+    
+    
+    create sequence seq_boardno2
+    start with 1    --> 첫번째 값 1로 주겠음. 첫 게시글 번호 1
+    increment by 1   --> 증가치 2로 주겠음. 다음 게시글 번호 2
+    nomaxvalue 
+    nominvalue  
+    nocycle
+    nocache; 
+    
+    drop sequence seq_boardno2;   
+    
+    select *
+    from tbl_board;
+    
+    truncate table tbl_board; ---> tbl_board에 있는 모든 행들을 몽땅 다 지우겠다
+    
+    alter table tbl_board
+    add constraint PK_tbl_board_boardno primary key(boardno);     --> 아까 cycle 돌리려고 지웠던 Primary key 다시 만듬
+    
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '첫번째 글쓰기', '안녕하세요1', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '두번째 글쓰기', '안녕하세요2', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '세번째 글쓰기', '안녕하세요3', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '네번째 글쓰기', '안녕하세요4', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '다섯번째 글쓰기', '안녕하세요5', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '여섯번째 글쓰기', '안녕하세요6', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '일곱번째 글쓰기', '안녕하세요7', 'jwon');
+   
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '여덟번째 글쓰기', '안녕하세요8', 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '아홉번째 글쓰기', '안녕하세요9', 'jwon');    
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values(seq_boardno2.nextval, '열번째 글쓰기', '안녕하세요10', 'jwon');        
+       
+    
+    commit;
+    
+    
+    
+    
+    
+     ----------- *** 오라클 사용자 생성 및 관리 *** ------------- 
+     -- 오라클 사용자 생성 및 관리는 system 계정이나 또는 sys 계정에서 작업을 한다.
+     -- sys에서 작업한것 .sql로 간다
+     
+     
+     
+     
+     
+     
+     
+     ----------- *** ROLE (역할) *** ------------- 
+     
+     ----------- *** Synonym (동의어) *** ------------- 
