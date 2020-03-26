@@ -1177,7 +1177,9 @@ from tbl_board;
                                                                 references tbl_member(userid)
     ); 
 
-
+    select default_tablespace
+    from user_users;  -- tablespace 저장 경로 : USERS
+    
     create sequence seq_boardno
     start with 1    --> 첫번째 값 1로 주겠음. 첫 게시글 번호 1
     increment by 1   --> 증가치 2로 주겠음. 다음 게시글 번호 2
@@ -1310,9 +1312,329 @@ from tbl_board;
      
      
      
-     
-     
-     
      ----------- *** ROLE (역할) *** ------------- 
+    --sys로부터 부여받은 시스템권한(System Privilege)이 무엇인지 조회
+    select *
+    from user_sys_privs;
+     /*
+    CREATE VIEW
+    UNLIMITED TABLESPACE
+    CREATE DATABASE LINK
+    CREATE SEQUENCE
+    CREATE SESSION
+    ALTER SESSION
+    CREATE SYNONYM 
+    --> CREATE TABLE없는데 여태 어떻게 만들어왔을까??? ROLE 때문에 ~~
+     */
+      
+    --sys로부터 부여받은 ROLE이 무엇인지 조회- 
+     select *
+     from user_role_privs;
+     /*
+     CONNECT
+     RESOURCE
+     */
+     
+     
+    --부여받은 CONNECT에게 부여되어진 시스템 권한(System Privilege)이 무엇인지 조회
+    select *
+    from role_sys_privs
+    where role = 'CONNECT';
+    /*
+    CREATE SESSION
+    */
+     
+    --부여받은 RESOURCE에게 부여되어진 시스템 권한(System Privilege)이 무엇인지 조회
+    select *
+    from role_sys_privs
+    where role = 'RESOURCE';
+    /*
+    CREATE SEQUENCE
+    CREATE TRIGGER
+    CREATE CLUSTER
+    CREATE PROCEDURE
+    CREATE TYPE
+    CREATE OPERATOR
+    CREATE TABLE
+    CREATE INDEXTYPE
+    -->   CREATE TABLE 요기있지롱 
+    */
+    
+    
+    
      
      ----------- *** Synonym (동의어) *** ------------- 
+     
+     --> sampleuser1에서 작업한것 .sql로 간다
+     grant select on employees to sampleuser1;      --> hr이 employees 테이블에 대해서 select만 할 수 있도록 sampleuser1에게 권한을 주는 것.
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     
+     -- SQL (Structure Query Language)  : 정형화된 질의어
+     
+     -----  *** NULL 처리하기 *** ----- √
+
+    select '안녕?'
+    from dual;
+    
+    -- * NVL1 -- 
+    select null, nvl('안녕?', '오늘 점심은 연어덮밥') -- ☆★ nvl1은 1이 널이 아니면 1 출력
+                       , nvl(null, '맛있다')   -- 1이 널이면 2 출력
+    from dual;     
+    
+    -- * NVL2 -- 
+    select null, nvl2('안녕?', '오늘 점심은 연어덮밥', '도보 10분') -- ☆★  nvl2는 1이 널이 아니면 2 출력
+                       , nvl2(null, '맛있다', '또먹자')   -- 1이 널이면 3 출력
+    from dual;     
+    
+    /*
+        NULL은 존재하지않는 것이므로
+        비교연산 ( = 같다, != <> ^= 같지않다, 크다>작다, >=, <= )을 할 수 없다.
+        또한 NULL에 사칙연산(+,-,*,/)을 해주면 그 결과는 무조건 NULL이 된다.
+      
+    */
+    select 5+2, 5-2, 5/2 
+    from dual;
+    --7, 3, 2.5
+    select 5+NULL, 5-NULL, 5*NULL, 5/NULL
+    from dual;
+    --null null null null
+    
+    select *
+    from employees;
+     
+    desc employees;
+    /*
+        EMPLOYEE_ID           => 사원번호
+        FIRST_NAME              => 이름
+        LAST_NAME               => 성     
+        EMAIL                           => 이메일
+        PHONE_NUMBER      => 연락처       
+        HIRE_DATE                 => 입사일자
+        JOB_ID                         => 직종아이디
+        SALARY                       => 기본급여
+        COMMISSION_PCT   => 수당 퍼센테이지
+        MANAGER_ID            => 사수 사원번호  
+        DEPARTMENT_ID     => 부서번호
+    
+    */
+    
+    -------------------------------------------------------------------------------------------------------------------------
+    사원번호            사원명         기본급여            수당퍼센테이지         월급(기본급여+수당)
+    -------------------------------------------------------------------------------------------------------------------------     
+     select employee_id as 사원번호
+                , first_name || ' ' || last_name 사원명
+                , salary "기본 급여" --> alias에 공백주고싶으면 "쌍따옴표"를 꼭 써야한다.
+                , commission_pct as 수당퍼센테이지     
+                , nvl ( salary + (salary*commission_pct) , salary ) as 월급1       --> null이 아니라면 1출력 null 이라면 2출력
+                , nvl2 (commission_pct,  salary+(salary*commission_pct), salary) as 월급2
+     from employees;
+     
+     select *
+     from employees;
+     
+     --employees 테이블에서 부서번호 30번에 근무하는 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where department_id = 30;
+     
+    --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내세요
+    --null은 존재하지 않기 때문에 = 을 사용할 수 없고 대신에 is를 사용한다.
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where department_id is null;        
+     
+    --employees 테이블에서 수당퍼센테이지가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내세요     
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+              , commission_pct as 수당퍼센테이지
+    from employees
+    where commission_pct is null;        
+   
+    --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 오름차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by department_id asc; --> asc 생략 가능
+
+     --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 오름차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by 부서번호;       
+    
+    --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 내림차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by department_id desc;
+ 
+ 
+      --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 사원명의 오름차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by 사원명;          
+    
+    --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 사원명의 오름차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by 2 asc;  --> select에 있는 2번째 컬럼(사원명)
+    
+     --employees 테이블에서 부서번호가 null인 사원들의 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 오름차순으로 정렬한 후 동일한 부서번호내에서 월급의 내림차순으로 나타내세요
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , salary as 월급
+              , department_id as 부서번호
+    from employees
+    where commission_pct is null
+    order by 4 asc, 3 desc; --> asc 생략 가능 4,3 desc은 둘 다 desc을 뜻하는게 아님
+
+     --employees 테이블에서 월급(기본급여+수당금액)이 10000보다 큰 사원들만 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 오름차순으로 정렬한 후 동일한 부서번호내에서 월급의 내림차순으로 나타내세요    
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , nvl ( salary + (salary*commission_pct) , salary ) as 월급
+              , department_id as 부서번호
+    from employees
+    where nvl ( salary + (salary*commission_pct) , salary )>10000
+    order by 4 asc, 3 desc; 
+    
+     --employees 테이블에서 부서번호가 50번 부서가 아닌 사원들만 사원번호, 사원명, 월급, 부서번호를 나타내되 부서번호의 오름차순으로 정렬한 후 동일한 부서번호내에서 월급의 내림차순으로 나타내세요 
+     select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , nvl ( salary + (salary*commission_pct) , salary ) as 월급
+              , department_id as 부서번호
+    from employees
+    where department_id != 50        -- 또는 department_id ^= 50 또는 department_id <> 50
+    order by 4 asc, 3 desc;    
+    
+        
+    select employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , nvl ( salary + (salary*commission_pct) , salary ) as 월급
+              , department_id as 부서번호
+    from employees
+    where nvl(department_id, -9999) != 50        --부서번호가 null인 Kimberely Grant도 출력
+    order by 4 asc, 3 desc;
+    -- 정렬할 때 null은 존재하지않는 값이므로 가장 큰 값으로 간주한다.
+    -- MS사 MS-SQL Server는 정렬할 때 null은 존재하지 않는 값이므로 가장 작은것으로 간주한다.
+     
+     
+     
+     
+     
+    ----- *** OR, AND, NOT, IN 연산자에 대해 알아보자 *** ----- 
+    
+    -- employees테이블에서 80번 부서에 근무하는 사원들 중 월급이 10000 이상인 사원들에 대해서 부서번호, 사원번호, 사원명, 월급을 나타내되 월급의 내림차순으로 출력하세요.
+    select department_id as 부서번호 
+              , employee_id as 사원번호 
+              , first_name || ' ' || last_name as 사원명
+              , nvl ( salary + (salary*commission_pct) , salary ) as 월급
+    from employees
+    where department_id = 80 
+                 and 
+                 nvl(salary + (salary*commission_pct), salary) >= 10000        --navl(salary + (salar*commission_pct), salary)
+    order by 4 desc;
+    
+    
+   -- employees테이블에서 50번, 80번 부서에 근무하는 사원들에 대해서 부서번호, 사원번호, 사원명, 월급을 나타내되 월급의 내림차순으로 출력하세요.   
+   select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급
+   from employees
+   where department_id = 50
+                or
+                department_id = 80
+    order by 1,4 desc;
+     
+     
+    -- employees테이블에서 50번, 80번 부서에 근무하는 사원들 중 월급이 8000이상인 사원에 대해서 부서번호, 사원번호, 사원명, 월급을 나타내되 월급의 내림차순으로 출력하세요.    
+   select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+    from employees
+    where department_id = 50
+                 or
+                 department_id = 80
+                 and
+                 nvl(salary + (salary*commission_pct), salary) >= 8000          ---> or 와 and가 있을 때 and가 우선임. 그래서 부서번호 80번의 8천 이상인 사람들을 먼저 뽑고 그 다음에 50번인 사람들을 월급에 상관없이 전부 뽑아냄
+    order by 1,4 desc;                 
+    -- ※ AND와 OR가 혼용되어지면 우선순위가 높은 AND부터 먼저한다  !! 
+    
+    -- 연산자의 우선순위는 괄호 ( ) 가 제일 높다.
+    
+   select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+    from employees
+    where (department_id = 50
+                 or
+                 department_id = 80)
+                 and
+                 nvl(salary + (salary*commission_pct), salary) >= 8000     
+    order by 1,4 desc;     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     

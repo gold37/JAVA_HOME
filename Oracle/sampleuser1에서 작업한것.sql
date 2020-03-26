@@ -59,11 +59,47 @@ hakbun      varchar2(20)
     --01950. 00000 -  "no privileges on tablespace '%s'"
     
 --> sys에서 작업한 후 이제 실행 됨
+
+
     
+    
+    
+    ----------- *** sys로부터 부여받은 시스템권한(System Privilege)이 무엇인지 조회한다. *** ------------- 
+    select *
+    from user_sys_privs;
+    /*
+    CREATE SESSION
+    CREATE TABLE
+    */
 
+    
+    select *
+    from sampleuser1.tbl_student;
+    -- 소유주명.테이블명
+    select *
+    from tbl_student;
+    --> 소유주 이름을 생략하면 자기거를 본다
 
-
-
-
-
+    --** hr에 있는 employees가 보고싶다
+    select *
+    from hr.employees;
+    --ORA-00942: table or view does not exist
+    --00942. 00000 -  "table or view does not exist"
+    --> hr.employees 테이블을 select 할 수 있는 권한이 없기 때문에 테이블이 없다고 에러가 뜬다. (없는게 아니라 안보이는거임)
+    
+     ----------- *** Synonym (동의어) *** ------------- 
+     create synonym emp for hr.employees;
+     --오류 보고 -
+    --ORA-01031: insufficient privileges
+    --01031. 00000 -  "insufficient privileges"
+    --> synonoym 만들 수 있는 권한이 없다. 
+    --> sys가서 권한 받아오기 출동!
+    
+    select *
+    from hr.employees;
+    
+    select *
+    from emp;
+    
+    
 

@@ -16,3 +16,10 @@ desc bonus;
 desc salgrade;
 
 purge recyclebin; -- 휴지통에 버리기
+
+-- 어떤 tablespace에 저장될까?
+select default_tablespace
+from user_users;        -- USERS
+
+
+
