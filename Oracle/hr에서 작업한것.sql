@@ -1376,9 +1376,18 @@ from tbl_board;
      
      
      
+        select *
+        from dictionary;
+        -- 또는
+        select *
+        from dict;  
      
-     
-     
+        select *
+        from dictionary
+        where lower(comments) like '%privilege%';
+        
+        select *
+        from USER_SYS_PRIVS;
      
      
      
@@ -1571,6 +1580,9 @@ from tbl_board;
      
      
     ----- *** OR, AND, NOT, IN 연산자에 대해 알아보자 *** ----- 
+    -- 연산자의 우선순위 
+    -- ==>  괄호 (  )   >    NOT    >   AND    >   OR
+    
     
     -- employees테이블에서 80번 부서에 근무하는 사원들 중 월급이 10000 이상인 사원들에 대해서 부서번호, 사원번호, 사원명, 월급을 나타내되 월급의 내림차순으로 출력하세요.
     select department_id as 부서번호 
@@ -1623,18 +1635,885 @@ from tbl_board;
                  and
                  nvl(salary + (salary*commission_pct), salary) >= 8000     
     order by 1,4 desc;     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
+
+
+
+
+
+
+
+
+
+--3.27
+select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+from employees
+where department_id in (50, 80)
+             and
+             nvl(salary + (salary*commission_pct), salary) >= 8000     
+order by 1,4 desc;     
+
+desc employees;
+    
+ -- employees테이블에서 50번, 80번 부서에 근무하지않는 사원들 중 월급이 4000이상인 사원에 대해서
+ -- 부서번호, 사원번호, 사원명, 월급을 나타내되 월급의 내림차순으로 출력하세요. + null인 사원도 출력      
+select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+ from employees
+ where nvl(department_id, -1) != 50      --> department_id칼럼은 null값을 허용하기 때문에 null 조회가능
+              and
+              nvl(department_id, -1)  !=80
+              and
+              nvl(salary + (salary*commission_pct), salary) >= 4000
+order by 1, 4 desc;
+
+--또는
+
+select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+ from employees
+ where not ( nvl(department_id, -1) = 50      --> department_id칼럼은 null값을 허용하기 때문에 null 조회가능
+              or
+              nvl(department_id, -1) =80 )
+              and
+              nvl(salary + (salary*commission_pct), salary) >= 4000
+order by 1, 4 desc;
+
+--또는
+
+select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+ from employees
+ where not nvl(department_id, -1) in (50, 80)
+              and
+              nvl(salary + (salary*commission_pct), salary) >= 4000
+order by 1, 4 desc;
+
+--또는
+
+select department_id as 부서번호 
+          , employee_id as 사원번호 
+          , first_name || ' ' || last_name as 사원명
+          , nvl ( salary + (salary*commission_pct) , salary ) as 월급    
+ from employees
+ where nvl(department_id, -1) not in (50, 80)
+              and
+              nvl(salary + (salary*commission_pct), salary) >= 4000
+order by 1, 4 desc;
+
+
+
+----- *** === 범위 연산자 === *** -----
+--      >       <       >=      <=
+--      between A and B             -->  A와 B는 숫자타입 이외에도 문자타입, 날짜타입 모든 것을 사용할 수 있다.
+
+-- employees 테이블에서 기본급여가 3000부터 6000까지인 사원들만  사원번호, 사원명, 기본급여를 나타내세요
+select employee_id as 사원번호
+            ,first_name || ' ' || last_name as 사원명
+            ,salary as 기본급여
+from employees
+where  3000  >= salary and salary <= 6000
+order by salary;
+
+--또는
+
+select employee_id as 사원번호
+            ,first_name || ' ' || last_name as 사원명
+            ,salary as 기본급여
+from employees
+where salary between 3000  and 6000
+order by salary;
+
+
+select employee_id as 사원번호
+            ,first_name as 사원명
+            ,salary as 기본급여
+from employees
+where 'E' <= first_name and first_name <= 'Tz'
+order by first_name;
+
+
+
+
+----- *** === char와 varchar2는 비슷하지만 다르다. 현업에서는 varchar2를 많이 쓰기 때문에 웬만하면 char 대신 varchar2를 쓰는것이 유지보수에 편하다. === *** -----
+
+create table tbl_temp (
+name1        char(20)           --> 고정크기. 무조건 10byte를 씀
+,name2       varchar2(20)   --> 가변크기. 실제 데이터 크기만큼 잡힌다. 최대 10byte
+);
+
+drop table tbl_temp purge;
+
+delete from tbl_temp;
+
+insert into tbl_temp(name1, name2) values ('홍길동', '홍길동');   --> char는 20바이트 나머지를 공백으로 채우기 때문에 조회했을 때 이름 뒤에 공백이 나옴. 
+insert into tbl_temp(name1, name2) values ('김개똥 ', '김개똥 ');
+insert into tbl_temp(name1, name2) values ('아무개  ', '아무개  ');
+
+commit;
+
+select *
+from tbl_temp;
+
+select *
+from tbl_temp
+where name2 = '홍길동';    
+-- 홍길동
+
+select *
+from tbl_temp
+where name2 = '홍길동 '; -- 공백 한개 있는 홍길동
+-- 안나옴
+
+select *
+from tbl_temp
+where name1 = '홍길동 ';  -- 공백 한개 있는 홍길동
+-- 홍길동
+
+select *
+from tbl_temp
+where name1 = '홍길동                                 ';  -- 공백 많이 있는 홍길동
+-- 홍길동
+--> 이로써 char는 정확한 데이터를 출력하지 못하고 낭비가 심하다는것을 알 수 있다
+
+select *
+from tbl_temp
+where name2 = '김개똥';
+-- 안나옴
+
+select *
+from tbl_temp
+where name2 = '김개똥 ';  -- 공백 한개 있는 김개똥
+-- 김개똥
+
+-- 그럼 char는 언제 쓸까? 
+-- 고정형 크기를 가지는 데이터에 주로 사용된다!  ex) 주민번호 13자리, 핸드폰번호 11자리 그래도 웬만하면 char대신 varchar2 사용을 권장한다.
+-- 왜? 검색할때도 정확하게 값을 넣었을 때 보여줘야하니까!
+where jubun = '9708251222014                        '       --> char(13)하면 검색됨
+where jubun = '9708251222014                        '       --> varchar2(13)하면 검색안됨
+
+
+
+
+
+----- *** employees 테이블에 주민번호 (jubun) 컬럼 추가하기 *** -----
+alter table employees 
+add jubun varchar2(13) default ' ' not null;
+
+
+----- *** employees 테이블에 주민번호 (jubun) 컬럼에 unique 제약 추가하기 *** -----
+alter table employees
+add constraint UQ_employees_jubun unique (jubun);
+--오류 보고 -
+--ORA-01735: invalid ALTER TABLE option
+--01735. 00000 -  "invalid ALTER TABLE option"
+--> 이미 default로 값이 공백이 들어와 있기 때문에 unique할 수 없음 ( unique는 고유해야하는데 다 같은 공백을 가지고 있으니까 )
+
+alter table employees 
+modify jubun null; --> jubun을 다시 null로 바꿔줌
+
+update employees set jubun = null; --> 공백들어있던 곳을 null로 변경함
+
+select *
+from employees;
+
+
+
+update employees set jubun = '6010151234567'
+where employee_id = 100;
+
+update employees set jubun = '8510151234567'
+where employee_id = 101;
+
+update employees set jubun = '6510152234567'
+where employee_id = 102;
+
+update employees set jubun = '7510151234567'
+where employee_id = 103;
+
+update employees set jubun = '6110152234567'
+where employee_id = 104;
+
+update employees set jubun = '6510151234567'
+where employee_id = 105;
+
+update employees set jubun = '6009201234567'
+where employee_id = 106;
+
+update employees set jubun = '0803153234567'
+where employee_id = 107;
+
+update employees set jubun = '0712154234567'
+where employee_id = 108;
+
+update employees set jubun = '8810151234567'
+where employee_id = 109;
+
+update employees set jubun = '8908152234567'
+where employee_id = 110;
+
+update employees set jubun = '9005052234567'
+where employee_id = 111;
+
+update employees set jubun = '6610151234567'
+where employee_id = 112;
+
+update employees set jubun = '6710151234567'
+where employee_id = 113;
+
+update employees set jubun = '6709152234567'
+where employee_id = 114;
+
+update employees set jubun = '6110151234567'
+where employee_id = 115;
+
+update employees set jubun = '6009301234567'
+where employee_id = 116;
+
+update employees set jubun = '6110152234568'
+where employee_id = 117;
+
+update employees set jubun = '7810151234567'
+where employee_id = 118;
+
+update employees set jubun = '7909151234567'
+where employee_id = 119;
+
+update employees set jubun = '7702152234567'
+where employee_id = 120;
+
+update employees set jubun = '7009151234567'
+where employee_id = 121;
+
+update employees set jubun = '7111011234567'
+where employee_id = 122;
+
+update employees set jubun = '8010131234567'
+where employee_id = 123;
+
+update employees set jubun = '8110191234567'
+where employee_id = 124;
+
+update employees set jubun = '9012132234567'
+where employee_id = 125;
+
+update employees set jubun = '9406251234567'
+where employee_id = 126;
+
+update employees set jubun = '9408252234567'
+where employee_id = 127;
+
+update employees set jubun = '9204152234567'
+where employee_id = 128;
+
+update employees set jubun = '8507251234567'
+where employee_id = 129;
+
+update employees set jubun = '6511111234567'
+where employee_id = 130;
+
+update employees set jubun = '0010153234567'
+where employee_id = 131;
+
+update employees set jubun = '0005254234567'
+where employee_id = 132;
+
+update employees set jubun = '0110194234567'
+where employee_id = 133;
+
+update employees set jubun = '0412154234567'
+where employee_id = 134;
+
+update employees set jubun = '0503253234567'
+where employee_id = 135;
+
+update employees set jubun = '9510012234567'
+where employee_id = 136;
+
+update employees set jubun = '9510021234567'
+where employee_id = 137;
+
+update employees set jubun = '9610041234567'
+where employee_id = 138;
+
+update employees set jubun = '9610052234567'
+where employee_id = 139;
+
+update employees set jubun = '7310011234567'
+where employee_id = 140;
+
+update employees set jubun = '7310092234567'
+where employee_id = 141;
+
+update employees set jubun = '7510121234567'
+where employee_id = 142;
+
+update employees set jubun = '7612012234567'
+where employee_id = 143;
+
+update employees set jubun = '7710061234567'
+where employee_id = 144;
+
+update employees set jubun = '7810052234567'
+where employee_id = 145;
+
+update employees set jubun = '6810251234567'
+where employee_id = 146;
+
+update employees set jubun = '6811062234567'
+where employee_id = 147;
+
+update employees set jubun = '6712052234567'
+where employee_id = 148;
+
+update employees set jubun = '6011251234567'
+where employee_id = 149;
+
+update employees set jubun = '6210062234567'
+where employee_id = 150;
+
+update employees set jubun = '6110191234567'
+where employee_id = 151;
+
+update employees set jubun = '5712062234567'
+where employee_id = 152;
+
+update employees set jubun = '5810231234567'
+where employee_id = 153;
+
+update employees set jubun = '6311051234567'
+where employee_id = 154;
+
+update employees set jubun = '6010182234567'
+where employee_id = 155;
+
+update employees set jubun = '6110191234569'
+where employee_id = 156;
+
+update employees set jubun = '6210112234567'
+where employee_id = 157;
+
+update employees set jubun = '6311132234567'
+where employee_id = 158;
+
+update employees set jubun = '8511112234567'
+where employee_id = 159;
+
+update employees set jubun = '8710131234567'
+where employee_id = 160;
+
+update employees set jubun = '8710072234567'
+where employee_id = 161;
+
+update employees set jubun = '9010171234567'
+where employee_id = 162;
+
+update employees set jubun = '9112072234567'
+where employee_id = 163;
+
+update employees set jubun = '9110241234567'
+where employee_id = 164;
+
+update employees set jubun = '9212251234567'
+where employee_id = 165;
+
+update employees set jubun = '9310232234567'
+where employee_id = 166;
+
+update employees set jubun = '9811151234567'
+where employee_id = 167;
+
+update employees set jubun = '9810252234567'
+where employee_id = 168;
+
+update employees set jubun = '9910301234567'
+where employee_id = 169;
+
+update employees set jubun = '0910153234567'
+where employee_id = 170;
+
+update employees set jubun = '1011153234567'
+where employee_id = 171;
+
+update employees set jubun = '1006153234567'
+where employee_id = 172;
+
+update employees set jubun = '1111154234567'
+where employee_id = 173;
+
+update employees set jubun = '1209103234567'
+where employee_id = 174;
+
+update employees set jubun = '1207154234567'
+where employee_id = 175;
+
+update employees set jubun = '0906153234567'
+where employee_id = 176;
+
+update employees set jubun = '0812113234567'
+where employee_id = 177;
+
+update employees set jubun = '9810132234567'
+where employee_id = 178;
+
+update employees set jubun = '8712111234567'
+where employee_id = 179;
+
+update employees set jubun = '8310012234567'
+where employee_id = 180;
+
+update employees set jubun = '6510191234567'
+where employee_id = 181;
+
+update employees set jubun = '6510221234567'
+where employee_id = 182;
+
+update employees set jubun = '6510232234567'
+where employee_id = 183;
+
+update employees set jubun = '8512131234567'
+where employee_id = 184;
+
+update employees set jubun = '8510182234567'
+where employee_id = 185;
+
+update employees set jubun = '7510192234567'
+where employee_id = 186;
+
+update employees set jubun = '8512192234567'
+where employee_id = 187;
+
+update employees set jubun = '9511151234567'
+where employee_id = 188;
+
+update employees set jubun = '7509302234567'
+where employee_id = 189;
+
+update employees set jubun = '8510161234567'
+where employee_id = 190;
+
+update employees set jubun = '9510192234567'
+where employee_id = 191;
+
+update employees set jubun = '0510133234567'
+where employee_id = 192;
+
+update employees set jubun = '0810194234567'
+where employee_id = 193;
+
+update employees set jubun = '0910183234567'
+where employee_id = 194;
+
+update employees set jubun = '1010134234567'
+where employee_id = 195;
+
+update employees set jubun = '9510032234567'
+where employee_id = 196;
+
+update employees set jubun = '9710181234567'
+where employee_id = 197;
+
+update employees set jubun = '9810162234567'
+where employee_id = 198;
+
+update employees set jubun = '7511171234567'
+where employee_id = 199;
+
+update employees set jubun = '7810172234567'
+where employee_id = 200;
+
+update employees set jubun = '7912172234567'
+where employee_id = 201;
+
+update employees set jubun = '8611192234567'
+where employee_id = 202;
+
+update employees set jubun = '7810252234567'
+where employee_id = 203;
+
+update employees set jubun = '7803251234567'
+where employee_id = 204;
+
+update employees set jubun = '7910232234567'
+where employee_id = 205;
+
+update employees set jubun = '8010172234567'
+where employee_id = 206;
+
+commit;
+
+
+----- *** employees 테이블의 주민번호(jubun) 컬럼에 not null 제약 추가하기 *** -----
+alter table employees
+modify jubun constraint NN_EMPLOYEES_JUBUN not null;
+
+desc employees;
+
+select *
+from employees;
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--                        ####              단일행 함수              ####
+/*
+
+                ※ 단일행 함수의 종류
+                
+                1. 문자함수
+                2. 숫자함수
+                3. 날짜함수
+                4. 변환함수
+                5. 기타함수
+
+*/
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    -- >       >>     1. 문자함수       <<
+    -- 1.1 substr : 문자열 중 특정문자 또는 문자열의 특정 일부분을 선택해올때 사용한다.
+    
+    select 'KH정보교육원'
+                ,substr('KH정보교육원', 3, 2)       --> 3번째 글자부터('정') 2글자를 뽑아라 
+                ,substr('KH정보교육원', 3)           --> 3번째 글자부터('정') 끝까지 뽑아라 
+    from dual;
+    
+    -- 주민번호             성별              
+    select jubun as 주민번호
+                ,substr(jubun, 7,1) as 성별
+    from employees ;
+    
+    select *
+    from employees;
+    
+    -- employees 테이블에서 '여자'만 사원번호, 사원명, 주민번호를 나타내세요
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where substr(jubun, 7, 1) = '2'
+                 or
+                 substr(jubun, 7, 1) = '4';
+                 
+    -- 또는               
+    
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where substr(jubun, 7, 1) in ('2', '4');          
+    
+    -- employees 테이블에서 1990년대에 태어난 사원들만 사원번호, 사원명, 주민번호를 나타내세요
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where '90'  <=  substr(jubun, 1,2) and substr(jubun, 1,2) <= '99';
+    
+  -- 또는  
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where substr(jubun, 1,1) = '9';    
+    
+    -- 또는
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where substr(jubun, 1,2) between '90' and '99';            
+    
+    -- employees 테이블에서 1990년 ~ 1995년 사이에 태어난 여자들의 사원번호, 사원명, 주민번호를 나타내세요
+     select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호
+    from employees
+    where  substr(jubun, 7, 1) in ('2')
+                  and
+                  substr(jubun, 1,2) between '90' and '95';     
+                  
+                  
+
+    ---- *** === like 연산자 === *** -----
+    select *
+    from employees
+    where department_id = 30;
+    
+    select *
+    from employees
+    where department_id like 30;
+    
+    /*
+        like 연산자와 함께 사용되어지는 %와 _를 wild character라고 부른다.
+        %의 뜻은 글자가 있든지 없든지 관계없다라는 말이고, 
+        _의 뜻은 반드시 아무글자 1개만을 뜻하는 것이다. 
+        
+    */
+    
+    select employee_id as 사원번호,
+                first_name || ' ' || last_name as 사원명,
+                jubun as 주민번호    
+    from employees 
+    where jubun like '90____2%'  --> 앞에는 무조건 90으로 시작해서 7번째가 2인것
+                or         --> like에는 in 쓸 수 없고 or를 쓸 수 있다.
+                jubun like '91____2%'
+                or
+                jubun like '92____2%'
+                or
+                jubun like '93____2%'
+                or
+                jubun like '94____2%'
+                or
+                jubun like '95____2%';
+
+
+  -- employees 테이블에서 이름의 첫글자가 J로 시작하는 사원들만 사원번호, 이름, 성, 기본급여를 나타내세요.
+    select employee_id, first_name, last_name, salary
+    from employees
+    where first_name like 'J%';
+    
+  -- employees 테이블에서 이름의 첫글자가 s로 끝나는 사원들만 사원번호, 이름, 성, 기본급여를 나타내세요.    
+    select employee_id, first_name, last_name, salary
+    from employees
+    where first_name like '%s';
+    
+  -- employees 테이블에서 이름에 ee가 들어가는 사원의 사원번호, 이름, 성, 기본급여를 나타내세요.        
+    select employee_id, first_name, last_name, salary
+    from employees
+    where first_name like '%ee%';
+    
+  -- employees 테이블에서 이름에 e가 최소 2개 이상 들어가는 사원의 사원번호, 이름, 성, 기본급여를 나타내세요.        
+    select employee_id, first_name, last_name, salary
+    from employees
+    where first_name like '%e%e%';    
+    
+  -- employees 테이블에서 성에 F로 시작하면서 e가 들어가는 사원의 사원번호, 이름, 성, 기본급여를 나타내세요.        
+    select employee_id, first_name, last_name, salary
+    from employees
+    where last_name like 'F_e%';    
+        
+    
+    
+  -- *** like 연산자와 함께 사용되어지는 % 와 _ 는 어떤 뜻을 가지고 있는 wild character 인데 이러한 wild character 를 없애보자 *** --
+  create table tbl_watch
+  (watchname   Nvarchar2(10)
+  ,bigo        Nvarchar2(100)
+  );
+  
+  insert into tbl_watch(watchname, bigo)
+  values('금시계', '순금 99.99% 함유 고급시계');
+  
+  insert into tbl_watch(watchname, bigo)
+  values('은시계', '고객만족도 99.99점 획득한 고급시계');
+  
+  commit;
+  
+  select *
+  from tbl_watch;
+  
+  -- tbl_watch 테이블에서 bigo 컬럼에 99.99% 라는 글자가 들어있는 행만 추출하세요 --
+  
+  select *
+  from tbl_watch
+  where bigo like '%99.99\%%' escape '\';   --> escape 해놓은 문자 '\' 다음에 나오는 글자 1개만 wild character 기능에서 탈출시킨다(빠진다.)
+                                                                    -- ▲ 꼭 \ 아니더라도 다른거 해도 됨 (웬만하면 숫자, 문자보다는 특수기호 추천)
+  
+  
+  
+  
+   --- **** 1.2  instr : 어떤 문자열에서 명명된 문자의 위치를 알려주는 것 **** --
+   
+  select instr('KH정보교육원 국가정보원 정보문화사', '정보', 1, 1)
+      -- 'KH정보교육원 국가정보원 정보문화사' 에서 '정보'가 나온 위치를 찾는데
+      -- 출발점은 1 번째부터 1번째로 나오는 '정보'의 위치를 알려달라는 말이다. 
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', 1, 2)
+      -- 'KH정보교육원 국가정보원 정보문화사' 에서 '정보'가 나온 위치를 찾는데
+      -- 출발점은 1 번째부터 2번째로 나오는 '정보'의 위치를 알려달라는 말이다.
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', 4, 1)
+      -- 'KH정보교육원 국가정보원 정보문화사' 에서 '정보'가 나온 위치를 찾는데
+      -- 출발점은 4 번째부터 1번째로 나오는 '정보'의 위치를 알려달라는 말이다.
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', 4, 3)
+      -- 'KH정보교육원 국가정보원 정보문화사' 에서 '정보'가 나온 위치를 찾는데
+      -- 출발점은 4 번째부터 3번째로 나오는 '정보'의 위치를 알려달라는 말인데 없기 때문에 0이 나옴
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', 1)
+      -- 출발점은 생략할 수 없는데 정보의 위치는 생략이 가능한데 생략시 자동으로 1번째 위치를 알려줌
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', 4)
+      
+      
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', -1, 1)
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', -1, 2)
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', -4, 1)
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', -4, 3)
+      ,  instr('KH정보교육원 국가정보원 정보문화사', '정보', -1)
+
+  from dual;
+  
+  
+  --- **** 1.3  reverse : 어떤 문자열을 거꾸로 보여주는 것이다. **** --
+  select 'ORACLE',  reverse('ORACLE')
+        ,'대한민국', reverse('대한민국') --> 한글을 거꾸로 보여주면 깨짐
+        , reverse(reverse('대한민국'))
+  from dual;
+  
+  
+  
+  -- [퀴즈] --
+  create table tbl_files
+  (fileno      number(3)
+  ,filepath    varchar2(200)
+  );
+  
+  insert into tbl_files(fileno, filepath)
+  values(1, 'c:\myDocuments\resume.hwp');
+  
+  insert into tbl_files(fileno, filepath)
+  values(2, 'd:\mymusic.mp3');
+  
+  insert into tbl_files(fileno, filepath)
+  values(3, 'c:\myphoto\2019\09\face.jpg');
+  
+  commit;
+  
+  select *
+  from tbl_files;
+  
+  -- 아래와 같이 나오도록 하세요. --
+ /* 
+  ---------------------------
+    파일번호    파일명
+  --------------------------- 
+       1	   resume.hwp
+       2	   mymusic.mp3
+       3	   face.jpg
+  ----------------------------
+ */
+  
+  select fileno as 파일번호,
+  reverse (substr(reverse (filepath), 1, instr(reverse (filepath), '\', 1)-1)) as 파일명
+  from tbl_files;
+  
+  select fileno,
+  substr(reverse (filepath), 1)
+  from tbl_files;
+  
+  select fileno,
+              reverse (filepath),
+              instr (reverse(filepath), '\', 1, 1)-1,
+              substr(reverse(filepath), 1, instr(reverse(filepath), '\', 1,1)-1),
+              reverse(substr(reverse (filepath), 1, instr(reverse(filepath), '\', 1,1)-1))
+  from tbl_files;
+
+  select fileno,
+  (substr(reverse (filepath), 1, instr(reverse (filepath), '\', 1) -1))
+  from tbl_files;
+  
+  
+  -- reverse 안쓰고 출력하기
+  
+  select fileno,
+              filepath,
+              instr(filepath, '\', -1)+1,
+              substr(filepath, instr(filepath, '\', -1)+1)
+  from tbl_files;
+  
+  select fileno,
+  substr((filepath),instr((filepath), '\', -1, 1)+1)
+  from tbl_files;
+  
+
+--- *** 1.4  lpad : 왼쪽부터 문자를 자리채움
+--- *** 1.5  rpad : 오른쪽부터 문자를 자리채움
+ select lpad('정보교육원', 20, '*')
+       --  20byte를 확보해서 거기에 '정보교육원'을 넣습니다. 
+       --  넣은후 빈공간(10byte)이 있으면 왼쪽부터 * 로 채워라. 
+       
+      , rpad('정보교육원', 20, '*')
+       --  20byte를 확보해서 거기에 '정보교육원'을 넣습니다. 
+       --  넣은후 빈공간(10byte)이 있으면 오른쪽부터 * 로 채워라. 
+ from dual;
+ 
+ 
+ --- *** 1.6  ltrim : 왼쪽부터 문자를 제거한다.
+ --- *** 1.7  rtrim : 오른쪽부터 문자를 제거한다.
+ select ltrim('abbbcccddaaabTadssdebbwrwe', 'abcd')     --> 글자 abcd를 준게 아니라 a 또는 b 또는 c 또는 d가 있으면 제거하라는 뜻
+      -- Tadssdebbwrwe
+      
+      , rtrim('abdwsdcddSaddaabbccdd', 'abcd')
+      -- abdwsdcddS
+ from dual;
+ 
+ select 'KH' || '              정보         교육원'
+      , 'KH' || ltrim('              정보         교육원')
+      
+      , 'KH              ' || '정보         교육원'
+      , rtrim('KH              ') || '정보         교육원'
+      
+      , 'KH' || '        정보          ' || '교육원'
+      , 'KH' || trim('        정보          ') || '교육원' --> 그냥 trim은 양쪽에 있는 공백을 제거함
+ from dual;
+ 
+ 
+ --- *** 1.8  translate *** ---
+ select translate('010-3456-7890' --> 이 문자열에서 
+                              ,'0123456789' --> 이런 문자가 있으면
+                              ,'영일이삼사오육칠팔구') --> 숫자를 한글로 바꿔라(1:1 맵핑이 돼야함)
+ from dual;
+ 
+ 
+ --- *** 1.9  replace *** ---
+ select replace('KH정보교육원 교육진흥원 서울교육대학교' --> 이 문자열에서
+                           ,'교육' --> 이 글자를
+                           ,'education') --> 얘로 바꿔라
+ from dual;  
+
+
+  /*
+     1.10  upper    -- 전부 대문자로 변환
+     1.12  lower    -- 전부 소문자로 변환
+     1.13  initcap  -- 단어별로 첫글자만 대문자 나머지는 소문자로 변환
+  */
+  --- *** 오라클은 데이터값 만큼은 대,소문자를 구분을 합니다. *** ---
+  select employee_id, first_name, last_name
+  from employees
+  where upper(first_name) = upper('john');
+  
+  select employee_id, first_name, last_name
+  from employees
+  where lower(first_name) = lower('JOHN');
+  
+  select employee_id, first_name, last_name
+  from employees
+  where initcap(first_name) = initcap('John');
+  
+  select 'kOrEA seOUL'
+       , upper('kOrEA seOUL')   -- 전부 대문자로 변환
+       , lower('kOrEA seOUL')   -- 전부 소문자로 변환
+       , initcap('kOrEA seOUL') -- 단어별로 첫글자만 대문자 나머지는 소문자로 변환
+  from dual;
+  
+  select first_name, lower(first_name), upper(first_name)
+  from employees;
+  
+
+  
+  

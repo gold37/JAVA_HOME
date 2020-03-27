@@ -210,3 +210,19 @@ alter user hr IDENTIFIED by eclass;
         
         
         grant create synonym to sampleuser1;        --> sampleyser1에게 동의어 (synonym)을 생성할 수 있도록 권한을 부여함
+        
+        select *
+        from dictionary;
+        -- 또는
+        select *
+        from dict;
+        
+        select *
+        from dba_data_files;
+        
+        select *
+        from dictionary
+        where lower(comments) like '%user%';
+        
+        select *
+        from DBA_USERS;
