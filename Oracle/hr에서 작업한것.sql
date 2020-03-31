@@ -2515,12 +2515,36 @@ from employees;
   from employees;
   
 
+  --3.31
   
+    /*
+        1.14    length      --> 문자열의 길이를 알려주는 것
+    */
+    
+    select length('KH정보교육원')
+    from dual;
+    
+    select *
+    from tbl_board;
+    
+    select *
+    from user_sequences;    -- 시퀀스 확인하기
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values (seq_boardno2.nextval, '아침이 밝았습니다 ^-^ 짹짹짹', '오늘도 화이팅' , 'jwon');
+    
+    insert into tbl_board (boardno, subject, content, fk_userid)
+    values (seq_boardno2.nextval, '둥근해가 떴습니다 자리에서 일어나서 기지개를피고 아침햇살을 맞이합시다~', '오늘도 화이팅' , 'jwon');
   
+    commit;  
   
-  
-  
-  
+    select boardno, subject,
+                case     
+                when  length(subject) > 17   then  substr(subject, 1, 17)   ||  '...'       
+                else    subject
+                end as 기사제목
+    from tbl_board
+    order by boardno desc;
   
   
   
@@ -2997,7 +3021,7 @@ select department_id AS 부서번호
 
     || case 
        when instr(phone_number,'.',1,3) > 0 
-            then substr(phone_number, instr(phone_number,'.',1,2), instr(phone_number,'.',1,3)-instr(phone_number,'.',1,2))
+       then substr(phone_number, instr(phone_number,'.',1,2), instr(phone_number,'.',1,3)-instr(phone_number,'.',1,2))
        else ''
        end
     || translate(substr(phone_number, instr(phone_number,'.',-1,1)), '0123456789', '**********')
@@ -3057,4 +3081,553 @@ employees 테이블에서 80번, 90번 부서에 근무하는 사원들만 아�
 
   
  -- ////////////////////////////////////////////////////////////////////////
-  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    -- >       >>     2. 숫자함수       <<
+    
+    --  *** 2.1     mod     ==> 나머지를 구해주는 함수
+    
+    select   5/2  -- 2.5
+                , mod (5,2) as 나머지  -- 1
+                , truncate (5/2) as 몫 -- 2      소수를 잘라내버리고 정수만 보여줌
+    from dual;
+    
+    
+    --  *** 2.2     round     ==> 반올림 해주는 함수
+    select 94.547,
+                round(94.547) as 반올림,    -- 95
+                round(94.547, 1) ,   -- 94.5 소수부 첫째자리만 보이겠다
+                round(94.547, 2) ,    -- 94.55 소수부 둘째자리까지만 보이겠다
+                round(94.547, -1) ,   -- 90 10자리까지 보여라
+                round(94.547, -2)     -- 100  
+    from dual;
+    
+    
+        --  *** 2.3     trunc     ==> 절삭 해주는 함수
+    select 94.547,
+                trunc(94.547) ,       -- 94     정수부 1자리까지만 보여주고 나머지는 잘라라
+                trunc(94.547, 1) ,   -- 94.5      소수부 첫째자리까지만 보이고 나머지는 잘라라
+                trunc(94.547, 2) ,    -- 94.54 
+                trunc(94.547, -1) ,   -- 90 정수부 첫째자리까지만 보이고 나머지는 잘라라
+                trunc(94.547, -2)     -- 0 
+    from dual;
+    
+    
+    
+create table tbl_sungjuk
+(hakbun   varchar2(20) 
+,name     varchar2(20)
+,kor      number(3)
+,eng      number(3)
+,math     number(3)
+);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH001','한석규', 90, 92, 93);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH002','두석규', 100, 100, 100);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH003','세석규', 71, 72, 73);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH004','네석규', 89, 87, 81);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH005','오석규', 60, 50, 40);
+
+insert into tbl_sungjuk(hakbun, name, kor, eng, math)
+values('KH006','육석규', 80, 81, 87);
+
+commit;
+
+select *
+from tbl_sungjuk;
+
+-- [퀴즈] tbl_sungjuk 을 사용하여 아래와 같이 나오도록 하세요.
+
+------------------------------------------------------------------------------------------------------------
+    학번    성명   국어  영어  수학   총점   평균(반올림하여 소수부 첫째자리까지 보여준다.)   학점(A, B, C, D, F)
+    + A학점이라면 별5개
+    
+    
+select hakbun as 학번,
+            name as 성명,
+            kor as 국어,
+            eng as 영어,
+            math as 수학,
+            kor+eng+math as 총점,
+            round((kor+eng+math)/3, 1) as 평균,
+            case   when round((kor+eng+math)/3, 1) >= 90  then 'A'
+                        when round((kor+eng+math)/3, 1) >= 80  then 'B'
+                        when round((kor+eng+math)/3, 1) >= 70  then 'C'
+                        when round((kor+eng+math)/3, 1) >= 60  then 'D'
+                        else  'F'
+                        end as 학점,
+         /* 또는               
+          case trunc(round((kor+eng+math)/3, 1) -1) / 10
+                    when 10 then 'A'
+                    when 9 then 'A'
+                    when 8 then 'B'
+                    when 7 then 'C'
+                    when 6 then 'D'
+                    else 'F'
+                    end as 학점
+        */
+         case when round((kor+eng+math)/3, 1) >= 90  then '*****'
+                    when round((kor+eng+math)/3, 1) >= 80  then '****'
+                    when round((kor+eng+math)/3, 1) >= 70  then '***'
+                    when round((kor+eng+math)/3, 1) >= 60  then '**'
+                    else  '*'
+                    end as 성취도
+         /* 또는
+         case when  (trunc(round((kor+eng+math)/3, 1), -1) / 10) /2 >= 4.5  then '*****'
+                    when (trunc(round((kor+eng+math)/3, 1), -1) / 10) /2 >= 4.0  then '****'
+                    when (trunc(round((kor+eng+math)/3, 1), -1) / 10) /2  >= 3.5  then '***'
+                    when (trunc(round((kor+eng+math)/3, 1), -1) / 10) /2  >= 3.0  then '**'
+                    else  '*'
+                    end as 성취도
+         */
+from tbl_sungjuk;
+    
+    
+    
+    
+    
+ -- *** 2.4  power : 거듭제곱 *** --- 
+ select 2*2*2*2*2, power(2,5)
+ from dual;
+ 
+ -- *** 2.5  sqrt : 제곱근 *** ---
+ select sqrt(4), sqrt(16), sqrt(2), sqrt(3)
+ from dual;
+ 
+ -- *** 2.6  sin, cos, tan, asin, acos, atan *** --
+ select sin(90), cos(90), tan(90),
+       asin(0.3), acos(0.3), atan(0.3)
+ from dual;
+ 
+ -- *** 2.7  log *** --
+ select log(10, 100)
+ from dual;
+ 
+ 
+ -- *** 2.8  ceil, floor *** -- 나중에 게시판 만들기 paging 할 때 쓰임 ☆★
+ select ceil(10.1), ceil(10.9), ceil(10.0), ceil(10)
+ from dual;
+ -- ceil(숫자) ==> 숫자가 소수부가 0 이 아닌 경우  ==> 숫자보다 큰 최소의 정수
+ --                          숫자가 소수부가 0 인 경우      ==> 자신의 숫자를 정수로 나타내어준다. 
+ 
+ select floor(10.1), floor(10.9), floor(10.0), floor(10)
+ from dual;
+ -- floor(숫자) ==> 숫자가 소수부가 0 이 아닌 경우  ==> 숫자보다 작은 최대의 정수
+ --                숫자가 소수부가 0 인 경우      ==> 자신의 숫자를 정수로 나타내어준다. 
+ 
+ 
+ -- *** 2.9  sign(수식)  ==> 수식의 결과가 양수이라면 1, 
+ --                         수식의 결과가 음수이라면 -1,
+ --                         수식의 결과가 0이라면 0 으로 나타내어준다.
+ select sign(5-2), sign(2-5), sign(5-5)
+ from dual;
+ 
+ -- *** 2.10  ascii , chr   *** --
+ select ascii('A'), ascii('a'), ascii('0'), ascii(' ')
+ from dual;
+ --       65	       97	       48	        32
+ 
+ select chr(65), chr(97), chr(48), chr(32)
+ from dual;
+ --       A	       a	     0	    ' '    
+    
+    
+    -- >       >>     3. 날짜 함수       <<
+               
+--- *** 현재 시각을 알려주는 것 *** ---
+select sysdate, current_date, localtimestamp, current_timestamp, systimestamp
+from dual;
+-- 날짜타입의 기본적인 표현방식은 RR/MM/DD 이다.
+-- RR은 00~49는 2000~2049 이고, 50~99는 1950~1999 이다.
+
+select *
+from v$timezone_names;
+
+select sysdate
+     , extract(year from sysdate) AS "현재년도"
+     , extract(month from sysdate) AS "현재월"
+     , extract(day from sysdate) AS "현재일"
+from dual; 
+
+select systimestamp
+     , extract(hour from systimestamp)+9 AS "현재시간"  -- 오라클 시간으로 계산하기때문에 우리나라 시간에 맞추기위해 +9해줌
+     , extract(minute from systimestamp) AS "현재분"
+     , extract(second from systimestamp) AS "현재초"
+from dual; 
+
+
+select 123,  -- 오른쪽 맞춤은 숫자
+            '123', sysdate  -- 왼쪽 맞춤은 문자 아니면 날짜
+from dual;
+
+select 001, '001', 
+            to_number('001') -- 문자를 숫자로 바꿔줌
+from dual;
+
+select 123-3, '123'- 3  -- to_number 안해도 빼기 되는 이유는 오라클에서 자동 형변환 해주기 때문 
+from dual;
+
+
+
+
+
+-----[ 퀴즈 ] 
+-- 1. 사원번호       사원명         주민번호            성별          현재나이(현재년도 - 태어난년도 +1)
+
+select employee_id as 사원번호
+            ,first_name || ' ' || last_name as 사원명
+            ,jubun as 주민번호
+            ,case substr(jubun, 7, 1)
+            when '1' then '남'
+            when '3' then '남'
+            else '여'
+            end as 성별
+            ,to_number(substr(jubun, 1,2)) + 
+            case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end as 태어난년도,
+            extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1
+            -- 2020 - (90 + 1900) +1
+from employees;
+
+
+
+
+
+
+
+
+
+
+
+
+-- ========== *** inline View *** =============
+
+-----[ 퀴즈 ] 
+-- 2. employees 테이블에서 연령대가 20대와 40대인 사원들만 아래와 같이 나오도록 하세요.
+--      사원번호       사원명         주민번호            성별          현재나이(현재년도 - 태어난년도 +1)
+
+-- 뷰 사용하기 ☆★☆★☆★☆★ 현업에 나가면 엄~~~~~~청나게 많이 쓸거래
+select V.employee_id AS 사원번호,
+            -- first_name || ' ' || last_name --> view에는 이런 컬럼이 없음
+             V.ename as 사원명,
+             V.jubun as 주민번호,
+             V.gender as 성별,
+             V.age as 나이
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,jubun 
+                    ,case substr(jubun, 7, 1)
+                    when '1' then '남'
+                    when '3' then '남'
+                    else '여'
+                    end as GENDER
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    from employees
+) V -- 이때 V를  inline View 라고 부른다.  View는 테이블은 아니지만 테이블로 간주하는 것이다.
+where trunc(V.age, -1) in (20,40)
+order by V.age asc;
+
+-- 또는 V. 생략 가능
+select employee_id AS 사원번호,
+             ename as 사원명,
+             jubun as 주민번호,
+             gender as 성별,
+             age as 나이
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,jubun 
+                    ,case substr(jubun, 7, 1)
+                    when '1' then '남'
+                    when '3' then '남'
+                    else '여'
+                    end as GENDER
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    from employees
+) V 
+where trunc(age, -1) in (20,40)
+order by age asc;
+
+
+-----[ 퀴즈 ] 
+-- 2. employees 테이블에서 연령대가 20대와 40대인 여자 사원들만 아래와 같이 나오도록 하세요.
+--      사원번호       사원명         주민번호            성별          현재나이(현재년도 - 태어난년도 +1)
+
+select employee_id AS 사원번호,
+             ename as 사원명,
+             jubun as 주민번호,
+             gender as 성별,
+             age as 나이
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,jubun 
+                    ,case substr(jubun, 7, 1)
+                    when '1' then '남'
+                    when '3' then '남'
+                    else '여'
+                    end as GENDER
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    from employees
+) V 
+where trunc(age, -1) in (20,40)
+             and
+             gender = '여'
+order by age asc;
+
+
+-- ***** === 날짜 + 숫자(숫자의 단위는 일수)    ==> 날짜(RR/MM/DD)    === *****
+-- ***** === 날짜 - 숫자(숫자의 단위는 일수)     ==> 날짜(RR/MM/DD)    === *****
+select sysdate -1,  -- 어제
+             sysdate,       -- 오늘
+             sysdate +1     -- 내일
+from dual;
+
+select  to_char ( sysdate -1,  'yyyy-mm-dd hh24:mi:ss' ) as 어제시각,
+              to_char ( sysdate,  'yyyy-mm-dd hh24:mi:ss' ) as 오늘시각,   
+              to_char ( sysdate +1,  'yyyy-mm-dd hh24:mi:ss' ) as 내일시각
+from dual;          
+
+-- 1일 = 24시간 = 24*60분 = 24*60*60초
+--[퀴즈] 현재일로부터 1일 2시간 3분 4초 뒤를 나타내세요
+select to_char ( sysdate,  'yyyy-mm-dd hh24:mi:ss' ) as 현재시각,
+             to_char ( sysdate+ (93784/86400), 'yyyy-mm-dd hh24:mi:ss' ) as "1일 2시간 3분 4초 뒤",
+             to_char(sysdate + 1+ 2/24 + 3/(24*60) + 4/(24*60*60) , 'yyyy-mm-dd hh24:mi:ss')
+from dual;
+
+1일 86400
+2시간 7200
+3분 180
+4초
+
+
+-- *** 날짜 - 날짜   ==> 숫자(단위가 일수)  ***
+select sysdate + 3 - sysdate
+from dual;
+
+select sysdate + 3 + sysdate
+from dual;      -- 날짜 + 날짜 구하는건 없다. 오류뜸
+
+select employee_id as 사원번호,
+            first_name || ' ' || last_name  as 사원명,
+            to_char (hire_date, 'yyyy-mm-dd') as 입사일자,
+            trunc (sysdate - hire_date) as 근무일수
+from employees;
+
+
+-- *** add_months (날짜, 숫자) 에서 숫자는 단위가 개월을 말한다.
+-- 날짜에서 숫자(단위가 개월)를 더한 날짜가 나온다.
+
+select add_months(sysdate, -2) as "2개월 전",          -- 첫 글자가 숫자로 시작하는 alias는 반드시 "쌍따옴표"를 붙여야한다. 안그럼 오류!
+            sysdate,
+            add_months(sysdate, 2) as "2개월 후"
+from dual;
+
+-- *** 오늘부로 김건형씨가 군대에 또 끌려갔습니다. 근무개월수가 18개월이라고 할 때 제대 일자를 구하세요 
+select to_char(add_months(sysdate, 18), 'yyyy-mm-dd') as "제대일자"
+from dual;
+
+
+-- *** last_day (특정날짜) ==> 특정날짜가 포함된 달력에서 맨 마지막날을 알려주는 것이다.
+select last_day ( '2020-02-05' ), 
+            last_day ( to_date ('2020-02-05', 'yyyy-mm-dd') ),
+            last_day ( '2019-02-01' ), 
+            last_day ( to_date ('2019-02-01', 'yyyy-mm-dd') ),
+            last_day (sysdate)
+from dual;
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+        사원번호            사원명             입사일자                현재나이            정년퇴직일 (63세 또는 64세가 되는 년도)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+          1001                     ...                         ...                             61                 2022  ||  -08-31
+          1002                     ...                         ...                             40                 2043  ||  -02-28  
+
+교육 공무원법의 근거로 정년퇴직일은  해당 사원의 생월이 3월~8월에 태어난 사람은 해당 사원의 나이(한국나이)가 63세가 되는 년도의 8월말일(8월31일)로 하고, 
+해당 사원의 생월이 9월~2월에 태어난 사람은 해당 사원의 나이(한국나이)가 64세가 되는 년도의 2월말(2월 28일 또는 2월29일)로 한다.
+
+-- 생월이 3~8월인 경우
+-- 정년퇴직년도   ==> 현재나이(60세)       ==> add_months(sysdate, 3*12)       ==> add_months(sysdate, (63-60)*12)     ==> add_months(sysdate, (63-현재나이)*12)
+-- 정년퇴직년도   ==> 현재나이(40세)       ==> add_months(sysdate, 23*12)     ==> add_months(sysdate, (63-40)*12)     ==> add_months(sysdate, (63-현재나이)*12)
+
+-- 생월이 9~2월인 경우
+-- 정년퇴직년도   ==> 현재나이(60세)       ==> add_months(sysdate, 4*12)       ==> add_months(sysdate, (64-60)*12)     ==> add_months(sysdate, (64-현재나이)*12)
+-- 정년퇴직년도   ==> 현재나이(40세)       ==> add_months(sysdate, 24*12)     ==> add_months(sysdate, (64-40)*12)     ==> add_months(sysdate, (64-현재나이)*12)
+
+
+select last_day (  
+               case  
+                    when substr(jubun, 3, 2) between '03' and '08' 
+                            then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+--            case when ( '03' <= substr(jubun, 3, 2) and substr(jubun, 3, 2) <= '08' ) then to_char ( add_months(sysdate, (63-age) *12)  , 'yyyy-' )
+--                                              ▲ 생월 뽑아오기 01~12                                                    ▲연도만 볼거야 1980/03/31 나오니까
+             
+             else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+             end 
+             ||
+             case
+                when  substr(jubun, 3, 2) between '03' and '08' 
+                        then '08-01'
+                        else '02-01'
+             end
+             )
+             as 정년퇴직일
+             
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,hire_date
+                    ,jubun
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    from employees
+) V ;
+
+
+
+
+
+
+---- *** months_metween(날짜1, 날짜2)   ==> 날짜1 - 날짜2 를 뺀 값으로 숫자가 나오는데 그 단위는 개월 수 이다.
+--         즉, 두 날짜의 개월 차이를 구할 때 사용하는 것이다.
+
+select months_between(add_months(sysdate , 3)+10, sysdate),
+--                                         ▲ 3개월 10일 후                         ▲현재  월
+trunc (months_between(add_months(sysdate , 3)+10, sysdate))
+from dual;
+-- 3 출력
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        사원번호            사원명             입사일자                현재나이            정년퇴직일 (63세 또는 64세가 되는 년도)               퇴직금(근무년수 * 월급)
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          1001                     ...                         ...                             61                 2022  ||  -08-31
+          1002                     ...                         ...                             40                 2043  ||  -02-28  
+
+        -- 퇴직금 (근무년수 * 월급)
+        -- 근무년수 10년 7개월     ==> 127개월 * 월급      ==> 127/12년 * 월급    ==> trunc(127/12)년 * 월급
+        -- 근무개월수     =>  trunc ( months_between (정년퇴직일, 입사일) )
+        -- 근무년수     =>  trunc (  trunc ( months_between (정년퇴직일, 입사일) )  /12)년 
+
+select employee_id,
+             ename,
+             hire_date,
+             age,
+             last_day (  
+               case  
+                    when substr(jubun, 3, 2) between '03' and '08' 
+                            then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+--            case when ( '03' <= substr(jubun, 3, 2) and substr(jubun, 3, 2) <= '08' ) then to_char ( add_months(sysdate, (63-age) *12)  , 'yyyy-' )
+--                                              ▲ 생월 뽑아오기 01~12                                                    ▲연도만 볼거야 1980/03/31 나오니까
+             
+             else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+             end 
+             ||
+             case
+                when  substr(jubun, 3, 2) between '03' and '08' 
+                        then '08-01'
+                        else '02-01'
+             end
+             )
+             as RetirementDate,
+             monthsal         
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,hire_date
+                    ,jubun
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    ,nvl(salary + (salary * commission_pct), salary) as MONTHSAL
+                    from employees
+) V ;
+
+
+
+select employee_id , 
+            ename,
+            hire_date,
+            age,
+            RetirementDate,
+            monthsal,
+            trunc (  trunc ( months_between (RetirementDate, hire_date) )  /12 * monthsal) as 퇴직금
+FROM 
+(
+         select employee_id,
+                 ename,
+                 hire_date,
+                 age,
+                 last_day (  
+                   case  
+                        when substr(jubun, 3, 2) between '03' and '08' 
+                                then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+                 else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+                 end 
+                 ||
+                 case
+                    when  substr(jubun, 3, 2) between '03' and '08' 
+                            then '08-01'
+                            else '02-01'
+                 end
+                 )
+                 as RetirementDate,
+                 monthsal         
+    FROM
+    (
+            select employee_id 
+                        ,first_name || ' ' || last_name as ENAME
+                        ,hire_date
+                        ,jubun
+                        ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                        ,nvl(salary + (salary * commission_pct), salary) as MONTHSAL
+                        from employees
+    ) V
+) T;
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+        사원번호            사원명             입사일자                현재나이            정년 (63세가 되는 년도)
+-------------------------------------------------------------------------------------------------------------------------------------------------
+          1001                     ...                         ...                             61                 2022
+          1002                     ...                         ...                             40                 2043  
+
+
+select employee_id AS 사원번호,
+             ename as 사원명,
+             hire_date as 입사일자,
+             age as 현재나이,
+             63-age+extract(year from sysdate) as 정년
+             
+FROM
+(
+        select employee_id 
+                    ,first_name || ' ' || last_name as ENAME
+                    ,hire_date
+                    ,case substr(jubun, 7, 1)
+                    when '1' then '남'
+                    when '3' then '남'
+                    else '여'
+                    end as GENDER
+                    ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                    from employees
+) V 
