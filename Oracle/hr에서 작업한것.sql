@@ -3630,4 +3630,768 @@ FROM
                     end as GENDER
                     ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
                     from employees
-) V 
+) V ;
+
+
+
+        
+    --04/01
+    
+    --  *** 3.4 next_day (특정날짜, '일') '일'~ '토'
+    --          ==> 특정날짜로부터 다음번에 돌아오는 가장 빠른 '일'~'토'의 날짜를 알려주는 것이다.
+    
+    select sysdate, 
+                next_day (sysdate, '금'),
+                next_day (sysdate, '수')
+    from dual;
+
+
+
+
+               ---  >>> 4. 변환함수 <<< --- 
+               
+---  1. to_char(날짜데이터, 보고자하는 날짜의포맷)  --> 날짜데이터를 문자형태로 변환
+---     to_char(숫자데이터, 보고자하는 숫자의포맷)  --> 숫자데이터를 문자형태로 변환
+
+---  2. to_number(숫자모양을띄는 문자데이터) --> 숫자모양을띄는 문자데이터를 숫자형태로 변환
+
+---  3. to_date(날짜모양을띄는 문자데이터, 날짜모양을띄는 문자데이터가 어떤 형태의 날짜로 되어져 있는지 기술)
+        --> 날짜모양을띄는 문자데이터를 날짜형태로 변환 
+
+select sysdate
+     , to_char(sysdate, 'yyyy') AS "현재년도"  -- to_char( )는 날짜나 숫자를 문자 형태로 변환시켜주는 함수               
+     , to_char(sysdate, 'mm') AS "현재월"
+     , to_char(sysdate, 'dd') AS "현재일"
+     , to_char(sysdate, 'hh24') AS "현재시간"
+     , to_char(sysdate, 'mi') AS "현재분"
+     , to_char(sysdate, 'ss') AS "현재초"
+from dual;  
+-- 겉모양은 숫자지만 문자기때문에 왼쪽맞춤
+
+select sysdate
+     , to_char(sysdate, 'day')   -- '금요일'  'Friday'
+     , to_char(sysdate, 'dy')    -- '금'      'Fri'
+     , to_char(sysdate, 'd')     -- '1' '2' '3' '4' '5' '6' '7'
+                                 --  일  월  화  수   목  금  토
+from dual;
+
+
+select case  to_char(sysdate, 'd') 
+            when '1' then '일'
+            when '2' then '월'
+            when '3' then '화'
+            when '4' then '수'
+            when '5' then '목'
+            when '6' then '금'
+            when '7' then '토'
+            end as "오늘의 요일명1"
+            , -- 다른 데이터베이스와 호환
+            decode( to_char (sysdate, 'd'),'1' , '일',
+                                                                 '2' , '월',
+                                                                 '3' , '화',
+                                                                 '4' , '수',
+                                                                 '5' ,  '목',
+                                                                 '6' , '금',
+                                                                 '7' , '토',
+                                                                 'else에 해당하는 값' 
+                           )  as "오늘의 요일명2"
+            -- 오라클만
+from dual;
+
+
+
+select to_char(sysdate, 'd')    -- 달력에서 현재 이 요일이 그 주의 몇번째 요일인가?
+           , to_char(sysdate, 'dd')     -- 달력에서 몇번째인가?
+           , to_char(sysdate, 'ddd')       -- 1월1일부터 며칠째인가?
+from dual;
+
+select to_char(sysdate, 'sssss')
+from dual;  -- 오늘 자정 0시0분0초부터 현재까지 흘러간 초
+
+select 123456789
+     , to_char(123456789, '999,999,999')    -- 3자리마다 콤마찍어라
+     , to_char(123456789, '$999,999,999')
+     , to_char(123456789, 'L999,999,999')   -- 해당 나라 통화기호
+from dual;
+
+select 2000 + 1
+         , '2000' + 1
+         , '2000'
+         , to_number('2000')  -- to_number(숫자형태의문자데이터) ==> 숫자형태의문자데이터를 실제 숫자타입으로 변환시켜주는 것.
+from dual;
+
+select to_date('2020-04-01', 'yyyy-mm-dd') - to_date('2020-03-31', 'yyyy-mm-dd'),
+             to_date('20200401', 'yyyymmdd') - to_date('2020/03/31', 'yyyy/mm/dd'),
+             to_date('2020.04.01', 'yyyy.mm.dd') - to_date('20200331', 'yyyymmdd')
+from dual;
+
+
+
+
+
+                 ---  >>> 5. 기타함수 <<< ---
+  -- 암기!! case when then else end  
+  select case 5-2
+         when 1 then '5-2 = 1 입니다.'
+         when 2 then '5-2 = 2 입니다.'
+         else '나는 수학을 몰라요ㅜㅜ'
+         end 
+  from dual;  -- 나는 수학을 몰라요ㅜㅜ
+  
+  select case 5-2
+         when 1 then '5-2 = 1 입니다.'
+         when 3 then '5-2 = 3 입니다.'
+         else '나는 수학을 몰라요ㅜㅜ'
+         end 
+  from dual;  -- 5-2 = 3 입니다.
+  
+  
+  select case 
+         when 5-2 > 10 then '5-2 > 10 입니다.'
+         when 5-2 > 3 then '5-2 > 3 입니다.'
+         else '나는 수학을 몰라요ㅜㅜ'
+         end 
+  from dual;  -- 나는 수학을 몰라요ㅜㅜ
+  
+  
+  --- 암기!!   decode
+  select decode(5-2, 1, '5-2 = 1 입니다.'
+                   , 2, '5-2 = 2 입니다.'
+                      , '나는 수학을 몰라요ㅜㅜ')
+  from dual;  -- 나는 수학을 몰라요ㅜㅜ
+  
+  select decode(5-2, 1, '5-2 = 1 입니다.'
+                   , 3, '5-2 = 3 입니다.'
+                      , '나는 수학을 몰라요ㅜㅜ')
+  from dual;  -- 5-2 = 3 입니다.
+  
+  
+  
+   ---- *** 등수구하기 rank , 서열(순위)구하기 dense_rank *** ---- 
+  
+  /*
+      사원번호   기본급여   등수   서열(순위)
+      --------------------------------------------------------
+       1001      3000                 5              4
+       1002      4000                 2              2
+       1003      3500                 4              3
+       1004      5000                 1              1   
+       1005      4000                 2              2
+  */
+  
+  select employee_id
+       , first_name || ' ' || last_name AS ENAME
+       , salary
+       ,  rank()    over (order by salary desc)  AS "기본급여 등수"
+       --                 ▲  검사할 범위 
+       ,  dense_rank()    over (order by salary desc) AS "기본급여 서열"
+  from employees;
+  
+  
+  /*
+        사원번호        월급          월급등수           월급서열(순위)
+  */
+  select employee_id
+       ,  nvl ( salary + (salary*commission_pct) , salary ) as 월급
+       ,  rank() over(order by nvl ( salary + (salary*commission_pct) , salary ) desc)as "월급 등수"
+       ,  dense_rank() over (order by nvl ( salary + (salary*commission_pct) , salary ) desc) as "월급 서열"   
+  from employees;
+  
+  
+  -- 월급의 등수가 1등부터 10등까지인 사원들만 
+  -- 사원번호       사원명         월급          월급등수를 나타내세요
+  
+  select  employee_id as 사원번호,
+                first_name || ' ' || last_name as  사원명,
+                nvl ( salary + (salary*commission_pct) , salary ) as 월급,
+                rank() over(order by nvl ( salary + (salary*commission_pct) , salary ) desc)as "월급 등수"
+  from employees
+  where rank() over(order by nvl ( salary + (salary*commission_pct) , salary ) desc) between 1 and 10;
+  /*
+    오류.
+    rank() 및 dense_rank() 는 where 절에 사용할 수 없다 !!
+    이때는 inline view를 사용해서 구한다.
+*/
+  
+SELECT  employee_id as 사원번호,
+                   ename as 사원명,
+                   monthsal as 월급,
+                   monthsalrank as 월급등수
+FROM
+ ( 
+        select employee_id
+                     ,  first_name || ' ' || last_name AS ENAME
+                     ,  nvl ( salary + (salary*commission_pct) , salary ) as MONTHSAL -- 월급
+                     ,  rank() over(order by nvl ( salary + (salary*commission_pct) , salary ) desc)as MONTHSALRANK --월급등수
+        from employees
+) V
+ WHERE MONTHSALRANK between 1 and 10;
+ 
+ 
+ /*
+     ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        부서번호        사원번호            기본급여       부서내 기본급여 등수         전직원 기본급여 등수            부서 내 기본급여 서열(순위)           전직원 기본급여 서열(순위)
+     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  */
+  
+    select department_id as 부서번호
+              ,  employee_id as 사원번호
+               , first_name || ' ' || last_name as 사원명
+               , salary as 기본급여
+               ,  rank()    over (partition by department_id order by salary desc)  AS "부서내 기본급여 등수"
+               --                           ▲ 부서별로 칸막이 쳤을 때
+               ,  rank()    over (order by salary desc)  AS "전직원 기본급여 등수"
+               ,  dense_rank()    over (partition by department_id order by salary desc) AS "부서내 기본급여 서열"
+               ,  dense_rank()    over (order by salary desc) AS "기본급여 서열"
+  from employees
+  order by 1 asc, 4 desc;
+  
+  
+  
+  
+        ---- *** greatest(), least() *** ---- 
+  --  greatest() 는 나열된 것중 가장 큰 값을 가지는 것만 추출.
+  --  least() 는 나열된 것중 가장 작은 값을 가지는 것만 추출.
+  
+  select greatest(10,90,100,80)   -- 100
+             , least(10,90,100,80) -- 10
+  from dual;
+  
+  select greatest('김유신','윤봉길','허준','고두심')  -- '허준'
+             , least('김유신','윤봉길','허준','고두심')  -- '고두심'
+  from dual;
+  
+  select greatest(sysdate, sysdate-1, sysdate+1)   -- greatest , least는 숫자, 문자 이외에 날짜도 가능
+             , least(sysdate, sysdate-1, sysdate+1)  
+  from dual;
+  
+  
+    --[ 퀴즈 ]
+  -- employees 테이블에서 입자일자가 가장 빠른 (오래된) 사원에대해
+  -- 사원번호, 사원명, 입사일자를 추출하세요.
+  
+  select  employee_id as 사원번호
+               , first_name || ' ' || last_name as 사원명
+               , hire_date as 입사일자
+  from employees
+  where hire_date = ( select min(hire_date) from employees );
+  
+  
+  --[ 퀴즈 ]
+  -- employees 테이블에서 입자일자가 가장 늦은(최근인) 사원에대해
+  -- 사원번호, 사원명, 입사일자를 추출하세요.
+  
+  select  employee_id as 사원번호
+               , first_name || ' ' || last_name as 사원명
+               , hire_date as 입사일자
+  from employees
+  where hire_date = ( select max(hire_date) from employees );
+  
+  
+  
+           ---- *** lag() , lead() *** --- ex) 게시판에서 이전글 보기, 다음글 보기를 작성하고자 할 때 사용한다.
+  
+  -- lag  ==> 어떤행의 바로앞의 몇번째 행을 가리키는 것.
+  -- lead ==> 어떤행의 바로뒤의 몇번째 행을 가리키는 것.
+  
+  select lag(first_name || ' ' || last_name) over(order by salary desc)  
+            , lag(salary) over(order by salary desc)        --앞에 사람
+           
+            , employee_id
+            , first_name || ' ' || last_name AS ENAME       -- 자기이름
+            , salary
+           
+            , lead(first_name || ' ' || last_name) over(order by salary desc) 
+            , lead(salary) over(order by salary desc)       --뒤에 사람
+  from employees;
+  
+  
+  select lag(first_name || ' ' || last_name, 2) over(order by salary desc)  
+       , lag(salary, 2) over(order by salary desc)      -- 2는 앞에앞에 사람 
+       
+       , employee_id
+       , first_name || ' ' || last_name AS ENAME
+       , salary
+       
+       , lead(first_name || ' ' || last_name, 2) over(order by salary desc) 
+       , lead(salary, 2) over(order by salary desc)     -- 2칸 뒤에있는 사람
+  from employees;
+  
+  
+  select lag(first_name || ' ' || last_name, 1) over(order by salary desc)  
+       , lag(salary, 1) over(order by salary desc) 
+       
+       , employee_id
+       , first_name || ' ' || last_name AS ENAME
+       , salary
+       
+       , lead(first_name || ' ' || last_name, 1) over(order by salary desc) 
+       , lead(salary, 1) over(order by salary desc) 
+  from employees;
+  
+  
+  select lag(first_name || ' ' || last_name,1,' ') over(order by salary desc)    -- 앞에 아무도 없으면 null 대신 공백으로 나타내라
+       , lag(salary,1,0) over(order by salary desc)     -- 앞에 없으면 null 대신 0으로 나타내라
+       
+       , employee_id
+       , first_name || ' ' || last_name AS ENAME
+       , salary
+       
+       , lead(first_name || ' ' || last_name,1,'없음') over(order by salary desc)   -- 뒤에 아무도 없으면 null 대신 '없음'으로 나타내라
+       , lead(salary,1,0) over(order by salary desc)  -- 뒤에 없으면 null 대신 0으로 나타내라
+  from employees;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  -------------------------------------------------------------------------
+               ------- **** 그룹함수(집계함수) **** -------
+               
+  /*
+      1. sum      -- 합계
+      2. avg      -- 평균
+      3. max      -- 최대값
+      4. min      -- 최소값
+      5. count    -- select 되어서 나온 결과물의 행의 갯수
+      6. variance -- 분산
+      7. stddev   -- 표준편차
+  
+      분산    : 분산의 제곱근이 표준편차 (평균에서 떨어진 정도) 
+      표준편차 : 표준편차의 제곱승이 분산 (평균과의 차액)
+      
+      >>> 주식투자 <<<
+      50 60 40 50 55 45 52 48   평균 50   편차가 적음  -- 안정투자
+      10 90 20 80 30 70 90 10   평균 50   편차가 큼    -- 투기성투자(위험을 안고서 투자함)
+      
+      분산과 표준편차는 어떤 의사결정시 도움이 되는 지표이다.
+  */
+  
+ ---- !!! 중요 !!! 그룹함수(집계함수)에서는 null 은 무조건 제외하고서 연산을 한다. !!! --- ☆★☆★☆★☆★
+ select salary
+ from employees;
+ 
+ select sum(salary), avg(salary), max(salary), min(salary), count(salary)
+ from employees;
+ 
+ select avg(salary), stddev(salary), power(stddev(salary), 2), variance(salary), sqrt(variance(salary))
+ --                                                                               ▲ 표준편차 제곱      ▲ 분산
+ from employees;
+ 
+ select 5600+2838+2345-2346*2343/2353+null   --- null 
+ from dual;
+ 
+ select sum(salary * commission_pct),    -- sum이 알아서 널을 빼버림
+             count (salary*commission_pct)  -- count도 알아서 널 빼고 집계함
+ from employees;
+ 
+ select count(salary), count(commission_pct)
+ from employees;
+ 
+ select count(employee_id), count(department_id)
+ from employees;
+ 
+ desc employees;
+ 
+ select count(*)   -- 107
+ from employees;
+  
+  
+  ----- *** employees 테이블에서 기본급여(salary)의 평균 *** -----  
+ select sum(salary) / count (salary),
+             --또는
+             avg(salary) ,
+             --또는
+             sum(salary)/count(*)
+ from employees;
+ 
+ 
+  ----- *** employees 테이블에서 수당(salary * commission_pct)의 평균 *** -----
+  select   sum(salary* commission_pct) / count (salary* commission_pct),
+                 --또는
+                 avg(salary* commission_pct) ,
+                 --또는
+                 sum(salary* commission_pct)/count(*)
+  from employees;
+ 
+  select   sum( nvl (salary* commission_pct, 0) ) / count ( nvl(salary* commission_pct, 0) ),
+                 --또는
+                 avg( nvl (salary* commission_pct, 0) ) ,
+                 --또는
+                 sum(salary* commission_pct)/count(*)
+  from employees;
+ 
+ 
+ 
+ 
+          --- >>>> *** group by 절 *** <<<< --- 
+ 
+ -- employees 테이블에서 전체사원들에 대해 부서번호별로 인원수를 나타내세요. --  
+ -- 총인원수 : 107명
+ /*
+   ---------------------------
+    부서번호    인원수
+   ---------------------------
+     10                   1
+     20                   2
+     30                   6
+     40                   1
+     50                  45
+     ............................. 
+    --------------------------     
+ */
+ 
+ select department_id as 부서번호,
+             count(*) as 인원수
+ from employees
+ group by department_id
+ --                 ▲ 그룹 짓는 기준
+ order by 1;
+ 
+ 
+ 
+ -- [ 퀴즈 ]
+ -- employees 테이블에서 전체 사원들에 대해 성별로 인원수를 나타내세요.
+ /*
+            ----------------------------
+              성별         인원수
+                남               56
+                여               51
+            ----------------------------
+*/
+SELECT  GENDER,
+                  count(*) as MEMBER
+FROM
+(
+        select case substr(jubun, 7, 1)
+                    when '2' then '여'
+                    when '4' then '여'
+                    else '남'
+                    end as GENDER               
+        from employees
+)V
+group by GENDER;
+
+-- 또는
+
+select decode ( substr(jubun, 7,1),  '2', '여',
+                                                             '4', '여',
+                                                                   '남')
+              as  성별,
+              count(*) as 인원수
+from employees
+group by decode ( substr(jubun, 7,1),  '2', '여',
+                                                                   '4', '여',
+                                                                         '남');
+
+-- 또는
+SELECT GENDER as 성별, count(*) as 인원수
+FROM 
+(
+        select decode ( substr(jubun, 7,1),  '2', '여',
+                                                                     '4', '여',
+                                                                           '남')
+                      as  GENDER
+        from employees
+)V
+group by GENDER;
+
+
+
+ -- employees 테이블에서 전체 사원들에 대해 부서번호, 성별로 인원수를 나타내세요.
+ /*
+            -------------------------------------------------
+              부서번호            성별         인원수
+                    50                   남               23
+                    50                   여               22
+                    ....                    ...                ...
+                    80                   남               19   
+                    80                   여               15  
+            -------------------------------------------------
+*/
+
+select department_id as 부서번호, gender as 성별,
+            count(*) as 인원수   
+FROM 
+(
+        select department_id, 
+                    decode ( substr(jubun, 7,1),  '2', '여',
+                                                                     '4', '여',
+                                                                           '남')
+                      as  GENDER
+        from employees
+)V
+group by department_id,          gender 
+--                 ▲ 1차로 그룹짓고,  ▲ 이걸로 또 그룹지음
+order by 1,2;
+
+
+--[ 퀴즈 ]
+ -- employees 테이블에서 전체 사원들에 대해 부서번호, 성별로 인원수를 나타내세요.    + 없으면 0 나오게
+ /*
+            -------------------------------------------------
+              부서번호            성별         인원수
+                    10                   남               0
+                    10                   여               1  
+                    50                   남               23
+                    50                   여               22
+                    ....                    ...                ...
+                    80                   남               19   
+                    80                   여               15  
+            -------------------------------------------------
+*/
+-- 없는 데이터를 그룹지어서 뽑을 수 없기때문에 답 없음.
+
+
+    /* ====  having 절은 group by 절과 함께 사용하는 것으로써, 그룹함수에 대한 조건을 나타낼 때 사용된다. ==== */
+    
+ -- employees 테이블에서 전체사원들에 대해 부서번호별로 인원수를 나타내되 인원수가 10명 이상인 부서번호만 나타내세요. --  
+ -- 총인원수 : 107명
+ 
+ select department_id as 부서번호, 
+             count(*) as 인원수
+ from employees
+ group by department_id
+ having count(*) >= 10; -- 두자리 수 이상
+ 
+ 
+  --[ 퀴즈 ]
+  -- employees 테이블에서 전체사원들에 대해 부서번호별로 기본급여의 합계(총액)를 나타내되
+  -- 합계(총액)이 50000 이상인 부서번호만 
+  -- 부서번호, 인원수, 합계(총액), 최고급여, 최저급여를 나타내세요. 
+  -- 총인원수 : 107명
+ select department_id as 부서번호, 
+             count(*) as 인원수,
+             to_char(sum(salary),'999,999,999') as 기본급여,
+             to_char(max(salary),'999,999,999') as 최고급여,
+             to_char(min(salary),'999,999,999') as 최저급여
+ from employees
+ group by department_id
+ having sum(salary) >50000
+ order by 1;
+ 
+ 
+ 
+  -- [ 퀴즈 ]
+ -- employees 테이블에서 전체 사원들에 대해 성별로 인원수, 백분율(%)을 나타내세요. 
+ -- 분모에 전체인원수, 인원수 * 107/107
+ /*
+            -----------------------------------------------------
+              성별         인원수        퍼센티지(%)
+                남               56                 52.3
+                여               51                 47.7 
+            -----------------------------------------------------
+*/ 
+
+SELECT GENDER as 성별, count(*) as 인원수,
+                  round( count(*) / (select count(*) from employees) * 100, 1 ) as "퍼센티지(%)"
+FROM 
+(
+        select decode ( substr(jubun, 7,1),  '2', '여',
+                                                                     '4', '여',
+                                                                           '남')
+                      as  GENDER
+        from employees
+)V
+group by GENDER;
+
+
+select department_id, count(*)
+from employees;
+-- 오류. group 함수가 없다.
+
+
+
+
+            ---- *** !!!! 누적에 대해서 알아봅니다. !!!! *** ----
+ /*
+   --  sum(누적되어야할 컬럼명) over(order by 누적되어질 기준이 되는 컬럼명 asc[desc])
+    
+   --  sum(누적되어야할 컬럼명) over(partition by 그룹화 되어질 컬럼명 
+                                   order by 누적되어질 기준이 되는 컬럼명 asc[desc])  
+ */
+            
+ create table tbl_panmae
+ (panmaedate  date
+ ,jepumname   varchar2(20)
+ ,panmaesu    number
+ );
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-2), '새우깡', 10);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-2)+1, '새우깡', 15); 
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-2)+2, '감자깡', 20);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-2)+3, '새우깡', 10);
+ 
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-2)+3, '새우깡', 3);
+ 
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-1), '고구마깡', 7);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-1)+1, '새우깡', 8); 
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-1)+2, '감자깡', 10);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( add_months(sysdate,-1)+3, '감자깡', 5);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate - 4, '허니버터칩', 30);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate - 3, '고구마깡', 15);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate - 2, '고구마깡', 10);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate - 1, '허니버터칩', 20);
+
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '새우깡', 10);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '새우깡', 10);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '감자깡', 5);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '허니버터칩', 15);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '고구마깡', 20);
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '감자깡', 10); 
+
+ insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+ values( sysdate, '새우깡', 10);
+
+ commit;
+ 
+ select *
+ from tbl_panmae;
+  
+  
+  --- *** tbl_panmae 테이블에서 새우깡에 대한 일일판매량과 일일누적판매량을 나타내세요. *** ---
+  select to_char(panmaedate, 'yyyy-mm-dd') as panmaedate,
+               sum(panmaesu) as 일일판매량,
+               sum( sum(panmaesu) ) over(order by to_char(panmaedate, 'yyyy-mm-dd')  asc) as 일일누적판매량
+  from tbl_panmae
+  where jepumname = '새우깡'
+  group by to_char(panmaedate, 'yyyy-mm-dd');
+
+  -----------------------------------------------------------------------
+    판매일자        일일판매량           일일누적판매량
+  -----------------------------------------------------------------------
+  2020/02/01            10                              10
+  2020/02/02            15                              25
+  2020/02/04            13                              38
+  2020/03/02             8                               46
+  2020/04/01            30                              76
+  
+   
+  --- *** tbl_panmae 테이블에서 모든 제품에 대한 일일판매량과 일일누적판매량을 나타내세요. *** --- 
+  ------------------------------------------------------------------------------------
+    제품명       판매일자          일일판매량           일일누적판매량
+  ------------------------------------------------------------------------------------
+                      2020/02/01            10                              10
+                      2020/02/02            15                              25
+                      2020/02/04            13                              38
+                      2020/03/02             8                               46
+                      2020/04/01            30                              76
+  
+
+  select  jepumname,
+               to_char(panmaedate, 'yyyy-mm-dd') as panmaedate,
+               sum(panmaesu) as 일일판매량,
+               sum(sum(panmaesu)) over(partition by jepumname
+                                               order by to_char(panmaedate, 'yyyy-mm-dd') asc) as 일일누적판매량
+  from tbl_panmae
+  group by jepumname, to_char(panmaedate, 'yyyy-mm-dd')
+  order by 1,2;
+  
+  
+  
+
+  ---------------------------------------------------
+    부서번호 30           부서번호 60                 
+  ---------------------------------------------------
+            6                               5
+            
+            
+  select  sum(case department_id when 30 then 1 end) as 부서번호30,
+               sum(case department_id when 60 then 1 end) as 부서번호60
+  from employees
+  where department_id in (30, 60);
+  
+  
+  /*
+        employees 테이블에서 아래와 같이 나오도록 하세요.
+        
+        ----------------------------------------------------------------------------------------
+            부서번호          총인원수          남자인원수           여자인원수
+        ----------------------------------------------------------------------------------------
+                10                        1                           0                             1
+                20                        2                           0                             2
+                50                       45                         23                           22
+                 ...     
+*/
+
+  select  department_id as 부서번호 ,
+               count(*) as 인원수,
+               nvl(sum(case when substr(jubun, 7, 1) = '1' then 1 when substr(jubun, 7, 1) = '3' then 1 end),0) as 남자인원수,
+               nvl(sum(case when substr(jubun, 7, 1) = '2' then 1 when substr(jubun, 7, 1) = '4' then 1 end),0) as 여자인원수
+  from employees 
+  group by department_id
+  order by 1;
+  
+  -- 또는
+  select  department_id as 부서번호 ,
+               count(*) as 인원수,
+               sum(case when substr(jubun, 7, 1) in ('1', '3') then 1 else 0 end) as 남자인원수,
+               sum(case when substr(jubun, 7, 1) in ('2', '4') then 1 else 0 end) as 여자인원수
+  from employees 
+  group by department_id
+  order by 1;  
+  
+  ---- ====== **** group by절과 함께 사용되는 요약값 (rollup, cube) **** ====== -----
+  select department_id as 부서번호, 
+              count(*) as 인원수, 
+              sum(salary) as 기본급여합계
+  from employees
+  group by rollup(department_id);   -- 그룹안지은게 나옴. null 
+  -- 전체 인원 수 107 전체 급여 합계 691416
+  
+  select count(*) as 인원수,
+               sum(salary) as 기본급여합계
+  from employees;
+  
+  
+  select --department_id as 부서번호,
+              grouping (department_id),  -- ▲ 1은 그룹 안지었다, 0은 그룹 지었다는 뜻
+              decode ( grouping ( department_id ), 0 , nvl( to_char(department_id), '인턴') , '전체'),  -- 0이라면 부서번호 별 그룹을, 아니라면 (=1이라면) 7878을 보여라                        
+              count(*) as 인원수, 
+              to_char( sum(salary), '999,999') as 기본급여합계
+  from employees
+  group by rollup(department_id);
