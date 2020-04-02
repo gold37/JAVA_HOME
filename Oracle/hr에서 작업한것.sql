@@ -4376,6 +4376,8 @@ from employees;
   order by 1;  
   
   ---- ====== **** group by절과 함께 사용되는 요약값 (rollup, cube) **** ====== -----
+  
+  ------------------------- *** 요약값을 나타내어주는 rollup을 사용해본다. ***-------------------------
   select department_id as 부서번호, 
               count(*) as 인원수, 
               sum(salary) as 기본급여합계
@@ -4395,3 +4397,480 @@ from employees;
               to_char( sum(salary), '999,999') as 기본급여합계
   from employees
   group by rollup(department_id);
+  
+  
+  
+  --04/02
+    select   grouping(department_id) as 부서번호그룹핑,
+                  grouping( decode(substr(jubun,7,1), '2', '여', '4', '여', '남') ) as 성별그룹핑,
+                  department_id as 부서번호,
+                  decode(substr(jubun,7,1), '2', '여', '4', '여', '남') as 성별,
+                  count(*) as 인원수, 
+                  to_char( sum(salary), '999,999') as 기본급여합계
+  from employees
+  group by rollup (department_id, 
+                                  decode(substr(jubun,7,1), '2', '여', '4', '여', '남') ); -- 부서번호별 소계를 나타내줌
+                                  
+                                  
+  
+  select     decode ( grouping(department_id), 0,  to_char(department_id), ' ' ) 
+                  as 부서번호그룹핑,
+                  decode (grouping( decode(substr(jubun,7,1), '2', '여', '4', '여', '남') ), 0, decode(substr(jubun,7,1), '2', '여', '4', '여', '남'), ' ')  
+                  as 성별,
+                  count(*) as 인원수, 
+                  to_char( sum(salary), '999,999') as 기본급여합계
+  from employees
+  group by rollup (department_id, 
+                                  decode(substr(jubun,7,1), '2', '여', '4', '여', '남') );  
+
+-- inline view로 정리
+    SELECT decode (grouping (department_id), 0, to_char(department_id) , ' ') as 부서번호,
+                     decode ( grouping (gender), 0, gender, ' ' ) as 성별,
+                     sum(salary) as 기본급여합계
+    FROM 
+   (
+          select    department_id,
+                          decode(substr(jubun,7,1), '2', '여', '4', '여', '남') as gender,
+                          salary
+          from employees
+    ) V
+    group by rollup(department_id, gender);
+    
+------------------------- *** 요약값을 나타내어주는 cube를 사용해본다. ***-------------------------
+
+select decode ( grouping (department_id) , 0 , to_char(department_id), ' ') AS 부서번호
+            , decode (grouping (gender) , 0, gender, ' ') AS 성별
+            , count(*) as 인원수
+            , to_char (sum (salary), '999,999')  AS 기본급여합계
+    FROM
+    (
+        select department_id
+                , decode (substr(jubun, 7, 1), '2', '여'
+                                                    , '4', '여'
+                                                         , '남') AS gender
+                , salary
+        from employees
+    ) V
+    group by cube (department_id, gender)
+    order by 1,2;
+    -- to_char(department_id)라서 오름차순 중 10자리에 100이 껴있음. 
+
+SELECT decode(department_id , -999, ' ', to_char(department_id)) as 부서번호,
+                 gender as 성별,
+                 cnt as 인원수,
+                 salsum as 기본급여합계
+FROM
+(
+    select decode ( grouping (department_id) , 0 , department_id, -999) AS DEPARTMENT_ID
+            , decode (grouping (gender) , 0, gender, ' ') AS GENDER
+            , count(*) as CNT
+            , to_char (sum (salary), '999,999')  AS SALSUM
+    FROM
+    (
+        select department_id
+                , decode (substr(jubun, 7, 1), '2', '여'
+                                                    , '4', '여'
+                                                         , '남') AS gender
+                , salary
+        from employees
+    ) V 
+    group by cube (department_id, gender)   
+    order by 1,2
+)T;
+    
+
+/*
+        1. group by rollup(a,b,c) == group by grouping sets( (a,b,c), (a,b), (a), () ) 
+        
+           group by rollup(department_id, gender) == group by grouping sets( (department_id, gender), (department_id), () ) 
+        
+        2. group by cube(a,b,c) == group by grouping sets( (a,b,c), (a,b), (b,c), (a,c), (a), (b), (c), () ) 
+        
+           group by cube(department_id, gender) == group by grouping sets( (department_id, gender), (department_id), (gender), () ) 
+        
+   */               
+   
+   ---- ***  rollup과 cube는 그룹을 짓는 것이 셋팅되어 우리가 변경이 불가하지만, 
+   ----       grouping sets를 사용하면 우리가원하는 대로 그룹을 지어서 볼 수 있다. *** 
+   
+   select decode ( grouping (department_id) , 0 , to_char(department_id), ' ') AS 부서번호
+            , decode (grouping (gender) , 0, gender, ' ') AS 성별
+            , count(*) as 인원수
+            , to_char (sum (salary), '999,999')  AS 기본급여합계
+    FROM
+    (
+        select department_id
+                , decode (substr(jubun, 7, 1), '2', '여'
+                                                    , '4', '여'
+                                                         , '남') AS gender
+                , salary
+        from employees
+    ) V
+    group by grouping sets ( (department_id), (gender), () ) -- 원하는것만 할 수 있음
+    order by 1;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+                  -------- *** SUB Query *** --------
+ /*
+    -- SUB Query(서브쿼리)란?
+    select 문 속에 또 다른 select 문이 포함되어져 있을때
+    포함되어진 select 문을 SUB Query(서브쿼리)라고 부른다.
+    
+    select ....
+    from ......   ==> Main Query(메인쿼리) == 외부쿼리
+    where .... in (select ...
+                           from .....) ==> SUB Query(서브쿼리) == 내부쿼리
+ */
+ 
+ /*
+    employees 테이블에서 기본급여가 제일많은 사원과 기본급여가 제일적은 사원의 정보를
+    사원번호, 사원명, 기본급여로 나타내세요.
+ */
+ select employee_id as 사원번호,
+             first_name || ' ' || last_name as 사원명,
+             salary as 기본급여
+ from employees
+ where salary = (select max(salary) from employees )
+              or
+              salary = (select min(salary) from employees);
+
+ select employee_id as 사원번호,
+             first_name || ' ' || last_name as 사원명,
+             salary as 기본급여
+ from employees
+ where salary in ( select max(salary), min(salary)   from employees );  
+--            ▲ 칼럼 한개            ▲칼럼 두개▲                        짝이 안맞기 때문에 "too many values" 에러 뜸.                                 
+
+
+ 
+  /*
+    employees 테이블에서 각 부서별로 기본급여가 제일많은 사원의 정보를
+    사원번호, 사원명, 기본급여로 나타내세요.
+ */
+ 
+ --------------------------------------------
+    department_id           salary
+ --------------------------------------------    
+            30                         1000
+            30                         5000
+            30                         9000     --> 추출
+            50                         5000
+            50                         9000     --> 30번 부서랑 같은 급여
+            50                       20000      --> 추출
+  
+ select department_id, max(salary) 
+ from employees 
+ group by department_id;        -- salary만 max로 주면 다른부서에 같은 급여가 있을 수 있음.
+ 
+ 
+ select department_id as 부서번호,
+             employee_id as 사원번호,            
+             first_name || ' ' || last_name as 사원명,
+             salary as 기본급여
+ from employees
+ where (nvl(department_id,-9999), salary) in ( select nvl(department_id, -9999), max(salary) 
+                                                                                 from employees 
+                                                                                 group by department_id)   
+--          ▲ 부서번호랑 급여를 한 세트로 이뤄야 함
+order by 1;
+
+
+
+       ---- **** Pairwise Sub Query(쌍 서브쿼리) **** ----
+ /*
+     employees 테이블에서 
+     부서번호별로 salary가 최대인 사원과 
+     부서번호별로 salary가 최소인 사원의 정보를
+     부서번호, 사원번호, 사원명, 기본급여를 나타내세요.
+ */
+ 
+  select department_id as 부서번호,
+              employee_id as 사원번호,            
+              first_name || ' ' || last_name as 사원명,
+              salary as 기본급여
+ from employees
+ where (nvl(department_id,-9999), salary) in ( select nvl(department_id, -9999), max(salary) 
+                                                                                 from employees 
+                                                                                 group by department_id)   
+              OR
+              (nvl(department_id,-9999), salary) in ( select nvl(department_id, -9999), min(salary) 
+                                                                                 from employees 
+                                                                                 group by department_id)   
+order by 1,4;
+
+
+/*
+    employees 테이블에서 부서번호가 60번, 80번 부서에 근무하는 사원들중에
+    월급이 50번 부서 직원들의 "평균월급" 보다 많은 사원들만
+    부서번호, 사원번호, 사원명, 월급을 나타내세요.
+*/
+
+select department_id as 부서번호,
+              employee_id as 사원번호,         
+              first_name || ' ' || last_name as 사원명,
+              nvl(salary+(salary*commission_pct), salary) as 월급
+from employees
+where department_id in (60,80)
+             and 
+             nvl(salary+(salary*commission_pct), salary) > (  select avg(nvl(salary+(salary*commission_pct), salary))
+                                                                                                from employees
+                                                                                                where department_id = 50);
+               
+--- 상관서브쿼리(서브 상관쿼리)를 이용하여 데이터 복구하기                
+               
+                                                                                                
+----- **** !!!! Sub Query를 사용하여 테이블 생성하기 !!!! **** -----
+create table employees_copy 
+as
+select *
+from employees;
+
+select *
+from employees_copy ;
+-- Sub Query를 사용하여 생성되어진 테이블은 원래 테이블(employees)의 NOT NULL 제약만 복사가 되고
+-- 나머지 제약들은 복사가 안되어진다.
+select *
+from user_constraints
+where table_name = 'EMPLOYEES';
+
+select *
+from user_constraints
+where table_name = 'EMPLOYEES_COPY';
+
+
+update employees set first_name = '몰라';
+update employees set last_name = '또몰라';
+
+commit;                                                 
+
+
+update employees E set first_name = ( select first_name 
+                                                                      from employees_copy   -- 백업본
+                                                                      where employee_id = E.employee_id
+                                                                )
+                                        ,last_name = (  select last_name 
+                                                                   from employees_copy   
+                                                                   where employee_id = 167 );
+select *
+from employees
+order by 1; -- 복구완료
+
+        ------------- **** 상관 서브쿼리 (서브 상관쿼리) **** ---------------
+        --> 상관 서브쿼리 (서브 상관쿼리)란?
+        --   외부쿼리(메인쿼리) 에 있는 테이블의 컬럼이 내부쿼리(서브쿼리)의 조건절에 사용될때를 말한다.
+
+select E.department_id,
+             employee_id,   
+             E.salary, 
+             rank() over(order by salary desc) as "전직원 대상 급여등수1",
+             (  select count(*) +1
+                from employees
+                where salary > E.salary  ) as "전직원 대상 급여등수2",
+              rank() over(partition by department_id
+                                   order by salary desc) as "부서내 급여등수1",
+              (   select count(*) +1
+                   from employees
+                   where department_id > E.department_id
+                                and
+                                salary > E.salary  ) as "부서내 급여등수2"                   
+from employees E
+order by 1,3 desc;   -- 별칭주기
+
+
+SELECT department_id, gender
+            ,     count(*) as 인원수
+            ,     round (count(*) / (select count(*) from employees) * 100 , 1) 
+            as "전체 퍼센티지(%)"
+            ,     round (count(*) / (select count(*) 
+                                                  from employees
+                                                  where nvl(department_id, -9999)  = nvl( V.department_id , -9999)) * 100 , 1) 
+            as "부서내 퍼센티지(%)"
+FROM
+(
+select department_id
+        ,   decode (substr(jubun, 7,1),  '1' , '남'
+                                                         ,  '3' , '남'
+                                                                 , '여' )
+            as  GENDER
+        from employees
+) V
+group by department_id, gender
+order by 1,2;
+
+
+
+
+          ----- **** SET Operator(SET 연산자) **** ----- 시험문제 출제 예정 ☆★☆
+   -- 면접시 JOIN 과 UNION 의 차이점에 대해서 말해보세요~~!!
+   /*
+      1. UNION       --- 합집합
+      2. UNION ALL
+      3. INTERSECT   --- 교집합
+      4. MINUS       --- 차집합
+   */
+    
+ -->>>  UNION 은 서로 다른 테이블(뷰)의 행(ROW)과 행(ROW)을 합칠때 사용하는 연산자이다. <<---
+    
+    insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+    values( sysdate, '새우깡', 10);
+    
+    insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+    values( sysdate, '감자깡', 20);
+    
+    insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+    values( sysdate, '새우깡', 15);
+    
+    commit;
+    
+    select *
+    from tbl_panmae;
+    
+    --[ 퀴즈 ] tbl_panmae 테이블에서 2개월 전의 달 (2020-02 달)에 속한 행들만 읽어다가 
+    --             tbl_panmae_2020_02라는 테이블을 생성하세요.
+    create table tbl_panmae_2020_02
+    as
+    select *
+    from tbl_panmae
+    where to_char( panmaedate, 'yyyy-mm')  =  to_char( add_months(sysdate, -2), 'yyyy-mm');
+    
+    --[ 퀴즈 ] tbl_panmae 테이블에서 1개월 전의 달 (2020-03 달)에 속한 행들만 읽어다가 
+    --             tbl_panmae_2020_03라는 테이블을 생성하세요.
+    create table tbl_panmae_2020_03
+    as
+    select *
+    from tbl_panmae
+    where to_char( panmaedate, 'yyyy-mm')  =  to_char( add_months(sysdate, -1), 'yyyy-mm');
+    
+    
+    --[ 퀴즈 ] tbl_panmae 테이블에서 현재달 (2020-04 달)에 속한 행들이 아닌것만 삭제하세요.
+    delete from tbl_panmae
+    where to_char(panmaedate, 'yyyy-mm') != to_char(sysdate, 'yyyy-mm');
+    
+    commit;
+    
+    select *
+    from tbl_panmae;
+
+    --- *** 2020년 2월 부터 현재까지 발생한 판매에 있어서 제품별, 월별 판매량의 합계를 나타내세요. ***
+    SELECT  jepumname as 제품명, to_char (panmaedate, 'yyyy-mm') as 판매월
+                    , sum(panmaesu) as 판매량
+    FROM
+    (
+            select *
+            from tbl_panmae_2020_02
+            UNION
+            select *
+            from tbl_panmae_2020_03
+            UNION
+            select *
+            from tbl_panmae
+    ) V
+    group by jepumname, to_char (panmaedate, 'yyyy-mm')
+    order by 1,2;
+    
+    
+    select *
+    from tbl_panmae_2020_03
+    UNION ALL
+    select *
+    from tbl_panmae_2020_02
+    UNION ALL
+    select *
+    from tbl_panmae;  
+    
+    
+    /*
+        A = { a, x, b, e, g }
+        
+        B = { c, d, a, b, y, k, m }
+        
+        A ∪ B = { a, b, c, d, e, g, k, m, x, y }  ==>  UNION -- 공통인것 한번만 나오고 자동으로 오름차순 정렬함
+        
+                 { a, x, b, e, g, c, d, a, b, y, k, m } ==>  UNION ALL  -- 단순 무식하게 그냥 A와 B를 합침
+                 
+        A ∩ B = { a, b }  ==> INTERSECT
+        
+        A - B = { x, e, g }         ==> MINUS
+        
+        B - A = { c, d, y, k, m  }  ==> MINUS
+    */
+    
+    insert into tbl_panmae_2020_02(panmaedate, jepumname, panmaesu)
+    values( to_date('2020-04-02 09:30:50', 'yyyy-mm-dd hh24:mi:ss'), '쵸코파이', 20);
+    
+    insert into tbl_panmae_2020_03(panmaedate, jepumname, panmaesu)
+    values( to_date('2020-04-02 09:30:50', 'yyyy-mm-dd hh24:mi:ss'), '쵸코파이', 20);
+    
+    insert into tbl_panmae(panmaedate, jepumname, panmaesu)
+    values( to_date('2020-04-02 09:30:50', 'yyyy-mm-dd hh24:mi:ss'), '쵸코파이', 20);
+    
+    commit;
+    
+    
+    /*    
+           UNION 은 첫번째 SELECT 문의 결과와 두번째 SELECT 문의 결과인 
+           행들을 합치는 것인데, 
+           출력의 결과물은 첫번째 SELECT 문의 결과와 두번째 SELECT 문의 결과에서
+           중복된 행들이 있으면 제거하고 1번만 보여준다.
+           또한 SELECT 되어져 나오는 첫번째 컬럼값을 기준으로 자동으로 오름차순 되어서 나온다.
+            
+           UNION ALL 은 첫번째 SELECT 문의 결과와 두번째 SELECT 문의 결과인 
+           행들을 합치는 것인데,
+           출력의 결과물은 첫번째 SELECT 문의 결과와 두번째 SELECT 문의 결과에서
+           중복된 행들이 있으면 제거하지 않고 그대로 중복되어 보인다.
+           또한 정렬은 없다.    
+*/
+
+    select *
+    from tbl_panmae_2020_02
+    INTERSECT
+    select *
+    from tbl_panmae_2020_03;
+    
+    
+    select *
+    from tbl_panmae_2020_02
+    MINUS
+    select *
+    from tbl_panmae_2020_03;
+
+    select *
+    from tbl_panmae_2020_03
+    MINUS
+    select *
+    from tbl_panmae_2020_02;
+
+    -- === *** select 되어 나온 결과물에서 행 전체가 똑같은 것이 있다면 
+    --              중복돼 보이지 않고 1개 행만 보이도록 하려면 select 바로 다음에 distinct를 쓰면 된다.
+    select department_id
+    from employees;
+    
+    select distinct department_id
+    from employees;     -- 중복제거
+    
+    select first_name, department_id
+    from employees;
+    
+    select distinct first_name, department_id
+    from employees;    -- first_name와 department_id 전체가 똑같은게 있으면 제거
+    
+    SELECT distinct *
+    FROM
+    (
+        select *
+        from tbl_panmae_2020_03
+        UNION ALL
+        select *
+        from tbl_panmae_2020_02
+        UNION ALL
+        select *
+        from tbl_panmae
+    ) V;
