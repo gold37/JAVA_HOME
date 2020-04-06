@@ -4708,6 +4708,139 @@ order by 1,2;
 
 
 
+--04/06
+
+-- *** Sub Query(서브쿼리)에서 사용되는 ANY *** --
+--  = ANY 는 IN 으로 생각하면 된다.
+/*
+   사원번호 101번, 사원번호 105번 사원이 근무하는 동일한 부서에 근무하는 사원들만
+   사원번호, 사원명, 부서번호를 나타내세요
+*/
+
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , department_id AS 부서번호 
+from employees
+where department_id = any(select department_id
+                                                   from employees 
+                                                   where employee_id in (101, 105))
+order by 1;
+
+
+select employee_id AS 사원번호
+         , first_name || ' ' || last_name AS 사원명
+         , department_id AS 부서번호 
+from employees
+where department_id in (select department_id
+                                             from employees 
+                                             where employee_id in (101, 105))
+order by 1;
+
+
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , department_id AS 부서번호 
+from employees
+where department_id in (select department_id
+                                             from employees 
+                                             where employee_id in (101, 105))
+                                             and
+                                             employee_id not in (101, 105)
+order by 1;
+
+/*
+    기본급여가 최저인 사원을 제외한 사원들만
+    사원번호, 사원명, 기본급여를 나타내세요
+*/
+
+select min(salary) from employees; 
+
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , salary AS 기본급여
+from employees
+where salary > (select min(salary) from employees)
+order by 3;
+
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , salary AS 기본급여
+from employees
+where salary > any(select salary from employees)        -- 꼴찌만 제외하고 나머지를 보여라
+order by 3;
+
+
+-- *** Sub Query(서브쿼리)에서 사용되는 ALL *** --
+-- ALL 는 AND 로 생각하면 된다.
+/* 
+   30번,50번,100번 부서에 근무하는 사원의 최고기본급여 보다 더 많이 받는 사원들만
+   사원번호, 사원명, 부서번호, 기본급여를 나타내세요. 
+*/
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , department_id AS 부서번호 
+     , salary AS 기본급여
+from employees
+where salary >     ( select max(salary)
+                                  from employees
+                                  where department_id in (30,50,100)
+                                 )
+order by 3;
+
+
+select employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명
+     , department_id AS 부서번호 
+     , salary AS 기본급여
+from employees
+where salary >  all ( select salary
+                                    from employees
+                                    where department_id in (30,50,100)
+                                  )
+order by 3;
+
+
+-- *** 상관 Sub Query(상관서브쿼리)에서 사용되는 EXISTS *** --
+select *
+from employees
+where 1=2;
+-- 거짓. 행 안나옴
+
+select *
+from employees
+where 2=2;
+-- 참. 행 나옴
+
+select *
+from employees
+where exists(select * from departments where department_id = 500);
+-- 500번 부서 없기때문에 거짓. 행 안나옴 
+
+select *
+from employees
+where exists(select * from departments where department_id = 30);
+
+/*
+   각 부서의 책임자들만 부서번호, 사원번호, 사원명을 나타내세요.
+*/
+select department_id AS 부서번호
+     , employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명 
+from employees
+where employee_id in (select manager_id  
+                                           from departments
+                                           where manager_id is not null)
+order by 1;
+
+select department_id AS 부서번호
+     , E.employee_id AS 사원번호
+     , first_name || ' ' || last_name AS 사원명 
+from employees E
+where exists(select * from departments where manager_id = E.employee_id)
+order by 1; -- 위에와 결과물 똑같지만 행이 많은 대용량 DB에서는 exists를 쓰는것이 속도면에서 더 나음
+
+
+
           ----- **** SET Operator(SET 연산자) **** ----- 시험문제 출제 예정 ☆★☆
    -- 면접시 JOIN 과 UNION 의 차이점에 대해서 말해보세요~~!!
    /*
@@ -5507,14 +5640,14 @@ select E.department_id AS 부서번호
    --- tbl_authorbook 테이블에서 공저(도서명은 동일하지만 작가명이 다른 것)로 지어진
    --- 도서정보를 나타내세요. (SELF JOIN 을 사용하여 풀이)
 /*   
-   ------------------------------------
-      도서명        작가명   로얄티
-   ------------------------------------ 
+   --------------------------------------------------
+      도서명                  작가명   로얄티
+   -------------------------------------------------- 
     그리스로마신화	강현민	1200
     그리스로마신화	김건형	1300
     그리스로마신화	권순근	1700
-    로빈슨크루소	김은혜	800
-    로빈슨크루소	박보배	500
+    로빈슨크루소     	김은혜	800
+    로빈슨크루소    	박보배   	500
 */
  
 ----- SQL 1992 CODE 방식 -----
@@ -5545,14 +5678,14 @@ order by 1;
 --- tbl_authorbook 테이블에서 공저(도서명은 동일하지만 작가명이 다른 것)로 지어진
 --- 도서정보를 나타내세요. (group by 를 사용한 Sub Query 를 이용하여 풀이)
 /*   
-   ------------------------------------
-      도서명        작가명   로얄티
-   ------------------------------------ 
+   ------------------------------------------------
+      도서명                 작가명   로얄티
+   ------------------------------------------------ 
     그리스로마신화	강현민	1200
     그리스로마신화	김건형	1300
     그리스로마신화	권순근	1700
-    로빈슨크루소	김은혜	800
-    로빈슨크루소	박보배	500
+    로빈슨크루소	    김은혜	800
+    로빈슨크루소	    박보배	500
 */
 
 select bookname AS 도서명 
@@ -5564,3 +5697,713 @@ where bookname IN( select bookname
                             group by bookname 
                             having count(*) > 1 )
 order by 1;  
+
+
+
+
+        -------- **** Stored View(저장된 뷰) **** ---------
+   /*     
+    뷰(VIEW)란? 
+    - 테이블은 아니지만 SELECT 되어진 결과물이 테이블형태로 보여지기 때문에
+      SELECT 문을 마치 테이블 처럼 간주하는 것이다.
+      
+    => 뷰(VIEW)를 사용하는 목적 
+    1. 복잡한 SELECT 문을 간단하게 해서 "재사용" 하기 위해서이다.
+    2. 보안목적상 접근할 수 있는 행과 접근할 수 있는 컬럼만
+       다른 데이터베이스 사용자에게 SELECT 할 수 있도록 권한을 주기 위함이다.
+   */
+  
+create or replace view view_severance       -- view_severance가 없으면 새로 생성하고 있으면 변경된 내용으로 새로 갈아엎어라
+as
+select employee_id , 
+            ename,
+            hire_date,
+            age,
+            RetirementDate,
+            monthsal,
+            trunc (  trunc ( months_between (RetirementDate, hire_date) )  /12 * monthsal) as SEVERANCEPAY
+FROM 
+(
+         select employee_id,
+                 ename,
+                 hire_date,
+                 age,
+                 last_day (  
+                   case  
+                        when substr(jubun, 3, 2) between '03' and '08' 
+                                then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+                 else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+                 end 
+                 ||
+                 case
+                    when  substr(jubun, 3, 2) between '03' and '08' 
+                            then '08-01'
+                            else '02-01'
+                 end
+                 )
+                 as RetirementDate,
+                 monthsal         
+    FROM
+    (
+            select employee_id 
+                        ,first_name || ' ' || last_name as ENAME
+                        ,hire_date
+                        ,jubun
+                        ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                        ,nvl(salary + (salary * commission_pct), salary) as MONTHSAL
+                        from employees
+    ) V
+) T;   
+
+--View VIEW_SEVERANCE이(가) 생성되었습니다.
+
+select *
+from view_severance
+where severancepay >= 500000;
+--위에 복잡했던 것을 이렇게 간단하게 표현 가능
+
+select *
+from view_severance 
+where age >= 50;
+
+select * from tab;
+
+desc view_severance;        -- 마치 테이블처럼 보임
+
+drop view view_severance;   --view 삭제
+
+create  view view_severance         -- 그냥 create view로 생성해보기
+as
+select employee_id , 
+            ename,
+            hire_date,
+            age,
+            RetirementDate,
+            monthsal,
+            trunc (  trunc ( months_between (RetirementDate, hire_date) )  /12 * monthsal) as SEVERANCEPAY
+FROM 
+(
+         select employee_id,
+                 ename,
+                 hire_date,
+                 age,
+                 last_day (  
+                   case  
+                        when substr(jubun, 3, 2) between '03' and '08' 
+                                then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+                 else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+                 end 
+                 ||
+                 case
+                    when  substr(jubun, 3, 2) between '03' and '08' 
+                            then '08-01'
+                            else '02-01'
+                 end
+                 )
+                 as RetirementDate,
+                 monthsal         
+    FROM
+    (
+            select employee_id 
+                        ,first_name || ' ' || last_name as ENAME
+                        ,hire_date
+                        ,jubun
+                        ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                        ,nvl(salary + (salary * commission_pct), salary) as MONTHSAL
+                        from employees
+    ) V
+) T;
+
+-- 내용물을 바꾸던지 alias를 바꾸던지 변경 후 그냥 replace 로 업데이트하면 당장 바뀐것처럼 보이지만 select 해보면 변경사항 반영 안됨
+
+select *
+from view_severance;
+
+--- *** 생성되어진 view 목록 조회하기 *** ----
+select *
+from user_views;
+
+--- *** VIEW_SEVERANCE 뷰의 소스(select 문) 조회하기 *** ----
+select text
+from user_views
+where view_name = 'VIEW_SEVERANCE';
+/*
+"select employee_id , 
+            ename,
+            hire_date,
+            age,
+            RetirementDate,
+            monthsal,
+            trunc (  trunc ( months_between (RetirementDate, hire_date) )  /12 * monthsal) as SEVERANCEPAY
+FROM 
+(
+         select employee_id,
+                 ename,
+                 hire_date,
+                 age,
+                 last_day (  
+                   case  
+                        when substr(jubun, 3, 2) between '03' and '08' 
+                                then to_char ( add_months(sysdate, (63-age) *12) , 'yyyy-' )
+                 else to_char ( add_months(sysdate, (64-age) *12), 'yyyy-' )
+                 end 
+                 ||
+                 case
+                    when  substr(jubun, 3, 2) between '03' and '08' 
+                            then '08-01'
+                            else '02-01'
+                 end
+                 )
+                 as RetirementDate,
+                 monthsal         
+    FROM
+    (
+            select employee_id 
+                        ,first_name || ' ' || last_name as ENAME
+                        ,hire_date
+                        ,jubun
+                        ,extract(year from sysdate) -(to_number(substr(jubun, 1,2)) + case when substr(jubun, 7,1) in ('1','2') then 1900 else 2000 end) + 1 as AGE
+                        ,nvl(salary + (salary * commission_pct), salary) as MONTHSAL
+                        from employees
+    ) V
+) T"
+*/
+
+
+-- 보안 목적상 접근할 수 있는 행과 접근할 수 있는 컬럼만
+-- 다른 데이터베이스 사용자에게 SELECT할 수 있도록 권한 주기  ( 보여주고싶은것만 보여주기 )
+create or replace view view_employees
+as
+select employee_id, first_name, last_name, email, job_id, salary, commission_pct, manager_id, department_id
+from employees
+where department_id not in (10,20,30);
+
+select *
+from view_employees;
+
+grant select on view_employees to scott;    -- scott한테 권한주기
+
+revoke select on view_employees from scott;     -- 권한 다시 회수하기
+
+
+
+
+--- *** VIEW 를 통해서 DML (insert, update, delete)이 가능하다. *** ---
+create table tbl_emp01 
+as
+select employee_id, first_name, last_name, hire_date, salary, department_id
+from employees;
+
+select *
+from tbl_emp01;
+
+desc tbl_emp01;
+desc employees;
+
+drop table tbl_emp01 purge;
+
+create table tbl_member_a
+(userid     varchar2(20)
+,pwd         varchar2(20) not null
+,name      varchar2(40)
+,constraint PK_tbl_member_a primary key (userid)
+);
+
+insert into tbl_member_a values('less', '1234', '이순신');
+insert into tbl_member_a values('yks', 'abcd', '유관순');
+commit;
+
+create table tbl_member_b
+(userid     varchar2(20) not null       -- 나중에 복사해갈 상황이 있을 수 있기 때문에 primary key를 줬어도 not null을 한번 더 주는 것을 권장
+,pwd         varchar2(20) not null
+,name      varchar2(40)
+,constraint PK_tbl_member_b primary key (userid)
+);
+
+insert into tbl_member_b values('hongs', '1234', '홍길동');
+commit;
+
+
+desc tbl_member_a;
+/*
+이름     널?       유형           
+------ -------- ------------ 
+USERID NOT NULL VARCHAR2(20)        -->primary key기 때문에 
+PWD    NOT NULL VARCHAR2(20) 
+NAME            VARCHAR2(40) 
+*/
+
+desc tbl_member_b;
+/*
+이름     널?       유형           
+------ -------- ------------ 
+USERID NOT NULL VARCHAR2(20) 
+PWD    NOT NULL VARCHAR2(20) 
+NAME            VARCHAR2(40) 
+*/
+
+create table tbl_member_a_copy
+as
+select *
+from tbl_member_a
+where 1=2;  -- 데이터 빼고 구조(껍데기)만 가져옴
+--Table TBL_MEMBER_A_COPY이(가) 생성되었습니다.
+
+
+create table tbl_member_b_copy
+as
+select *
+from tbl_member_b
+where 1=2;
+
+select *
+from user_constraints
+where table_name = 'TBL_MEMBER_A';
+
+
+select *
+from user_constraints
+where table_name = 'TBL_MEMBER_A_COPY';
+
+desc tbl_member_a_copy;
+
+select *
+from user_constraints
+where table_name = 'TBL_MEMBER_B';
+
+
+select *
+from user_constraints
+where table_name = 'TBL_MEMBER_B_COPY';
+
+desc tbl_member_b_copy;
+-- 이상 primary key 에도 not null 써주자 -!
+
+
+create or replace view view_emp01
+as
+select *
+from tbl_emp01
+where department_id in(10,20,30);
+
+select *
+from view_emp01;
+
+insert into view_emp01 (employee_id, first_name, last_name, hire_date, salary, department_id)
+values (1001, '개똥', '김', sysdate, 5000, 40);
+commit;
+
+select *
+from view_emp01;
+-- 부서번호 10,20,30만 보는거라서 김개똥 안보임. 원본 테이블 가면 있음
+
+select *
+from tbl_emp01;
+-- 김개똥있음
+
+create or replace view view_emp01
+as
+select *
+from tbl_emp01
+where department_id in(10,20,30)
+with check option constraint CK_VIEW_EMP01;
+-- insert 10,20,30 부서만 가능하게 제약 줘버림
+
+insert into view_emp01 (employee_id, first_name, last_name, hire_date, salary, department_id)
+values (1002, '개똥', '김', sysdate, 5000, 40);
+--ORA-01402: view WITH CHECK OPTION where-clause violation
+-- 오류 
+insert into view_emp01 (employee_id, first_name, last_name, hire_date, salary, department_id)
+values (1002, '개똥', '김', sysdate, 5000, 30);
+
+select *
+from user_constraints
+where table_name = 'VIEW_EMP01';
+
+
+
+
+--- *** 읽기전용(select 만 가능한) VIEW 를 생성하려면 WITH READ ONLY 를 사용하여 만든다. *** ---
+create or replace view view_emp01
+as 
+select *
+from tbl_emp01
+where department_id in (10,20,30)
+with read only;
+
+
+insert into view_emp01 (employee_id, first_name, last_name, hire_date, salary, department_id)
+values (1003, '보검', '박', sysdate, 5000, 30);
+-- SQL 오류: ORA-42399: cannot perform a DML operation on a read-only view
+-- 읽기만 가능 DML 불가능
+
+
+
+/*
+  === VIEW 생성시 사용하는 create or replace view 는  
+          create or replace noforce view 와 같다.
+          이것은 VIEW 소스의 원본테이블이 존재할때만 VIEW를 생성해주는 것이다. ===
+*/
+create or replace noforce view view_emp02 -- create or replace view view_emp01 와 같은 말
+as
+select *
+from tbl_emp02  -- 현재 view_emp02 테이블은 존재하지 않음
+where department_id in (10,20,30);
+--오류
+--00942. 00000 -  "table or view does not exist"
+
+
+
+/* 
+     === VIEW 생성시 force 를 사용하면 
+             VIEW 소스의 원본테이블(또는 원본 VIEW) 의 존재유무와 관계없이
+             무조건 VIEW를 생성해준다. === 
+*/
+
+create or replace force view view_emp02 
+as
+select *
+from tbl_emp02  -- 현재 view_emp02 테이블은 존재하지 않음
+where department_id in (10,20,30);
+-- 경고: 컴파일 오류와 함께 뷰가 생성되었습니다.
+-- 현재는 없지만 강제로 만들었음
+
+
+-- *** VIEW 를 통한 INSERT 시 입력되는 데이터는 VIEW 소스의 원본테이블 컬럼의 NOT NULL 여부를 따라간다. *** --  ☆★☆★ 시험출제
+create or replace view view_emp03
+as 
+select employee_id,  first_name, last_name, salary, department_id
+from tbl_emp01
+where department_id in (10,20,30);
+
+select *
+from view_emp03;
+
+desc view_emp03; -- not null 1개
+desc tbl_emp01;  -- not null 2개
+
+insert into view_emp03 (employee_id, first_name, last_name, salary, department_id)
+values (1008,  '보검', '박', 7000, 10); 
+--오류 
+--ORA-01400: cannot insert NULL into ("HR"."TBL_EMP01"."HIRE_DATE")
+--insert는 원본 테이블의 not null 컬럼 여부를 따라감
+
+
+
+-- *** SELECT 문 속에 JOIN 쿼리문이 들어가 있는 VIEW는 VIEW를 통한 DML이 불가하다. *** -- 
+create or replace view view_join
+as
+select E.employee_id, E.first_name, E.last_name, E.email, E.hire_date, E.job_id, E.salary, E.jubun,
+            D.department_id, D.department_name
+from employees E join departments D
+on E.department_id = D.department_id;
+--View VIEW_JOIN이(가) 생성되었습니다.
+-- not null만 다 넣음
+
+desc employees;
+desc departments;
+
+desc view_join;
+
+insert into view_join( employee_id, first_name, last_name, email, hire_date, job_id, salary, jubun,
+                                     department_id, department_name )
+values( 9001, '봉길', '윤', 'bong@naver.com', sysdate, 'ST_MAN', 9000, '0806211748411', 50, 'shipping' );
+--SQL 오류: ORA-01776: cannot modify more than one base table through a join view
+--join 된 view는 insert 할 수 없음
+
+
+
+
+          ---- !!!! *** Transaction(트랜잭션) *** !!!! -----    ☆★ 자바와 연동시킬 때 잘 사용하기때문에 아주 중요 !! ☆★
+   /*
+       Transaction(트랜잭션) 이란?
+       -- 어떤 "A" 라는 테이블에 DML(insert, update, delete)가 발생이 되어지면
+          "A" 테이블과 연관된 다른 "B" 테이블에도 DML(insert, update, delete)을 발생시켜준다.
+          이때 "A" 테이블에 발생한 DML(insert, update, delete) 작업과 
+          "B" 테이블에 발생한 DML(insert, update, delete) 작업이 모두 성공했을때에만
+          "A" 테이블과 "B" 테이블에 발생한 DML 작업을 모두 COMMIT; 을 해주고
+          "A" 테이블에 발생한 DML(insert, update, delete) 작업과 
+          "B" 테이블에 발생한 DML(insert, update, delete) 작업중 하나라도 실패를 한다라면
+          "A" 테이블과 "B" 테이블에 발생한 DML 작업을 모두 ROLLBACK; 을 해주어야 한다.
+          
+          이와 같이 여러 테이블에 저장된 데이터값을 변화시키기 위해서 
+          수행하는 다양한 DML 작업을 하나의 작업단위로 보는 것(데이터를 처리하는 한 단위)을 Transaction(트랜잭션)이라고 부른다.​
+	      즉, 하나의 논리적인 작업단위로써 성공하거나 실패하는 일련의 SQL문(DML)을 말하는 것이다.
+   */
+
+   create table tbl_cafe_member 
+   (userid     varchar2(20)  not null
+   ,passwd     varchar2(20) not null
+   ,name       varchar2(20) 
+   ,point      number default 0
+   ,constraint PK_tbl_cafe_member primary key(userid)
+   ,constraint CK_tbl_cafe_member_point check (point < 30)  
+   );
+   
+   insert into tbl_cafe_member(userid, passwd, name)
+   values('hongkd','1234','홍길동');
+   
+   insert into tbl_cafe_member(userid, passwd, name)
+   values('leess','1234','이순신');
+
+   commit;
+
+
+create table tbl_cafe_board
+   (boardno     number
+   ,fk_userid   varchar2(20)
+   ,title       Nvarchar2(10)
+   ,contents    Nvarchar2(2000)
+   ,registerday date default sysdate
+   ,constraint PK_tbl_cafe_board primary key(boardno)
+   ,constraint FK_tbl_cafe_board foreign key(fk_userid) 
+                                 references tbl_cafe_member(userid)
+   );
+   
+   select *
+   from tbl_cafe_board;
+   
+   
+   insert into tbl_cafe_board(boardno, fk_userid, title, contents)
+   values(1, 'hongkd', '길동입니다.', '홍길동 입니다. ㅎㅎㅎ 좋은 하루되세요~~');
+   -- 1 행 이(가) 삽입되었습니다.
+   
+   
+   update tbl_cafe_member set point = point + 10
+   where userid = 'hongkd';
+   -- 1 행 이(가) 업데이트되었습니다.
+   
+   commit;
+   
+   select *
+   from tbl_cafe_member;
+   
+   
+   insert into tbl_cafe_board(boardno, fk_userid, title, contents)
+   values(2, 'hongkd', '길동입니다.2', '두번째 홍길동 입니다. ㅎㅎㅎ 좋은 하루되세요~~');
+   -- 1 행 이(가) 삽입되었습니다.
+   
+   
+   update tbl_cafe_member set point = point + 10
+   where userid = 'hongkd';
+   -- 1 행 이(가) 업데이트되었습니다.
+   
+   commit;
+   
+   insert into tbl_cafe_board(boardno, fk_userid, title, contents)
+   values(3, 'hongkd', '길동입니다.3', '세번째 홍길동 입니다. ㅎㅎㅎ 좋은 하루되세요~~');
+   -- 1 행 이(가) 삽입되었습니다.
+   
+   
+   update tbl_cafe_member set point = point + 10
+   where userid = 'hongkd';
+   -- 1 행 이(가) 업데이트되었습니다.
+   
+   rollback;
+   
+   
+   --- *** rollback 되어질 구분선을 만들어서 특정 범위까지만 rollback 할 수 있다. *** ---
+   
+   --- *** tbl_cafe_member  테이블의 컬럼에 있는 default  값 조회하기 *** ---
+   select *
+   from user_tables
+   where table_name = 'TBL_CAFE_MEMBER';
+   
+   select *
+   from dictionary
+   where lower(comments) like '%column%';
+   
+   select *
+   from user_tab_columns
+   where table_name = 'TBL_CAFE_MEMBER';
+   
+   
+   select column_name, data_default
+   from user_tab_columns
+   where table_name = 'TBL_CAFE_MEMBER';
+   
+   --- TBL_CAFE_MEMBER 테이블의 POINT 칼럼의 default를 10으로 변경하기
+   alter table tbl_cafe_member
+   modify point default 10;
+  
+    --- TBL_CAFE_MEMBER 테이블의 POINT 칼럼의 default 제거하기   
+    alter table tbl_cafe_member
+    modify point default null;
+    
+   --- TBL_CAFE_MEMBER 테이블의 POINT 칼럼의 default를 0으로 변경하기
+   alter table tbl_cafe_member
+   modify point default 0;    
+   
+   
+   insert into tbl_cafe_member(userid, passwd, name)
+   values('hongkd01','1234','홍길동');
+   
+   savepoint hongkd02;
+   --Savepoint이(가) 생성되었습니다.
+
+   insert into tbl_cafe_member(userid, passwd, name)
+   values('hongkd02','1234','홍길동2');
+   
+   
+   insert into tbl_cafe_member(userid, passwd, name)
+   values('hongkd03','1234','홍길동3');
+   
+   
+   select *
+   from tbl_cafe_member;
+   
+   rollback to hongkd02; -- savepoint hongkd02까지만 롤백해주겠다.
+   
+   select *
+   from tbl_cafe_member;
+   -- 홍길동1까지만 나옴
+   
+   rollback; -- commit한 이후로 변경된 모든 것은 rollback 하겠다.
+   
+   select *
+   from tbl_cafe_member;    
+   
+   
+   
+   
+   
+   
+   
+   
+   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   --                                                                     ===     ****          PL/SQL         ****    ===
+   --                                                                     PL :    Procedure Language
+   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   
+   --- 사용자가 정의하는 함수를 만들어 봅니다.
+   create or replace function func_gender
+   (p_jubun    in  varchar2 ) 
+   -- ▲ 변수        ▲ varchar2(20) 이런 자리수 적어주면 꽝 !!!!!!
+   return varchar2
+   --           ▲ 여기도 자리수 적으면 오류 !
+   is
+   v_genderNum varchar2(1);      -- is 와 begin 사이는 변수를 선언하는 부분이다.
+   --                       ▲ 여기는 자리수 꼭 적어줘야 함 !
+   v_gender          varchar2(10);
+   begin
+           v_genderNum := substr(p_jubun,7,1);      -- begin과 end 사이는 본문(내용물)이 들어가는 부분이다.
+           -- 변수에                   위 값을 넣어줌
+   /*
+       if           조건1 then 실행문장1;
+       elsif      조건2 then 실행문장2;
+       else                          실행문장3;
+       end if;
+   */
+            if v_genderNum in ('1', '3') then v_gender := '남';   
+            else v_gender := '여';
+            end if;
+            
+            return v_gender;
+   end func_gender;     -- 또는 end;
+   
+   
+   select employee_id, first_name || ' ' || last_name as ENAME,
+                jubun, func_gender(jubun) as GENDER,
+                func_age(jubun) as AGE
+   from employees;
+   
+   
+   
+   
+   create or replace function func_gender
+   (p_jubun    in  varchar2 ) 
+   return varchar2
+   is
+   v_genderNum varchar2(1);   
+   v_gender         varchar2(10);
+   begin
+           v_genderNum := substr(p_jubun,7,1);      
+            if v_genderNum in ('1', '3') then v_gender := '남';   
+            else v_gender := '여';
+            end if;
+            
+            return v_gender;
+   end func_gender;    
+   -- Function FUNC_GENDER이(가) 컴파일되었습니다.
+   
+   select func_gender('9708252110141'), func_gender('01024514939')
+   from dual;
+   -- 여  남
+   
+   create or replace function func_gender2
+   (p_jubun    in  varchar2 ) 
+   return varchar2
+   is
+            v_gender    varchar2(10); 
+   begin
+            select case when substr(p_jubun, 7, 1)  in ('2','4')    then '여'
+                         else '남'
+                         end
+                         into v_gender
+            from dual;
+            
+            return v_gender;
+   end func_gender2;    
+   -- Function FUNC_GENDER2이(가) 컴파일되었습니다.
+
+   select func_gender2('9708252110141'), func_gender('9708251110141')
+   from dual;
+   -- 여  남
+   
+  create or replace function func_age
+  (p_jubun IN varchar2)        
+  return varchar2              
+  is
+     v_genderNum  varchar2(1);
+     v_birthYear  number(4);
+  begin
+        v_genderNum := substr(p_jubun,7,1);  	-- 주민번호 성별 받아옴
+        v_birthYear := to_number(substr(p_jubun,1,2));	     -- 주민번호 생년 받아옴
+      
+        if v_genderNum in('1','2') then v_birthYear := v_birthYear + 1900;
+        else v_birthYear := v_birthYear + 2000;
+        end if;
+        
+        return extract(year from sysdate) - v_birthYear + 1;
+  end func_age;
+  -- Function FUNC_AGE이(가) 컴파일되었습니다.
+  
+  select func_age('9504052234567'), func_age('0105203234567')
+  from dual;
+  
+  
+  create or replace function func_age2
+  (p_jubun IN varchar2)        
+  return varchar2              
+  is
+     v_age number(3);
+  begin
+        select extract(year from sysdate) - 
+               ( to_number(substr(p_jubun,1,2)) +  
+                 case when substr(p_jubun, 7, 1) in('1','2') then 1900
+                 else 2000
+                 end ) + 1 
+               INTO
+                v_age  
+        from dual;
+        
+        return v_age;
+  end func_age2;
+  -- Function FUNC_AGE2이(가) 컴파일되었습니다.
+  
+  select func_age2('9504052234567'), func_age2('0105203234567')
+  from dual;
+   
+   select employee_id, first_name || ' ' || last_name as ENAME,
+                jubun, func_gender(jubun) as GENDER,
+                func_gender2(jubun) as GENDER2,
+                func_age(jubun) as AGE
+   from employees;
+   
+    
+    
+    
+    
+   
+   
+   
