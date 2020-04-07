@@ -6407,3 +6407,169 @@ create table tbl_cafe_board
    
    
    
+   --04/07
+   --------------------------------------------------------------------------------
+  ---- *** 오라클 퀴즈 *** ----
+--------------------------------------------------------------------------------
+create table tbl_loan
+(gejanum        varchar2(10)   -- 통장번호
+,loanmoney      number         -- 대출금
+,interestrate   number(2,2)    -- 이자율
+,paymentdate    varchar2(2)    -- 이자를내는날짜 '01', '05', '10', '15' '25', 매월말일은 '00' 으로 입력함.
+);           
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-01', 5000, 0.03, '01');
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-02', 5000, 0.03, '05');
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-03', 5000, 0.03, '10');
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-04', 5000, 0.03, '15');
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-05', 5000, 0.03, '25');
+
+insert into tbl_loan(gejanum, loanmoney, interestrate, paymentdate)
+values('10-1234-06', 5000, 0.03, '00');
+
+commit;
+
+select *
+from tbl_loan;
+
+select gejanum, loanmoney, interestrate, paymentdate
+     , decode(paymentdate, '00', last_day( add_months(sysdate, -1) )
+                               , to_date( to_char( add_months(sysdate, -1), 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+              ) AS "저번달이자상환일자"    
+from tbl_loan
+where paymentdate = '00';
+
+
+select T.gejanum AS 계좌번호
+     , T.loanmoney AS 대출금
+     , T.interestrate AS 이자율
+     , T.paymentdate AS 이자상환지정일자
+     , T.BEFORE_MONTHDAY AS 전달이자상환일
+     , decode( to_char(T.BEFORE_MONTHDAY, 'd'), '1', T.BEFORE_MONTHDAY+1
+                                              , '7', T.BEFORE_MONTHDAY+2
+                                                   , T.BEFORE_MONTHDAY)
+       AS 실제전달이자상환일                                            
+     , T.THIS_MONTHDAY AS 이번달이자상환일
+     , decode( to_char(T.THIS_MONTHDAY, 'd'),  '1', T.THIS_MONTHDAY+1
+                                              , '7', T.THIS_MONTHDAY+2
+                                                   , T.THIS_MONTHDAY)
+       AS 실제이번달이자상환일                                             
+from
+(
+    select gejanum, loanmoney, interestrate, paymentdate
+    
+         , case when to_char(beforemonthday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then beforemonthday+1
+                else beforemonthday
+           end AS BEFORE_MONTHDAY  
+           
+         , case when to_char(thismonthday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then thismonthday+1
+                else thismonthday
+           end AS THIS_MONTHDAY  
+    
+    from 
+    (
+        select gejanum, loanmoney, interestrate, paymentdate
+             , decode(paymentdate, '00', last_day( add_months(sysdate, -1) )
+                                       , to_date( to_char( add_months(sysdate, -1), 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS BEFOREMONTHDAY 
+             , decode(paymentdate, '00', last_day(sysdate)
+                                       , to_date( to_char(sysdate, 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS THISMONTHDAY          
+        from tbl_loan
+    ) V 
+) T;
+
+
+select T.gejanum AS 계좌번호
+     , T.loanmoney AS 대출금
+     , T.interestrate AS 이자율
+     , T.paymentdate AS 이자상환지정일자 
+     , decode( to_char(T.THIS_MONTHDAY, 'd'), '1', T.THIS_MONTHDAY+1
+                                            , '7', T.THIS_MONTHDAY+2
+                                                 , T.THIS_MONTHDAY)
+       AS 이번달이자상환일 
+     ,( decode( to_char(T.THIS_MONTHDAY, 'd'), '1', T.THIS_MONTHDAY+1
+                                             , '7', T.THIS_MONTHDAY+2
+                                                  , T.THIS_MONTHDAY) 
+      - decode( to_char(T.BEFORE_MONTHDAY, 'd'), '1', T.BEFORE_MONTHDAY+1
+                                               , '7', T.BEFORE_MONTHDAY+2
+                                                    , T.BEFORE_MONTHDAY) ) * (T.loanmoney*T.interestrate/12) 
+       AS 이번달이자금액        
+from
+(
+    select gejanum, loanmoney, interestrate, paymentdate
+    
+         , case when to_char(beforemonthday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then beforemonthday+1
+                else beforemonthday
+           end AS BEFORE_MONTHDAY  
+           
+         , case when to_char(thismonthday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then thismonthday+1
+                else thismonthday
+           end AS THIS_MONTHDAY  
+    
+    from 
+    (
+        select gejanum, loanmoney, interestrate, paymentdate
+             , decode(paymentdate, '00', last_day( add_months(sysdate, -1) )
+                                       , to_date( to_char( add_months(sysdate, -1), 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS BEFOREMONTHDAY 
+             , decode(paymentdate, '00', last_day(sysdate)
+                                       , to_date( to_char(sysdate, 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS THISMONTHDAY          
+        from tbl_loan
+    ) V 
+) T;
+
+
+select T.gejanum, T.loanmoney, T.interestrate, T.paymentdate
+
+     , decode( to_char(T.REALCURRENTDAY, 'd'),  '1', T.REALCURRENTDAY+1
+                                              , '7', T.REALCURRENTDAY+2
+                                                   , T.REALCURRENTDAY) AS "이번달이자지급날짜"
+                                                   
+     ,( decode( to_char(T.REALCURRENTDAY, 'd'), '1', T.REALCURRENTDAY+1
+                                              , '7', T.REALCURRENTDAY+2
+                                                   , T.REALCURRENTDAY) 
+      - decode( to_char(T.REALPREVIOUSDAY, 'd'), '1', T.REALPREVIOUSDAY+1
+                                               , '7', T.REALPREVIOUSDAY+2
+                                                    , T.REALPREVIOUSDAY) ) * (T.loanmoney*T.interestrate/12) AS "이번달이자금액"                                         
+from
+(
+    select gejanum, loanmoney, interestrate, paymentdate
+    
+         , case when to_char(previousday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then previousday+1
+                else previousday
+           end AS REALPREVIOUSDAY  
+           
+         , case when to_char(currentday, 'mmdd') in ('0301','0505','0606','0815','1003','1225')
+                then currentday+1
+                else currentday
+           end AS REALCURRENTDAY  
+    
+    from 
+    (
+        select gejanum, loanmoney, interestrate, paymentdate
+             , decode(paymentdate, '00', last_day( add_months(sysdate, -1) )
+                                       , to_date( to_char( add_months(sysdate, -1), 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS PREVIOUSDAY 
+             , decode(paymentdate, '00', last_day(sysdate)
+                                       , to_date( to_char(sysdate, 'yyyy-mm-') || paymentdate, 'yyyy-mm-dd')
+                      ) AS CURRENTDAY          
+        from tbl_loan
+    ) V 
+) T;
+
