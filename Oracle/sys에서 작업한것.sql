@@ -226,3 +226,20 @@ alter user hr IDENTIFIED by eclass;
         
         select *
         from DBA_USERS;
+        
+        
+        
+        
+        
+---- **** Java 에서 오라클에 연결하여 사용할 수 있는 사용자 계정을 생성해봅시다 **** ----
+create user myorauser identified by eclass
+default tablespace users;
+
+grant connect, resource, unlimited tablespace to myorauser;
+
+grant create view to myorauser;        -- 뷰 만들 권한
+
+
+        
+        
+        

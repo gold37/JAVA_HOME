@@ -7,6 +7,9 @@ from dba_users;   -- sys 또는 system만 조회가 가능하다.
 select * from tab;
 
 select *
+from tbl_nari;
+
+select *
 from departments;
 
 select *
@@ -6573,3 +6576,66 @@ from
     ) V 
 ) T;
 
+
+
+
+
+
+
+
+
+--04/09
+
+----- *** === 데이터베이스 링크(Database link) 생성하기 === *** ------
+
+select *
+from jiwon_Zzang;
+-- 00942. 00000 -  "table or view does not exist"
+
+create database link NARILINK
+connect to hr identified by eclass
+--                  ▲ 상대방 이름과 암호 ▲
+using 'nari'; -- nari는 '네트서비스명' 이라고 부른다.
+                      -- 네트서비스명은 C:\oraclexe\app\oracle\product\11.2.0\server\network\ADMIN\tnsnames.ora 파일에 정의해 둠
+-- Database link NARILINK이(가) 생성되었습니다.
+/*  NARILINK 는 원격 데이터베이스에 연결하는 이름인데
+    tnsnames.ora 파일에 정의해둔 네트서비스명 nari에 
+    원격 데이터베이스의 hr 사용자로 암호는 eclass로 연결하겠다는 말이다. */
+
+select *
+from jiwon_Zzang@NARILINK;
+
+select *
+from employees;
+
+update employees set last_name = '곽지원'-- KING
+where employee_id = 100;
+
+commit;
+
+select *
+from employees@XE;  -- 나
+--                             ▲ 내거는 생략가능
+
+select *
+from employees@NARILINK;    -- 상대방
+
+select *
+from employees@NARILINK E INNER JOIN departments D
+on E.department_id = D.department_id;
+
+
+--- *** 생성되어진 데이터베이스 링크(Database link )를 조회해보기 *** ---
+select *
+from dictionary 
+where lower(comments) like '%database link%';
+
+select *
+from USER_DB_LINKS;
+
+select *
+from ALL_DB_LINKS;
+
+
+--- *** 생성되어진 데이터베이스 링크(Database link ) 삭제하기 *** ---
+drop database link NARILINK;
