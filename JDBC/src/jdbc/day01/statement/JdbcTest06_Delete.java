@@ -3,7 +3,7 @@ package jdbc.day01.statement;
 import java.sql.*;
 import java.util.Scanner;
 
-public class JdbcTest05_Update {
+public class JdbcTest06_Delete {
 
 	public static void main(String[] args) {
 		
@@ -56,6 +56,9 @@ public class JdbcTest05_Update {
 			// 연결하고자하는 서버의 ip, 오라클 서버에 붙는 계정명, 계정 암호
 			// @localhost:1521 == @127.0.0.1:1521 -> 소켓이라 부름
 			
+			// >>> 수동 커밋으로 전환하기 <<< //
+			conn.setAutoCommit(false);
+			
 		// 3. 연결한 오라클서버(conn)에 SQL문(편지)을 전달할 Statement객체 (우편배달부) 생성하기
 			stmt = conn.createStatement();
 			
@@ -87,44 +90,45 @@ public class JdbcTest05_Update {
 			}
 		
 			/*
-				----->> 데이터 수정하기 <<-------
+				----->> 데이터 삭제하기 <<-------
 				  1. 변경대상 글 번호    2. 종료 
 				-----------------------------
 				
-				▷ 변경대상 글번호 입력 : 3
+				▷ 삭제대상 글번호 입력 : 3
 				
 				---------------------------------
 				3	김나리	지원씨 오늘 저녁은 뭐 드세여?
 				---------------------------------
-				▷ 변경할 글 내용 입력 : 잘됩니다
+							
+				▷ 삭제하시겠습니까? [Y/N] y
+				>>> 데이터 삭제 성공 <<<
 				
-				▷ 수정하시겠습니까? [Y/N] y
-				>>> 데이터 수정 성공 <<<
+				▷ 삭제하시겠습니까? [Y/N] n
+				>>> 데이터 삭제 취소 <<<
 				
-				▷ 수정하시겠습니까? [Y/N] n
-				>>> 데이터 수정 취소 <<<
-				
+				전체 글 보여주기
 			 */
 			String strMenuNo = "";
 			do {
-				System.out.println("\n------>> 데이터 수정하기 <<-------\n"
-						         + "1. 변경대상 글번호      2. 종료 \n"
+				System.out.println("\n------>> 데이터 삭제하기 <<-------\n"
+						         + "1. 삭제대상 글번호      2. 종료 \n"
 						         + "------------------------------");
 				System.out.print("▷ 메뉴선택 : "); 
 				strMenuNo = sc.nextLine();
 				
 				if("1".equals(strMenuNo)) {
 					//////////////////////////////////////////////////////////////
-					System.out.print("▷ 변경대상 글번호 입력 : "); 
-					String updateNo = sc.nextLine();
+					System.out.print("▷ 삭제대상 글번호 입력 : "); 
+					String deleteNo = sc.nextLine();
 					
 					sql = "select no, name, msg\n"+
-						  "     , to_char(writeday, 'yyyy-mm-dd hh24:mi:ss') AS WRITEDAY \n"+
-						  "from jdbc_tbl_memo\n"+
-						  "where no = "+updateNo;
-					
+							  "     , to_char(writeday, 'yyyy-mm-dd hh24:mi:ss') AS WRITEDAY \n"+
+							  "from jdbc_tbl_memo\n"+
+							  "where no = "+deleteNo;
+						
 					rs = stmt.executeQuery(sql);
-					
+						
+									
 					if(rs.next()) {
 						
 						int no = rs.getInt(1);  // 또는 int no = rs.getInt("no");      
@@ -137,28 +141,23 @@ public class JdbcTest05_Update {
 						System.out.println("----------------------------------------");
 						System.out.println(no+"\t"+name+"\t"+msg+"\t"+writeday);
 						
-						
-						System.out.print("\n▷ 변경할 글내용 입력 : ");
-						String newMsg = sc.nextLine();
-						
-						sql = "update jdbc_tbl_memo set msg = '"+newMsg+"' "
-							+ "where no = "+updateNo;
+						sql = " delete jdbc_tbl_memo where no = "+ deleteNo + " ";
 						
 						int n = stmt.executeUpdate(sql);
 						
 						if(n==1) {
 							do {
-								System.out.print("정말로 수정하시겠습니까?[Y/N] ");
+								System.out.print("정말로 삭제하시겠습니까?[Y/N] ");
 								String yn = sc.nextLine();
 								
 								if("y".equalsIgnoreCase(yn)) {
 									conn.commit();
-									System.out.println(">>> 데이터 수정 성공 !!! <<<");
+									System.out.println(">>> 데이터 삭제 성공 !!! <<<");
 									break;
 								}
 								else if("n".equalsIgnoreCase(yn)) {
 									conn.rollback();
-									System.out.println(">>> 데이터 수정 취소 !!! <<<");
+									System.out.println(">>> 데이터 삭제 취소 !!! <<<");
 									break;
 								}
 								else {
@@ -168,9 +167,10 @@ public class JdbcTest05_Update {
 							
 						}// end of if(n==1)------------------------
 						
+						
 					}
 					else {
-						System.out.println(">>> 변경대상 글번호 "+updateNo+"은 존재하지 않습니다.");
+						System.out.println(">>> 삭제대상 글번호 "+deleteNo+"은 존재하지 않습니다.");
 					}
 					///////////////////////////////////////////////////////////////
 				}
@@ -206,8 +206,9 @@ public class JdbcTest05_Update {
 			 */
 			
 			try {
+				if(rs != null) rs.close();
 				if(stmt != null) stmt.close();
-				if(stmt != null) conn.close();
+				if(conn != null) conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
