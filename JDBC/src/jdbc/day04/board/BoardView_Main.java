@@ -27,7 +27,8 @@ public class BoardView_Main {
 		do {
 			
 			System.out.println("\n --------------- 게시판 메뉴["+loginMember.getName()+"님 로그인 중 ♪] ---------------- \n"
-							 + "1.글 목록보기  2.글 내용보기  3.글쓰기  4.댓글쓰기  5.로그아웃\n"
+							 + "1.글 목록보기  2.글 내용보기  3.글쓰기  4.댓글쓰기  \n"
+							 + "5.글 수정하기 6.글 삭제하기 9.로그아웃\n"
 							 + "-------------------------------------------------------");
 							 
 			System.out.print("▷ 메뉴번호 선택 : ");
@@ -35,11 +36,12 @@ public class BoardView_Main {
 			
 			switch (menuNo) {
 			case "1": // 글 목록보기
+				ctrl.boardList();
 				
 				break;
 
 			case "2": // 글 내용보기
-				
+				ctrl.viewContents(loginMember, sc);
 				break;
 
 			case "3": // 글쓰기
@@ -58,8 +60,37 @@ public class BoardView_Main {
 			case "4": // 댓글쓰기
 				
 				break;
-
-			case "5": // 로그아웃
+				
+				
+			case "5": // 글수정하기
+				n = ctrl.updateBoard(loginMember, sc);
+				
+				if(n==0)
+					System.out.println(">> 수정할 글번호가 글목록에 존재하지 않습니다. <<  \n");
+				else if(n==1)
+					System.out.println(">> 다른 사용자의 글은 수정불가 합니다!! <<  \n");
+				else if(n==2)
+					System.out.println(">> 글암호가 올바르지 않습니다 <<  \n");
+				else if(n==3)
+					System.out.println(">> 글 수정 실패!! << \n");
+				else if(n==4)
+					System.out.println(">> 글 수정 취소!! << \n");
+				else if(n==5)
+					System.out.println(">> 글 수정 성공!! << \n");
+				break;	
+				
+				
+			case "6": // 글삭제하기
+				n = ctrl.deleteBoard(loginMember, sc);
+				if(n==1)
+					System.out.println(">> 글 삭제 성공!! <<  \n");
+				else if(n== -1)
+					System.out.println(">> 글 삭제 취소!! << \n");
+				else
+					System.out.println(">> 글 삭제 실패!! << \n");					
+				break;	
+				
+			case "9": // 로그아웃
 				loginMember = null; // 로그아웃하면 다른메뉴 못하게 확실하게 처리해줌
 				System.out.println(">> 안녕히가세요 *^^* << \n");
 				break;
@@ -69,7 +100,7 @@ public class BoardView_Main {
 				break;
 			} // end of switch
 			
-		} while (!"5".equals(menuNo)); // 로그아웃 시 do~while 종료
+		} while (!"9".equals(menuNo)); // 로그아웃 시 do~while 종료
 		
 		return loginMember; // null 값 반환
 		// 또는 case "5"에 loginMember=null;를 지우고 return null;해줘도 됨

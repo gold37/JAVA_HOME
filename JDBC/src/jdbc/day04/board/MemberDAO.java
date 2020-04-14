@@ -125,7 +125,7 @@ public class MemberDAO implements InterMemberDAO {
 			result = pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		
 		return result;

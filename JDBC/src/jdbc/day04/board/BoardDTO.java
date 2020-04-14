@@ -2,14 +2,18 @@ package jdbc.day04.board;
 
 public class BoardDTO {
 
-	private int boardno; // 글번호
-	private String fk_userid; // 작성자 아이디
-	private String subject; // 글제목
-	private String contents; // 글내용
-	private String writeday; // 작성일자
-	private int number; // 조회수
-	private String boardpwd; // 글암호
+	private int boardno;		 // 글번호
+	private String fk_userid;	 // 작성자 아이디
+	private String subject;		 // 글제목
+	private String contents; 	 // 글내용
+	private String writeday;	 // 작성일자
+	private int viewcount; 		 // 조회수
+	private String boardpwd; 	 // 글암호
 	
+	private MemberDTO member; 	 // 글쓴이에 대한 모든 정보
+	
+	
+
 	public int getBoardno() {
 		return boardno;
 	}
@@ -50,12 +54,12 @@ public class BoardDTO {
 		this.writeday = writeday;
 	}
 	
-	public int getNumber() {
-		return number;
+	public int getviewcount() {
+		return viewcount;
 	}
 	
-	public void setNumber(int number) {
-		this.number = number;
+	public void setviewcount(int viewcount) {
+		this.viewcount = viewcount;
 	}
 	
 	public String getBoardpwd() {
@@ -65,4 +69,31 @@ public class BoardDTO {
 	public void setBoardpwd(String boardpwd) {
 		this.boardpwd = boardpwd;
 	}
+	
+	public MemberDTO getMember() {
+		return member;
+	}
+
+	public void setMember(MemberDTO member) {
+		this.member = member;
+	}
+	
+	public String listInfo() { // 글번호 글제목 글쓴이 작성일자 조회수
+		
+		String listInfo = boardno+"\t"+subject+"\t"+member.getName()+"\t"+writeday+"\t"+viewcount;
+		
+		return listInfo; 
+	}
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+

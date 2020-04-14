@@ -6,7 +6,7 @@ public class MemberDTO {
 
 	private int    userseq;      // 회원번호
 	private String userid;       // 회원아이디
-	private String pwd;       // 회원암호
+	private String pwd;      	 // 회원암호
 	private String name;         // 회원명
 	private String mobile;       // 연락처
 	private int point;           // 포인트
@@ -77,8 +77,5 @@ public class MemberDTO {
 		this.status = status;
 	}
 	
-	
-	
-
 	
 }
