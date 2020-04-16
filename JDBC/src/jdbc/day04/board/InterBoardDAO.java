@@ -16,4 +16,11 @@ public interface InterBoardDAO {
 	void updateViewCount(String boardNo); // 조회수 1 증가 시키기
 
 	int updateBoard(Map<String, String> paraMap); // 글 수정하기 
+
+	int deleteBoard(String boardNo); // 글 삭제하기
+
+	int writeComment(CommentDTO cmdto); // 댓글쓰기
+
+	List<CommentDTO> commentList(String boardNo); // 특정 글에 대한 댓글들 내용 
+	
 }

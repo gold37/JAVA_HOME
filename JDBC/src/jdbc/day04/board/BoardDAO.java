@@ -69,14 +69,17 @@ public class BoardDAO implements InterBoardDAO {
 		try {
 			conn = MyDBConnection.getConn();
 			
-			String sql = " select A.boardno as 글번호\n"+
-						 "      , A.subject as 글제목\n"+
-						 "      , B.name as 글쓴이\n"+
-						 "      ,to_char( A.writeday,'yyyy-mm-dd hh24:mi:ss')  as 작성일자\n"+
-						 "      , A.viewcount  as 조회수\n"+
-						 " from jdbc_board  A  join  jdbc_member B\n"+
-						 " on A.fk_userid = B.userid\n"+
-						 " order by 1 desc ";
+			String sql =" select  B.boardno, b.subject, M.name\n"+
+						"         ,    to_char(B.writeday, 'yyyy-mm-dd hh24:mi:ss') as writeday\n"+
+						"         ,    B.viewcount\n"+
+						"         ,    nvl(C.COMMENTCNT, 0) as COMMENTCNT\n "+
+						" from jdbc_board B JOIN jdbc_member M\n "+
+						" on B.fk_userid = M.userid\n "+
+						" LEFT JOIN ( select fk_boardno, count(*) as COMMENTCNT\n "+
+						" from jdbc_comment\n "+
+						" group by fk_boardno ) C\n "+
+						" on B.boardno = c.fk_boardno\n "+
+						" order by 1 desc ";
 			
 			pstmt = conn.prepareStatement(sql);
 			
@@ -97,6 +100,7 @@ public class BoardDAO implements InterBoardDAO {
 				
 				bdto.setWriteday(rs.getString(4));
 				bdto.setviewcount(rs.getInt(5));
+				bdto.setCommentcnt(rs.getInt(6));
 				
 				boardList.add(bdto);
 				
@@ -110,7 +114,8 @@ public class BoardDAO implements InterBoardDAO {
 		
 		return boardList;
 	}
-
+	
+	
 	// --- 글 내용보기 --- // 
 	@Override
 	public BoardDTO viewContents(Map<String,String> paraMap) {
@@ -120,19 +125,18 @@ public class BoardDAO implements InterBoardDAO {
 		
 		try {
 			conn = MyDBConnection.getConn();
-			
-			// 글내용, 작성자ID
+					
 			String sql = " select contents, fk_userid, subject "
 					   + " from jdbc_board ";
 			
-			if(paraMap.get("boardpwd") != null) { 
+			if(paraMap.get("boardPasswd") != null) { 
 				sql += " where boardno = ? " +
-					   " and boardpwd = ? ";
+					   " and boardpasswd = ? ";
 			
-				pstmt = conn.prepareStatement(sql); // Exception처리하라고 빨간줄 뜸. 그래서 try 사용함
+				pstmt = conn.prepareStatement(sql);
 				
 				pstmt.setString(1, paraMap.get("boardNo"));
-				pstmt.setString(2, paraMap.get("boardpwd"));
+				pstmt.setString(2, paraMap.get("boardPasswd"));
 			}
 			else {
 				sql += " where boardno = ? ";
@@ -145,7 +149,7 @@ public class BoardDAO implements InterBoardDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
-				bdto = new BoardDTO(); // select할 행이 있다.
+				bdto = new BoardDTO();
 				bdto.setContents(rs.getString(1));
 				bdto.setFk_userid(rs.getString(2));
 				bdto.setSubject(rs.getString(3));
@@ -214,5 +218,125 @@ public class BoardDAO implements InterBoardDAO {
 			}
 			
 			return result;
-		}// end of public int updateBoard(Map<String, String> paraMap)------ 
+		}// end of updateBoard(Map<String, String> paraMap)------ 
+
+		
+		
+		// === 글 삭제하기 ===  
+		@Override
+		public int deleteBoard(String boardNo) {
+
+			int result = 0;
+			
+			try {
+				conn = MyDBConnection.getConn();
+				
+				String sql = " delete from jdbc_board "
+						   + " where boardno = ? ";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, boardNo);
+				
+				result = pstmt.executeUpdate(); // 정상적이라면 1값이 나옴
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return result;	
+			
+		}// end of deleteBoard(String boardNo)
+
+		
+		// === 댓글 쓰기 === 
+		@Override
+		public int writeComment(CommentDTO cmdto) {
+
+			int result = 0;
+			
+			try {
+				conn = MyDBConnection.getConn();
+				
+				String sql = " insert into jdbc_comment(commentno, fk_boardno, fk_userid, contents) "
+						   + " values(seq_comment.nextval, ?, ?, ?) "; 
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, cmdto.getFk_boardno()); 
+				pstmt.setString(2, cmdto.getFk_userid());
+				pstmt.setString(3, cmdto.getContents());
+				 
+				result = pstmt.executeUpdate();
+				
+				if(result == 1) {
+					conn.commit();
+				}
+				
+			}catch(SQLIntegrityConstraintViolationException e) { // 제약조건이 위배됐을 경우 나오는 에러
+				System.out.println(cmdto.getFk_boardno()+"번은 존재하지않는 원글 번호입니다.");
+			}catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}	
+			
+			return result;
+		}
+
+
+		// === 특정 글에 대한 댓글들 내용 === 
+		@Override
+		public List<CommentDTO> commentList(String boardNo) {
+			
+			
+			List<CommentDTO> commentList = null; // 기존의 해오던 방식대로 new 해도 됨
+			
+			try {
+				conn = MyDBConnection.getConn();
+				
+				String sql = " select C.commentno, C.contents, M.name, to_char(C.writeday, 'yyyy-mm-dd hh24:mi:ss') AS writeday "
+						   + " from jdbc_member M join jdbc_comment C "
+					   	   + " on M.userid = C.fk_userid "
+						   + " where C.fk_boardno = ? "
+						   + " order by 1 desc ";
+				
+				pstmt =	conn.prepareStatement(sql);
+				pstmt.setString(1, boardNo);
+				
+				rs = pstmt.executeQuery();
+				
+				int cnt = 0;
+				while(rs.next()) {
+					
+					cnt++; // 0에서 ++해서 1
+					
+					if(cnt==1) {
+						commentList = new ArrayList<CommentDTO>();
+					}
+									
+					CommentDTO cdto = new CommentDTO();
+					cdto.setCommentno(rs.getInt(1)); 
+					cdto.setContents(rs.getString(2)); // 댓글내용
+					
+					MemberDTO member = new MemberDTO();
+					member.setName(rs.getString(3)); // 작성자 이름
+					
+					cdto.setMember(member);
+					
+					cdto.setWriteday(rs.getString(4));
+									
+					commentList.add(cdto);
+				}// end of while-------------------------------------------
+							
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return commentList;
+		}// end of commentList(String boardNo)-------------
+		
+		
 }

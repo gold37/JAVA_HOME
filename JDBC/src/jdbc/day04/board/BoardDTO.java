@@ -12,7 +12,23 @@ public class BoardDTO {
 	
 	private MemberDTO member; 	 // 글쓴이에 대한 모든 정보
 	
-	
+	private int commentcnt;
+
+	public int getViewcount() {
+		return viewcount;
+	}
+
+	public void setViewcount(int viewcount) {
+		this.viewcount = viewcount;
+	}
+
+	public int getCommentcnt() {
+		return commentcnt;
+	}
+
+	public void setCommentcnt(int commentcnt) {
+		this.commentcnt = commentcnt;
+	}
 
 	public int getBoardno() {
 		return boardno;
@@ -79,6 +95,10 @@ public class BoardDTO {
 	}
 	
 	public String listInfo() { // 글번호 글제목 글쓴이 작성일자 조회수
+		
+		if(commentcnt > 0) {
+			subject += "["+commentcnt+"]";
+		}
 		
 		String listInfo = boardno+"\t"+subject+"\t"+member.getName()+"\t"+writeday+"\t"+viewcount;
 		

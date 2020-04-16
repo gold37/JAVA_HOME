@@ -186,15 +186,17 @@ public class Controller {
 			// 게시글이 존재하지 않는 경우
 			System.out.println(">>> 글 목록이 없습니다. \n");
 		}
+		
+		
 	}// end of boardList()-----------
 	
 	
 	// --- 글 내용 보기 ---
 	public void viewContents(MemberDTO loginMember, Scanner sc) {
-		System.out.println("\n >>> 글내용 보기 <<<");
+		System.out.println("\n>>> 글내용 보기 <<<");
 		
 		System.out.print("▷ 글번호 : ");
-		String boardNo = sc.nextLine();
+		String boardNo = sc.nextLine(); 
 		
 		Map<String,String> paraMap = new HashMap<String,String>();
 		paraMap.put("boardNo", boardNo);
@@ -202,19 +204,46 @@ public class Controller {
 		BoardDTO bdto = bdao.viewContents(paraMap);
 		
 		if(bdto != null) {
-			// 존재하는 글 번호를 입력한 경우
-			System.out.println("[글내용]"+bdto.getContents());
+			// 존재하는 글번호를 입력한 경우 
+			System.out.println("[글내용] " + bdto.getContents());
 			
-			if(!(bdto.getFk_userid().equals(loginMember.getUserid()))) {
-			// 현재 로그인 된 사용자가 자신의 글이 아닌 다른 사용자가 쓴 글을 조회했을 경우에만 조회수 1증가
-				bdao.updateViewCount(boardNo);  
-				
+			if( !bdto.getFk_userid().equals(loginMember.getUserid()) ) {
+				// 현재 로그인 되어진 사용자가 자신의 글이 아닌 다른 사용자가 쓴 글을 조회했을 경우에만
+				// 조회수 1증가 시키기 
+				bdao.updateViewCount(boardNo);
 			}
+			
+			///////////////////////////////////////////////////
+			
+			System.out.println("[댓글]\n------------------------------------------");
+			
+			List<CommentDTO> commentList = bdao.commentList(boardNo); 
+		//  ▲ commentDTO가 여러개 필요하기 때문
+			
+			if(commentList != null) {
+				System.out.println("내용\t작성자\t작성일자");
+				System.out.println("-------------------------------------------");
+				
+				StringBuilder sb = new StringBuilder();
+				
+				for(CommentDTO comment : commentList) {
+					sb.append(comment.commentInfo()+"\n"); 
+				}
+				System.out.println(sb.toString()+"\n");
+			}
+			else {
+				System.out.println(">> 댓글 내용 없음 << \n");
+			}
+			
+			///////////////////////////////////////////////////
 		}
 		else {
-			// 존재하지 않는 글 번호를 입력한 경우
-			System.out.println(">> 글번호"+boardNo+"번은 목록에 존재하지 않습니다. \n");
+			// 존재하지 않는 글번호를 입력한 경우 
+			System.out.println(">> 글번호 "+boardNo+"은 글목록에 존재하지 않습니다 << \n");
 		}
+		
+		
+		
 		
 	}// end of viewContents(MemberDTO loginMember, Scanner sc)---------------
 	
@@ -278,6 +307,92 @@ public class Controller {
 									result = 5;
 									break;
 								}
+								else if("n".equalsIgnoreCase(yn)) {
+									conn.rollback();
+									result = 4;
+									break;
+								}
+								else {
+									System.out.println(">> Y 또는 N 만 입력하세요!!");
+								}
+							} catch(SQLException e) {
+								e.printStackTrace();
+							}
+							
+						} while (true);
+					}
+					else {
+						// update 작업이 실패한 경우이라면 
+						result = 3;
+					}
+				}
+				else {
+					// 글암호가 틀린 경우이라면
+					result = 2;
+				}
+			}
+			else {
+				// 로그인한 사용자가 쓴 글이 아닌 다른 사용자가 쓴 글을 수정할 경우
+				result = 1;
+			}
+		}
+				
+		return result; 
+		// 수정할 글번호가 글목록에 존재하지 않을 경우 0 을 리턴함. 
+	}
+		
+
+	// ---- 글삭제하기 ----
+	public int deleteBoard(MemberDTO loginMember, Scanner sc) {
+		int result = 0;
+		
+		Connection conn = MyDBConnection.getConn();
+		
+		System.out.println("\n>>> 글 삭제 하기 <<<");
+		
+		Map<String,String> paraMap = new HashMap<String,String>();
+		
+		System.out.print("▷삭제할 글번호 : ");
+		String boardNo = sc.nextLine(); 
+		paraMap.put("boardNo", boardNo);
+		
+		BoardDTO bdto = bdao.viewContents(paraMap); // 해당 글 받아오기
+		
+		if(bdto != null) {
+			// 삭제할 글번호가 글목록에 존재하는 경우이라면 
+			
+			if( bdto.getFk_userid().equals(loginMember.getUserid()) ) {
+				// 로그인한 사용자가 쓴 글을 삭제할 경우 
+				
+				System.out.print("▷글암호 : ");
+				String boardpwd = sc.nextLine(); 
+				paraMap.put("boardpwd", boardpwd);
+				
+				bdto = bdao.viewContents(paraMap); 
+				
+				if(bdto != null) {
+					// 글암호가 올바른 경우이라면
+					// 삭제할 글을 보여주고서 글삭제 작업에 들어간다.
+					System.out.println("------------------------------");
+					System.out.println("글제목 : " + bdto.getSubject());
+					System.out.println("글내용 : " + bdto.getContents());
+					System.out.println("------------------------------\n");
+					
+					//DB에 메소드 호출
+					int n = bdao.deleteBoard(boardNo);
+					
+					if(n==1) {
+						
+						do {
+							System.out.print("▷정말로 삭제하시겠습니까?[Y/N] ");
+							String yn = sc.nextLine();
+							
+							try {
+								if("y".equalsIgnoreCase(yn)) {
+									conn.commit();
+									result = 5;
+									break;
+								}
 								
 								else if("n".equalsIgnoreCase(yn)) {
 									conn.rollback();
@@ -291,40 +406,66 @@ public class Controller {
 							} catch(SQLException e) {
 								e.printStackTrace();
 							}
-							
 						} while (true);
-						
-					}
-					else {
-						// update 작업이 실패한 경우이라면 
-						result = 3;
 					}
 					
+					else {
+						// delete 작업이 실패한 경우이라면 
+						result = 3;
+					}
 				}
 				else {
 					// 글암호가 틀린 경우이라면
 					result = 2;
 				}
-				
 			}
-		
 			else {
-				// 로그인한 사용자가 쓴 글이 아닌 다른 사용자가 쓴 글을 수정할 경우
+				// 로그인한 사용자가 쓴 글이 아닌 다른 사용자가 쓴 글을 삭제할 경우
 				result = 1;
 			}
-			
 		}
-				
 		return result; 
-		// 수정할 글번호가 글목록에 존재하지 않을 경우 0 을 리턴함. 
-	}
-		
-
-	// ---- 글삭제하기 ----
-	public int deleteBoard(MemberDTO loginMember, Scanner sc) {
-		// TODO Auto-generated method stub
-		return 0;
+		// 삭제할 글번호가 글목록에 존재하지 않을 경우 0 을 리턴함. 
 	}	
+
+	
+	// ---- 댓글 쓰기 ----
+	public int writeComment(MemberDTO loginMember, Scanner sc) {
+
+		int result = 0;
+		
+		System.out.println("\n >> 댓글 쓰기 << \n");
+		
+		System.out.println("1.작성자 명: "+loginMember.getName()); // 작성자 명 자동 생성
+		
+		System.out.print("2.원글의 글 번호: "); 
+		String boardno = sc.nextLine();
+		
+		String contents = "";
+		
+		do {
+			System.out.print("3.댓글 내용: ");
+			contents = sc.nextLine(); // "               "
+			
+			if(contents == null || contents.trim().isEmpty()) { // 댓글 내용 공백시
+				System.out.println(">> 댓글내용은 필수로 입력해야 합니다.\n");
+			}
+			else {
+				break;
+			}
+			
+		} while (true);
+		
+		CommentDTO cmdto = new CommentDTO(); // 한 행 담아서 보내줄거기 때문에 DTO를 만듬
+		cmdto.setFk_boardno(boardno);
+		cmdto.setFk_userid(loginMember.getUserid());
+		cmdto.setContents(contents);
+		
+		result = bdao.writeComment(cmdto);
+		
+		return result;
+	}
+	
 
 	// --- Connection 자원반납 ---
 	public void appExit() {
@@ -332,7 +473,6 @@ public class Controller {
 		MyDBConnection.closeConnection();
 		
 	} // end of appExit() ------------
-
 
 
 	

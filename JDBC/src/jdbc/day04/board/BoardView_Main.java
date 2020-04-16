@@ -28,7 +28,8 @@ public class BoardView_Main {
 			
 			System.out.println("\n --------------- 게시판 메뉴["+loginMember.getName()+"님 로그인 중 ♪] ---------------- \n"
 							 + "1.글 목록보기  2.글 내용보기  3.글쓰기  4.댓글쓰기  \n"
-							 + "5.글 수정하기 6.글 삭제하기 9.로그아웃\n"
+							 + "5.글 수정하기 6.글 삭제하기 7.최근 일주일간 일자별 게시글 작성 건수 \n"
+							 + "8.이번달 일자별 게시글 작성건수 9.로그아웃\n"
 							 + "-------------------------------------------------------");
 							 
 			System.out.print("▷ 메뉴번호 선택 : ");
@@ -37,7 +38,6 @@ public class BoardView_Main {
 			switch (menuNo) {
 			case "1": // 글 목록보기
 				ctrl.boardList();
-				
 				break;
 
 			case "2": // 글 내용보기
@@ -48,16 +48,23 @@ public class BoardView_Main {
 				int n = ctrl.write(loginMember, sc); // 로그인된 사람의 정보를 넘기고, 입력값도 받아옴
 			//  ▲ insert 할거니까 return타입 int 
 				if(n==1) {
-					System.out.println(">> 글쓰기 성공!\n");
+					System.out.println(">> 글쓰기 성공! <<\n");
 				}else if(n==-1) {
-					System.out.println(">> 글쓰기 취소 ");
+					System.out.println(">> 글쓰기 취소 << \n");
 				}else {
-					System.out.println(">> 글쓰기 실패 ㅠ_ㅠ");
+					System.out.println(">> 글쓰기 실패 ㅠ_ㅠ <<\n");
 				}
 				
 				break;
 
 			case "4": // 댓글쓰기
+				
+				n = ctrl.writeComment(loginMember, sc);
+				
+				if(n==1)
+					System.out.println(">> 댓글쓰기 성공 ! <<");
+				else
+					System.out.println(">> 댓글쓰기 실패 ! <<");
 				
 				break;
 				
@@ -82,12 +89,19 @@ public class BoardView_Main {
 				
 			case "6": // 글삭제하기
 				n = ctrl.deleteBoard(loginMember, sc);
-				if(n==1)
-					System.out.println(">> 글 삭제 성공!! <<  \n");
-				else if(n== -1)
+				
+				if(n==0) 
+					System.out.println(">> 삭제할 글 번호가 목록에 존재하지 않습니다. << \n");
+				else if(n==1)
+					System.out.println(">> 글 삭제 성공!! << \n");
+				else if(n==2)
+					System.out.println(">> 글 암호가 올바르지 않습니다. << \n");
+				else if(n==3)
+					System.out.println(">> 글 삭제 실패!! <<");
+				else if(n==4)
 					System.out.println(">> 글 삭제 취소!! << \n");
-				else
-					System.out.println(">> 글 삭제 실패!! << \n");					
+				else if(n==5)
+					System.out.println(">> 글 삭제 성공!! << \n");					
 				break;	
 				
 			case "9": // 로그아웃
@@ -106,10 +120,6 @@ public class BoardView_Main {
 		// 또는 case "5"에 loginMember=null;를 지우고 return null;해줘도 됨
 		
 	} // end of menu_Board() ---------
-	
-	
-	
-	
 	
 	
 	public static void main(String[] args) {
@@ -156,9 +166,8 @@ public class BoardView_Main {
 				case "3":  // 프로그램종료
 					
 					ctrl.appExit(); // Connection 자원반납
-					
-					break;					
-	
+					break;	
+				
 				default:
 					System.out.println(">>> 시작메뉴에 없는 번호 입니다  <<<");
 					break;
