@@ -1,12 +1,15 @@
 package jdbc.day04.board;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 import jdbc.connection.MyDBConnection;
+import jdbc.util.MyUtil;
 
 public class Controller {
 
@@ -168,6 +171,7 @@ public class Controller {
 		// 			   ▲ 사이즈가 0이냐(게시글 존재 X) 0보다 크냐?(게시글 존재 O) 절대 null값 존재 할 수 없음 
 		  
 		StringBuilder sb = new StringBuilder(); // sb에 차곡차곡 쌓을거임
+		
 		
 		if(boardList.size() > 0) {
 			// 게시글이 존재하는 경우
@@ -466,13 +470,99 @@ public class Controller {
 		return result;
 	}
 	
+	
+	// --- 최근 일주일간 일자별 게시글 작성건수 ---
+	public void statisticsByWeek() {
+		
+		System.out.println("------- [최근 일주일간 일자별 게시글 작성건수] --------");
+		
+		String result = "전체\t";
+		
+		for(int i=0; i<7; i++) {
+			result += MyUtil.getDay(i-6)+"\t";
+		}
+		
+		System.out.println(result);
+		
+		System.out.println("-----------------------------------------------------");
+		
+		Map<String, Integer> resultMap = bdao.statisticsByWeek();
+		String str = resultMap.get("TOTAL")+"\t"+
+				// 							 ▲ 얘 땜에 문자열 결합됨
+					 resultMap.get("PREVIOUS6")+"\t"+
+					 resultMap.get("PREVIOUS5")+"\t"+
+					 resultMap.get("PREVIOUS4")+"\t"+
+					 resultMap.get("PREVIOUS3")+"\t"+
+					 resultMap.get("PREVIOUS2")+"\t"+
+					 resultMap.get("PREVIOUS1")+"\t"+
+					 resultMap.get("TODAY");
+					 
+		System.out.println(str);
+	}
+	
+	
+	// --- 이번달 일자별 게시글 작성건수 ---
+	public void statisticsByCurrentMonth() {
+		
+		Calendar currentDate = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 MM월");
+		String currentMonth = dateFormat.format(currentDate.getTime());
+		
+		System.out.println("------------ ["+currentMonth+"일자별 게시글 작성건수] ------------");
+		System.out.println("작성일자\t\t작성건수");
+		System.out.println("------------------------------------------------------");
+		
+		List<Map<String, String>> mapList = bdao.statisticsByCurrentMonth(); // insert안하고 select만 할거기때문에 hashMap 쓰는게 좋음. (굳이 DTO 만들 필요 없으니까)
+		
+		if(mapList.size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			
+			for(Map<String, String> map : mapList) {
 
+				sb.append(map.get("WRITEDAY") + "\t" + map.get("CNT") + "\n");
+				
+			} // end of for --------------------
+			
+			System.out.println(sb.toString()); // String 타입으로 출력
+			
+		}else {
+			System.out.println("텅 ~ 작성된 게시글이 없습니다.");
+		}
+		
+		}
+
+
+	// --- 전체 회원 보여주기 (관리자만)
+	public void selectAllMember() {
+		
+		List<MemberDTO> selectAllMember = mbrdao.selectAllMember();
+		
+		StringBuffer sb = new StringBuffer();
+		
+		if(selectAllMember.size()>0) {
+			for (int i=0; i< selectAllMember.size(); i++) {
+				sb.append( selectAllMember.get(i).listInfo()+"\n");
+			}
+		}
+		
+		System.out.println("--------------------------------------------------------------------");
+		System.out.println("회원아이디\t암호\t회원명\t연락처\t\t포인트\t등록일자\t탈퇴유무");
+		System.out.println("--------------------------------------------------------------------");
+		System.out.println(sb.toString());
+		
+		}
+	
+	
 	// --- Connection 자원반납 ---
 	public void appExit() {
 		
 		MyDBConnection.closeConnection();
 		
 	} // end of appExit() ------------
+
+
+
+	
 
 
 	

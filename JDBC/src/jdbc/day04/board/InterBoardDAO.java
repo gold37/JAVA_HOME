@@ -22,5 +22,9 @@ public interface InterBoardDAO {
 	int writeComment(CommentDTO cmdto); // 댓글쓰기
 
 	List<CommentDTO> commentList(String boardNo); // 특정 글에 대한 댓글들 내용 
+
+	Map<String, Integer> statisticsByWeek(); // 최근 일주일간 일자별 게시글 작성건수
+
+	List<Map<String, String>> statisticsByCurrentMonth(); // 이번달 일자별 게시글 작성건수
 	
 }

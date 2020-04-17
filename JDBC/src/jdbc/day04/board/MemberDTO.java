@@ -1,5 +1,6 @@
 package jdbc.day04.board;
 
+
 //DTO(Data Transfer Object) 쉽게말하면 행(row)이다.
 
 public class MemberDTO {
@@ -75,6 +76,33 @@ public class MemberDTO {
 	
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String listInfo() { // 전체 회원 보여주기
+		
+		String pwd = "";
+	      if (getpwd() != null && getpwd().length() > 4) {
+	          pwd = getpwd().substring(0,4); // 남은 암호만큼 *로 보이게 바꿔주기
+	          
+	          for(int i = 4; i < getpwd().length(); i++) {
+	             pwd += "*";
+	          }
+	       } else {
+	    	   pwd = getpwd();
+	       }
+	       
+	       String str = "";
+	       
+	       // 탈퇴유무 (status) 1이면 가입 0 이면 탈퇴.
+	       if (getStatus() == 1) {
+	          str = "가입";
+	       } else {
+	          str = "탈퇴";
+	       }
+		
+		String listInfo = userid+"\t"+pwd+"\t"+name+"\t"+mobile+"\t"+point+"\t"+registerday+"\t"+str;
+		
+		return listInfo;
 	}
 	
 	

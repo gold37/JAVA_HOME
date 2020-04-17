@@ -131,6 +131,46 @@ public class MemberDAO implements InterMemberDAO {
 		return result;
 	}
 
+	
+	// 전체 회원 보여주기 (관리자만)
+	@Override
+	public List<MemberDTO> selectAllMember() {
+		
+		List<MemberDTO> memberList = new ArrayList<MemberDTO>();
+		
+		try {
+			conn = MyDBConnection.getConn();
+			
+			String sql = " select userid, pwd, name, mobile, point, registerday, status "
+					   + " from jdbc_member"
+					   + " where userid != 'admin'";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				MemberDTO mbrdto = new MemberDTO();
+				mbrdto.setUserid(rs.getString(1));
+				mbrdto.setpwd(rs.getString(2));
+				mbrdto.setName(rs.getString(3));
+				mbrdto.setMobile(rs.getString(4));
+				mbrdto.setPoint(rs.getInt(5));
+				mbrdto.setRegisterday(rs.getString(6));
+				mbrdto.setStatus(rs.getInt(7));
+				
+				memberList.add(mbrdto);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		
+		return memberList;
+	}
+
 }
 
 

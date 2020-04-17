@@ -1,5 +1,6 @@
 package jdbc.day04.board;
 
+import java.util.List;
 import java.util.Map;
 
 public interface InterMemberDAO {  // DAO(Database Access Object)
@@ -11,5 +12,7 @@ public interface InterMemberDAO {  // DAO(Database Access Object)
 	
 	// 게시판에서 글을 쓴 작성자에게 포인트 10 올려주기
 	int updateMemberPoint(String userid);
+
+	List<MemberDTO> selectAllMember(); // 전체 회원 보여주기
 	
 }

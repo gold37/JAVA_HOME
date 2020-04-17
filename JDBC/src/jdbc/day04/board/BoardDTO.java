@@ -96,6 +96,10 @@ public class BoardDTO {
 	
 	public String listInfo() { // 글번호 글제목 글쓴이 작성일자 조회수
 		
+	    if(subject != null && subject.length() >= 10) {
+	          subject = subject.substring(0,10)+"..."; // 글 제목 10글자 이상이면 .. 으로 글 줄임 
+	       }
+	    
 		if(commentcnt > 0) {
 			subject += "["+commentcnt+"]";
 		}

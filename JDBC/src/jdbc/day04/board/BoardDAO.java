@@ -337,6 +337,101 @@ public class BoardDAO implements InterBoardDAO {
 			
 			return commentList;
 		}// end of commentList(String boardNo)-------------
+
+
+		// === 최근 일주일간 일자별 게시글 작성건수 ===
+		@Override
+		public Map<String, Integer> statisticsByWeek() {
+
+			Map<String, Integer> resultMap = new HashMap<String, Integer>();
+			
+			try {
+			
+				conn = MyDBConnection.getConn();
+				
+				String sql =    "select  COUNT(*) as TOTAL\n"+
+								"\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 6, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS6\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 5, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS5\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 4, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS4\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 3, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS3\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 2, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS2\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate - 1, 'yyyy-mm-dd' ), 1, 0)) as  PREVIOUS1\n"+
+								"            , SUM (DECODE (to_char(writeday, 'yyyy-mm-dd'), to_char (sysdate, 'yyyy-mm-dd' ), 1, 0)) as  TODAY\n"+
+								"from jdbc_board\n"+
+								"where  func_midnight( sysdate ) -  func_midnight( writeday ) < 7";
+				
+				pstmt = conn.prepareStatement(sql);
+				
+				rs = pstmt.executeQuery();
+				
+				rs.next();
+				
+				resultMap.put("TOTAL", rs.getInt(1));
+				resultMap.put("PREVIOUS6", rs.getInt(2));
+				resultMap.put("PREVIOUS5", rs.getInt(3));
+				resultMap.put("PREVIOUS4", rs.getInt(4));
+				resultMap.put("PREVIOUS3", rs.getInt(5));
+				resultMap.put("PREVIOUS2", rs.getInt(6));
+				resultMap.put("PREVIOUS1", rs.getInt(7));
+				resultMap.put("TODAY", rs.getInt(8));
+				
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return resultMap;
+			
+		}// end of statisticsByWeek()--------------------
+
+
+		// === 이번달 일자별 게시글 작성건수 ===
+		@Override
+		public List<Map<String, String>> statisticsByCurrentMonth() {
+
+			List<Map<String, String>> mapList = new ArrayList<Map<String,String>>();
+			
+			try {
+				
+				conn = MyDBConnection.getConn();
+				
+
+				String sql = "select decode (grouping ( to_char(writeday, 'yyyymmdd')),0, to_char(writeday, 'yyyymmdd'), '전체') as Writeday -- grouping은 항상 0과 1밖에 안나옴. 0은 실제 데이터, 1은 null 값\n"+
+							 "          , count(*) as CNT\n"+
+							 "from jdbc_board\n"+
+							 "where to_char(writeday, 'yyyymm') = to_char(sysdate, 'yyyymm')\n"+
+							 "group by rollup ( to_char(writeday, 'yyyymmdd'))";
+							
+				pstmt = conn.prepareStatement(sql);
+				
+				rs = pstmt.executeQuery();
+				
+				while(rs.next()) {
+					
+					Map<String, String> map = new HashMap<String, String>();
+					
+					map.put("WRITEDAY", rs.getString(1));
+					map.put("CNT", String.valueOf(rs.getInt(2)));
+					
+					mapList.add(map);
+					
+				} // end of while ------------------
+				
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return mapList;
+		} // end of statisticsByCurrentMonth()------------
+		
+		
+		
 		
 		
 }

@@ -23,15 +23,17 @@ public class BoardView_Main {
 		// ▲ loginMember를 return하기 때문에
 
 		String menuNo = ""; // do 안에 선언하면 while()안에 선언할 수 없어서 밖으로 빼냄
+		String adminMenu = ("admin".equals(loginMember.getUserid())) ? " 10.모든회원 정보 조회":""; 
+		
 		
 		do {
-			
+
 			System.out.println("\n --------------- 게시판 메뉴["+loginMember.getName()+"님 로그인 중 ♪] ---------------- \n"
 							 + "1.글 목록보기  2.글 내용보기  3.글쓰기  4.댓글쓰기  \n"
 							 + "5.글 수정하기 6.글 삭제하기 7.최근 일주일간 일자별 게시글 작성 건수 \n"
-							 + "8.이번달 일자별 게시글 작성건수 9.로그아웃\n"
+							 + "8.이번달 일자별 게시글 작성건수 9.로그아웃"+adminMenu+"\n"
 							 + "-------------------------------------------------------");
-							 
+						 
 			System.out.print("▷ 메뉴번호 선택 : ");
 			menuNo = sc.nextLine();
 			
@@ -104,11 +106,30 @@ public class BoardView_Main {
 					System.out.println(">> 글 삭제 성공!! << \n");					
 				break;	
 				
+				
+			case "7" : // 최근 일주일간 일자별 게시글 작성건수
+				ctrl.statisticsByWeek();
+				break;
+			
+			case "8" : // 이번달 일자별 게시글 작성건수
+				ctrl.statisticsByCurrentMonth();
+				break;
+				
 			case "9": // 로그아웃
 				loginMember = null; // 로그아웃하면 다른메뉴 못하게 확실하게 처리해줌
 				System.out.println(">> 안녕히가세요 *^^* << \n");
 				break;
-
+				
+			case "10": // 모든 회원 정보 조회(관리자 전용 메뉴)
+				
+				if("admin".equals(loginMember.getUserid())) {
+					ctrl.selectAllMember();
+					break;
+				} else {
+					System.out.println("메뉴에 없는 번호입니다.\n");
+					break;
+				}
+				
 			default:
 				System.out.println("메뉴에 없는 번호입니다.\n");
 				break;
