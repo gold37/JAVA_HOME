@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style type="text/css">
+
+/* 
+	css 주석은 /* 얘고, 본문 주석은 <!-- --> 이거랍니다 
+	
+	== css 우선순위 == 
+	
+	해당 태그에 직접준 것 (인라인 방식) > html 파일에서 준 style 태그(임베디드 방식)
+
+
+*/
+
+div {
+	
+	border: solid 1px black;
+	background-color : #B1DB4E;
+}
+
+</style>
+
+
+</head>
+
+
+<body>
+
+ 
+<div style="border: solid 1px blue; background-color: #B1DB4E;">나는 DIV1</div>
+<div style="border: solid 1px red; background-color: #FFB2F5;">나는 DIV2</div>
+
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+@charset "UTF-8";
+
+div {
+	
+	border: solid 3px pink;
+	background-color : #A566FF;
+	
+}

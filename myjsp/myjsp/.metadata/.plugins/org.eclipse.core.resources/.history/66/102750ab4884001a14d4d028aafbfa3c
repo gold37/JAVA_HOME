@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+</head>
+<body>
+
+<div style="border: solid 1px blue";>나는 DIV1</div>
+<div style="border: solid 1px red";>나는 DIV2</div>
+
+
+
+</body>
+</html>

@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="자원 &apos;Score_Test&apos;을(를) &apos;sunjuk_Test&apos;(으)로 이름 바꾸기" description="&apos;Score_Test&apos; 자원 이름 바꾸기" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/Score_Test" name="sunjuk_Test" stamp="1587344941312" updateReferences="true"/>&#x0A;<refactoring comment="자원 &apos;sunjuk_Test&apos;을(를) &apos;sungjuk_Test&apos;(으)로 이름 바꾸기" description="&apos;sunjuk_Test&apos; 자원 이름 바꾸기" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/sunjuk_Test" name="sungjuk_Test" stamp="1587344952213" updateReferences="true"/>
-</session>

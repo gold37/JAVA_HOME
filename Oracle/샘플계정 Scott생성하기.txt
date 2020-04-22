@@ -1,5 +1,0 @@
-C:\Users\user1>sqlplus /nolog
-
-SQL> conn sys/eclass as sysdba
-
-SQL> @C:\oraclexe\app\oracle\product\11.2.0\server\rdbms\admin\scott.sql

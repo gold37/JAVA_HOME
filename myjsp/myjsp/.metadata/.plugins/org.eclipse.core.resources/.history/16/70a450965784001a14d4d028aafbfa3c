@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<link rel="stylesheet" href="mycss.css">
+
+
+<style type="text/css">
+
+/* 
+	css 주석은 /* 얘고, 본문 주석은 <!-- --> 이거랍니다 
+	
+	== css 우선순위 == 
+	
+	해당 태그에 직접준 것 (인라인 방식) > html 파일에서 준 style 태그(임베디드 방식) > 외부에 있는 .css 파일을 로드한것 ( ex) <link rel="stylesheet" href="mycss.css"> )
+	
+
+
+*/
+
+div {
+	
+	border: solid 1px blue; /* border = 실선 테두리의 1px 두께의 파란색 */
+	background-color : #cceeff !important; /* 배경색 연파란색 강제로 최우선 */
+}
+
+</style>
+
+
+</head>
+
+
+<body>
+
+ 
+<div style="border: solid 1px red; background-color: #FFB2F5;">나는 DIV1</div>
+<div style="border: solid 1px red; background-color: #FFB2F5;">나는 DIV2</div>
+
+
+</body>
+</html>
