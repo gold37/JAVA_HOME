@@ -1,8 +1,0 @@
-@charset "UTF-8";
-
-div {
-	
-	border: solid 1px navy;
-	background-color : #B1DB4E;
-	
-}
