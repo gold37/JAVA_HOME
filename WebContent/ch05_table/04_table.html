@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>테이블 만들기 4[colgroup 태그]</title>
+
+<style type="text/css">
+	table, th, td {
+		border: solid 1px #fcb558;
+		border-collapse: collapse; /* 테이블 간격 없앰  */
+	}
+	
+	th {
+		background-color: #FF9436;
+		width: 200px;
+		height: 50px;
+	}
+	
+	.mycenter {
+		text-align: center;
+	}
+	
+	.myright {
+		text-align: right;
+	}
+	
+	colgroup#firstColgroup {
+		background-color: #487BE1;
+	}
+	
+	
+	colgroup#secondColgroup {
+		background-color:#35B62C;
+	}
+	
+</style>
+
+</head>
+<body>
+<table>
+	<colgroup span="1" id="firstColgroup">
+	<!-- colgroup 또는 줄여서 col이라고 쓴다.
+		 span="숫자" 이때 숫자는 묶어줄 열의 개수를 말한다.
+		 sapn에 처음 준 숫자가 1이므로 첫번째 열을 그룹으로 묶고
+		  숫자 2를 주면 그 다음 컬럼부터 2개 컬럼인 두번째 열과 세번째 열을 그룹으로 묶는다. -->
+	<colgroup span="2" id="secondColgroup">
+	<thead>  
+		<tr> <!-- table record (행) -->
+			<th>제품이름과 설명</th>
+			<th>개당 가격</th>
+			<th>박스당 개수</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		<tr> 
+			<td class="mycenter">블라우스 - 노란색 실크</td>
+			<td class="myright">20,000원</td>
+			<td class="mycenter">150</td>
+		</tr>
+		<tr> 
+			<td class="mycenter">니트 - 하늘색</td>
+			<td class="myright">35,000원</td>
+			<td class="mycenter">200</td>
+		</tr>
+	</tbody>
+</table>
+
+
+</body>
+</html>

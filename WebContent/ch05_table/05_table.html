@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>테이블 만들기 5[thead, tbody, tfoot]</title>
+
+<style type="text/css">
+	table, th, td {
+		border: solid 1px #fcb558;
+		border-collapse: collapse; /* 테이블 간격 없앰  */
+	}
+	
+	th {
+		background-color: #FF9436;
+		width: 200px;
+		height: 50px;
+	}
+	
+	.mycenter {
+		text-align: center;
+	}
+	
+	.myright {
+		text-align: right;
+	}
+	
+</style>
+
+</head>
+<body>
+<table>
+	<!-- 
+		thead 태그와 tfoot 태그는 테이블에서 오로지 한번만 사용한다. 
+		thead 태그는 표의 타이틀용도로 쓰이고, 
+		tfoot 태그는 표의 마지막에 요약 데이터나 총계 등을 보여줄때 사용한다.
+		tbody 태그는 표의 데이터를 표시하는 용도로 쓰인다.
+	 -->
+	<thead>  
+		<tr> <!-- table record (행) -->
+			<th>제품이름과 설명</th>
+			<th>개당 가격</th>
+			<th>박스당 개수</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		<tr> 
+			<td class="mycenter">블라우스 - 노란색 실크</td>
+			<td class="myright">20,000원</td>
+			<td class="mycenter">150</td>
+		</tr>
+		<tr> 
+			<td class="mycenter">니트 - 하늘색</td>
+			<td class="myright">35,000원</td>
+			<td class="mycenter">200</td>
+		</tr>
+	</tbody>
+	
+	<tfoot>
+		<tr> <!-- colspan은 열 병합이다. -->
+			<td colspan="2" class="mycenter">총박스 개수</td>
+			<td class="mycenter">450</td>
+		</tr>
+	</tfoot>
+</table>
+
+
+</body>
+</html>
