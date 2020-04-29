@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>타이머 로그아웃</title>
+
+<style type="text/css">
+
+div#container {
+	/* border: solid 1px gray; */
+	
+	width: 90%;
+	margin: 0 auto;
+	padding: 2%;
+}
+
+table,tr,td {
+	border: solid 1px gray;
+	border-collapse: collapse;
+}
+
+td {
+	width: 200px;
+	height: 50px;
+	text-align: center;
+}
+
+</style>
+
+<script type="text/javascript">
+
+	var start = 0; // 허용시간 값 ex) 05:00 또는 01:00
+	var cnt = 0;
+	
+	window.onload = function() {
+		
+		func_loopTimer();
+		
+		var btnDelay = document.getElementById("btnDelay");
+		btnDelay.addEventListener('click', function(e) {
+			
+			cnt = 0; // 다시 처음부터		
+			
+			if(start<0) {
+				alert("로그아웃 된 이후에는 시간연장이 불가합니다.")
+			}
+		
+		});
+		
+		
+	} // end of window.onload = function ()--------------------
+	
+	function func_timer(i) {
+		start = 1*60-i; // 5분(5*60초), 1분(1*60초)
+		
+		if(start >= 0) {
+			var minute = "";
+			
+			if(start<600) { // 10분 미만인 경우 앞에 0 붙임
+				minute = "0";
+				// 05:00 04:59 04:58 04:57
+			}
+			
+			minute += parseInt(start/60); // 05:00 04 04 04
+			
+			var second = start%60;
+			second =(second < 10)?"0"+second:second; // 남은 초가 10보다 작으면 앞에 0+초 아니면 그냥 초
+			
+			var timer = document.getElementById("timer");
+			timer.innerHTML = minute+" : "+second;
+		}
+		
+		else {
+			alert("시간종료로 로그아웃 되었습니다.");
+			return;
+		}
+		
+	} // end of func_timer()----------
+
+	function func_loopTimer() {
+		
+		func_timer(cnt++);
+		
+		if(start>=0) {
+			setTimeout('func_loopTimer()', 1000);		
+		}
+	}// end of function func_loopTimer()-----------------
+	
+	
+	
+	
+	function func_Delay() {
+		
+		cnt = 0; // 다시 처음부터		
+		
+		if(start<0) {
+			alert("로그아웃 된 이후에는 시간연장이 불가합니다.")
+		}
+		
+	} // end of function func_Delay()--------------
+	
+</script>
+
+</head>
+
+<body>
+	<div id="container">
+		<table>
+			<tr>
+			    <td>남은시간</td>
+				<td>
+					<span id="timer"></span>
+					<button type="button" id="btnDelay">연장1</button>
+					<button type="button" onclick="func_Delay()">연장2</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

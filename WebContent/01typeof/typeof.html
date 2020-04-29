@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>자바스크립트에서 사용되는 데이터 타입에 대해서 알아보자</title>
+
+<style type="text/css">
+	div#container {
+		border: solid 1px gray;
+		width: 90%;
+		margin: 0 auto;
+		padding: 2%;
+	}
+	
+	table, tr, th, td {
+		border: solid 1px gray;
+		border-collapse: collapse; 
+	}
+	
+	td {
+		width: 200px;
+		height: 50px;
+		text-align: center;
+	}
+	
+	div#div2, #div3 {
+		margin: 20px 0;
+	}
+	
+	span#sum, #no3, #su3 {
+		color: red;
+		font-weight: bolder;
+	}
+	
+
+</style>
+
+<script type="text/javascript">
+	window.onload = function() {
+		// 1줄 주석문
+		
+		/* 
+			window.onload = function() {} 은 
+			문서가 모두 로드된 다음에 실행하는 것
+		*/
+		
+		// alert("alert은 주로 메세지를 띄우는 대화상자입니다.");
+			
+		var val1 = document.getElementById("val1").innerText; //  <td id="val1"></td> 안의 글자를 읽어옴
+		/* alert(val1); */
+		
+		/* typeof(val1)	// 변수 val1의 데이터 타입을 알려줌 */
+		/* alert(typeof(val1)); */
+		
+	document.getElementById("typeval1").innerHTML = typeof(val1); // typeof(val1) (= string)을 넣어주겠음 
+	
+	// ------------------------------------------------------------------------
+	
+	var val2 = document.getElementById("val2").innerText;
+	/* alert(typeof(val2)); */
+	val2 = parseInt(val2); // parseInt(val2)는 string 타입인 val2를 int로 형변환 시킴 
+	/* alert(typeof(val2)); */
+	
+	document.getElementById("casting2").innerHTML = val2;
+	document.getElementById("typeval2").innerHTML = typeof(val2);
+	
+	
+	// ------------------------------------------------------------------------
+	
+	var val3 = document.getElementById("val3").innerText;
+	val3 = parseInt(val3);
+	
+	document.getElementById("casting3").innerHTML  = val3; 
+	document.getElementById("typeval3").innerHTML  = typeof(val3); 
+	
+	
+	// ------------------------------------------------------------------------
+
+	var val4 = document.getElementById("val4").innerText;
+	val4 = parseFloat(val4);
+	
+	document.getElementById("casting4").innerHTML  = val4; 
+	document.getElementById("typeval4").innerHTML  = typeof(val4); 
+	
+	
+	// ------------------------------------------------------------------------
+
+	var val5 = document.getElementById("val5").innerText;
+	val5 = Number(val5);
+	
+	document.getElementById("casting5").innerHTML  = val5; 
+	document.getElementById("typeval5").innerHTML  = typeof(val5); 
+	
+	// ------------------------------------------------------------------------
+
+	var val6 = document.getElementById("val6").innerText;
+	val6 = Number(val6);
+	
+	document.getElementById("casting6").innerHTML  = val6; 
+	document.getElementById("typeval6").innerHTML  = typeof(val6); 
+	
+		
+	// ------------------------------------------------------------------------
+
+	var num1 = document.getElementById("num1").value;
+	num1 = Number(num1); // 기본 타입이 string이기 때문에 반드시 형변환을 해줘야됨. 안그럼 1020이 나옴
+	// alert(num1);
+	var num2 = document.getElementById("num2").value;
+	num2 = Number(num2);
+	document.getElementById("sum").innerHTML  = num1+num2;
+	
+	// ------------------------------------------------------------------------
+
+	var val7 = document.getElementById("val7").innerText;
+	document.getElementById("typeval7").innerHTML  = typeof(val7); 
+	
+	// ------------------------------------------------------------------------
+	
+	var bool = false;
+	var val8 = document.getElementById("val8").innerText;	
+	var val9 = document.getElementById("val9").innerText;
+	
+	if(val8 == val9) {
+		bool = true; // 같다면 true;
+	}
+	document.getElementById("typeval8").innerHTML  = bool+", "+typeof(bool);
+	
+	
+	// ------------------------------------------------------------------------
+
+	var val10 = document.getElementById("val10").innerText;	
+	var val11 = document.getElementById("val11").innerText;	
+	
+	if(val10 == val11) {
+		bool = true; // 같다면 true;
+	}
+	else {
+		bool = false;
+	}
+	document.getElementById("typeval9").innerHTML  = bool+", "+typeof(bool);
+	
+	
+	// ------------------------------------------------------------------------
+	var val12 = document.getElementById("val12").innerText;
+	document.getElementById("typeval12").innerHTML = typeof(val12); 
+	
+	
+	// ------------------------------------------------------------------------
+	var val13;
+	document.getElementById("typeval13").innerHTML = typeof(val13); 
+	
+	// ------------------------------------------------------------------------
+	var person = {userid:"hongs"
+				, pwd:'qwer1234' // "쌍따옴표" 이거나 '홑따옴표' 둘 다 똑같이 문자열로 봄
+				, name:'홍길동'
+				, age:25}; 
+	// {}은 자바 스크립트에서 말하는 객체이며 {키:값, 키:값, 키:값}형태로 나타낸다.
+	
+	document.getElementById("userid").innerHTML = person.userid+", "+typeof(person.userid);
+	document.getElementById("pwd").innerHTML = person.pwd+", "+typeof(person.pwd);
+	document.getElementById("name").innerHTML = person.name+", "+typeof(person.name);
+	document.getElementById("age").innerHTML = person.age+", "+typeof(person.age);
+	
+	document.getElementById("typeval14").innerHTML = typeof(person);
+	
+	// ------------------------------------------------------------------------
+	var func_plus = function(num1, num2) {
+		var sum = Number(num1) + Number(num2);
+		return sum;
+	};
+	
+	var btnPlus = document.getElementById("btnPlus");
+	// html상의 태그(== element, 요소)는 데이터타입이 object이다.
+	
+	// alert(typeof(btnPlus));
+	// 또는 
+	/* console.log(typeof(btnPlus)); // 확인 log */
+	
+	btnPlus.onclick = function(e) { // 클릭 이벤트
+			/* alert(btnPlus.innerText+" 버튼을 클릭하셨네요")  */
+			// btnPlus.innerText은 <button type="button" id="btnPlus">더하기</button>을 말함
+			var sum = func_plus(document.getElementById('no1').value, document.getElementById('no2').value);	
+			document.getElementById('no3').innerHTML = sum;
+	};
+	
+	var btnClear = document.getElementById('btnClear');
+	btnClear.onclick = function(event) {
+		document.getElementById('no1').value = '';
+		document.getElementById('no2').value = '';
+		document.getElementById('no3').innerHTML = '';
+	};
+	
+	// ------------------------------------------------------------------------
+	
+	var btnMinus = document.getElementById('btnMinus');
+	/*
+		btnMinus.addEventListener("click", function(event) {}); 와
+		btnMinus.onclick = function(event) {}; 은 같은 결과를 출력함 (같은 뜻)
+	*/
+		btnMinus.addEventListener("click", function(event) {
+			var su1 = document.getElementById('su1').value;
+			su1 = Number(su1);
+			
+			var su2 = document.getElementById('su2').value;
+			su2 = Number(su2);
+			
+			document.getElementById('su3').innerHTML = (su1-su2)
+		});
+		
+		var btnReset = document.getElementById('btnReset');
+		
+		btnReset.addEventListener("click", function(event) {
+			document.getElementById('su1').value = '';
+			document.getElementById('su2').value = '';
+			document.getElementById('su3').innerHTML = '';
+		});
+		
+	// ------------------------------------------------------------------------
+		
+	document.getElementById('typeval15').innerHTML = typeof(func_plus);
+		
+	}
+	
+</script>
+
+</head>
+<body>
+
+	<div id="container">
+		<table>
+			<tr>
+				<th>데이터 값</th>
+				<th>형변환 후 데이터 값</th>
+				<th>데이터 타입</th>
+			</tr>
+			
+			<tr>
+				<td id="val1">1234</td>
+				<td id="casting1"></td>
+				<td id="typeval1"></td>
+			</tr>
+			
+			<tr>
+				<td id="val2">1234</td>
+				<td>
+					<span>parseInt(1234) => </span>
+					<span id="casting2"></span>
+				</td>
+				<td id="typeval2"></td>
+			</tr>
+			
+			<tr>
+				<td id="val3">1234.567</td>
+				<td>
+					<span>parseInt(1234.567) => </span>
+					<span id="casting3"></span>
+				</td>
+				<td id="typeval3"></td>
+			</tr>
+			
+			<tr>
+				<td id="val4">1234.567</td>
+				<td>
+					<span>parseFloat(1234.567) => </span>
+					<span id="casting4"></span>
+				</td>
+				<td id="typeval4"></td>
+			</tr>
+			
+			<tr>
+				<td id="val5">1234</td>
+				<td>
+					<span>Number(1234) => </span>
+					<span id="casting5"></span>
+				</td>
+				<td id="typeval5"></td>
+			</tr>
+			
+			<tr>
+				<td id="val6">1234.567</td>
+				<td>
+					<span>Number(1234.567) => </span>
+					<span id="casting6"></span>
+				</td>
+				<td id="typeval6"></td>
+			</tr>
+			
+			<tr>
+				<td id="val7" colspan="2">안녕하세요</td>
+				<td id="typeval7"></td>
+			</tr>
+			
+			<tr>
+				<td id="val8">30</td>
+				<td id="val9">30</td>
+				<td id="typeval8"></td>
+			</tr>
+			
+			<tr>
+				<td id="val10">실론티</td>
+				<td id="val11">레몬</td>
+				<td id="typeval9"></td>
+			</tr>
+			
+			<tr>
+				<td id="val12" colspan="2"></td>
+				<td id="typeval12"></td>
+			</tr>
+			
+			<tr>
+				<td id="val13" colspan="2"></td>
+				<td id="typeval13"></td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">아이디 : <span id="userid"></span></td>
+				<td rowspan="4" id="typeval14"></td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">암호 : <span id="pwd"></span></td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">성명 : <span id="name"></span></td>
+			</tr>
+
+			<tr>
+				<td colspan="2">나이 : <span id="age"></span></td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">func_plus</td>
+				<td id="typeval15"></td>
+			</tr>
+			
+		</table>
+		
+		
+		<div id="div2">
+			<input id="num1" type="text" size="5" value="10" /> + <input id="num2" type="text" size="5" value="20" /> = <span id="sum"></span>
+		</div>
+		
+		<div id="div3">
+			<input id="no1" type="text" size="5" /> + <input id="no2" type="text" size="5" /> = <span id="no3"></span>
+			<br/><br/>
+			<button type="button" id="btnPlus">더하기</button>
+			<button type="button" id="btnClear">지우기</button>
+		</div>
+		
+		<div id="div4">
+			<input id="su1" type="text" size="5" /> - <input id="su2" type="text" size="5" /> = <span id="su3"></span>
+			<br/><br/>
+			<button type="button" id="btnMinus">빼기</button>
+			<button type="button" id="btnReset">지우기</button>
+		</div>
+		
+	</div>
+
+</body>
+</html>
