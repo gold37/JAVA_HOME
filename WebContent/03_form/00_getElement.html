@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>자바스크립트에서 엘리먼트(태그, 요소)를 잡는 방법 4가지</title>
+
+<style type="text/css">
+
+	div {
+		display: inline-block;
+	}
+
+</style>
+
+<script type="text/javascript">
+
+	window.onload = function() {
+		
+		// == 자바스크립트에서 태그를 가지고 선택자를 잡는 방법 == //
+		// document.getElementsByTagName("태그명")
+		// 이것을 실행하면 리턴타입은 객체(object) 배열타입이다.
+		var arrDiv = document.getElementsByTagName("div");
+		
+		for(var i=0; i<arrDiv.length; i++) {
+			// console.log(arrDiv[i].innerText);
+			
+			arrDiv[i].style.width = "400px";
+			arrDiv[i].style.height = "200px";
+			arrDiv[i].style.border = "solid 1px gray";
+			arrDiv[i].style.backgroundColor = arrDiv[i].innerText;
+
+		} // end of for ------------------------
+		
+		// == 자바스크립트에서 클래스명을 가지고 선택자를 잡는 방법 == //
+		// document.getElementsByClassName("클래스명")
+		// 이것을 실행하면 리턴타입은 객체(object) 배열타입이다.
+		var arrBtn = document.getElementsByClassName("btn");
+		
+		for(var i=0; i<arrBtn.length; i++) {
+			// console.log(arrBtn[i].innerText);
+			arrBtn[i].style.color = "blue";
+		} 
+		
+		// == 자바스크립트에서 name 속성을 가지고 선택자를 잡는 방법 == //
+		// document.getElementsByName("name값")
+		// 이것을 실행하면 리턴타입은 객체(object) 배열타입이다.
+		var arrHobby = document.getElementsByName("hobby");
+		var content = "";
+		
+		
+		for (var i=0; i<arrHobby.length; i++) {
+			// console.log(arrHobby[i].value);
+			var sComma = (i<arrHobby.length-1)?",":"";
+			content += arrHobby[i].value + sComma;
+		}
+		
+		// == 자바스크립트에서 id 값을 가지고 선택자를 잡는 방법 == //
+		// document.getElementById("id값")
+		// 이것을 실행하면 리턴타입은 객체(object)이다.
+		var hobbyContent = document.getElementById("hobbyContent");
+		hobbyContent.innerHTML = content;
+		
+	} // end of window.onload = function()---------------------
+
+</script>
+</head>
+<body>
+
+	<div>red</div>
+	<div>green</div>
+	<div>blue</div>
+	
+	<div style="display: block;">
+		<button type="button" class="btn">버튼1</button>
+		<button type="button">버튼2</button>
+		<button type="button" class="btn">버튼3</button>
+		<button type="button">버튼4</button>
+		<button type="button" class="btn">버튼5</button>
+	</div>
+	
+	<div style="display: block;">
+		<label>취미</label>
+		<label>게임</label> 		<input type="checkbox" name="hobby" value="game" />&nbsp;&nbsp;
+		<label>영화감상</label> 	<input type="checkbox" name="hobby" value="movie" />&nbsp;&nbsp;
+		<label>글쓰기</label> 	<input type="checkbox" name="hobby" value="writing" />&nbsp;&nbsp;
+		<label>음악감상</label> 	<input type="checkbox" name="hobby" value="music" />
+		<span id="hobbyContent"></span>
+	</div>
+	
+
+</body>
+</html>

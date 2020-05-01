@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>form에서 데이터 입력시 유효성 검사하기 - 1</title>
+
+<style type="text/css">
+	div#container {
+		/* border: solid 1px gray; */
+		
+		width: 80%;
+		margin: 0 auto;
+	}
+	
+	h2#underline {
+		text-decoration: underline;
+		text-align: center;
+	}
+	
+	div#frm ul {
+		/* border: solid 1px red; */
+		
+		list-style-type: none;
+	}
+	
+	div#frm ul>li {
+		/* border: solid 1px green; */
+		
+		padding: 10px 0;
+	}
+	
+	div#frm ul>li>label {
+		/* border: solid 1px blue; */
+		
+		display: inline-block;
+		width: 100px;
+		padding-left: 0;
+	}
+	
+	button.btn {
+		width: 70px;
+		height: 30px;
+		font-size: 12pt;
+		font-weight: bold;
+		margin: 20px 0 0 40px;
+	}
+	
+	div#age {
+		display: inline-block;
+	}
+	
+	span#spanAge{
+		background-color: red;
+		color : yellow;
+		font-weight: bolder;
+		
+	}
+	
+</style>
+
+<script type="text/javascript">
+
+	var now = new Date();
+	//자바스크립트에서 현재날짜시각을 알려주는 것이다.
+	var currentYear = now.getFullYear(); // 현재 년도
+
+	window.onload = function() {
+
+		// 생년에 값을 선택하도록 만들자
+		var birthYear = document.getElementById("birthYear");
+		
+		var sVal = "";
+		for(var i=0; i<currentYear-1950+1; i++) {
+			sVal += "<option>"+(1950+i)+"</option>";
+		}
+		
+		
+		birthYear.innerHTML = sVal;
+		
+		var birthYear = document.getElementById("birthYear"); // select 태그
+		
+		/* ★암기 'change' ==> 출생년도 선택 시 동작  */
+		birthYear.addEventListener('change', function() {
+			
+			// var year = birthYear.value;
+			// 또는
+			var bYear = this.value;
+	
+			//alert("출생년도 "+bYear+" 를 선택하셨군요");
+			
+			var age = currentYear - bYear + 1; // 현재 나이
+			document.getElementById("age").innerHTML = "<span id='spanAge'>"+age+"</span>";
+			/*  .innerHTML ==> 태그로 인식하고자 할 때 (많이 사용됨) 
+				.innerText ==> 글자만 입력할 때
+			*/
+		});
+		
+	} // end of window.onload = function()-------------------
+	
+	
+	function goSubmit() {	
+		/* form 태그 잡아오기 / object 타입 */
+		var frm = document.registerFrm;
+		
+		// 1. 아이디 입력란에 데이터값이 들어왔는지 검사하기 ---------------------------
+		var sUseridVal = frm.userid.value.trim();
+		
+		if( sUseridVal == "") {
+			alert("아이디를 입력하세요!");
+			
+			frm.userid.value = "";
+			frm.userid.focus();
+			return; // 종료
+		}		
+			
+		// 2. 암호 입력란에 데이터값이 들어왔는지 검사하기------------------------------
+		
+		var sPasswd1Val = frm.passwd.value.trim();
+		
+		if (sPasswd1Val == "") {
+			alert("암호를 입력하세요!");
+			
+			frm.passwd.value = "";
+			frm.passwd.focus();
+			return; // 종료			
+		}		
+		
+		// 3. 암호 입력란과 암호확인 입력란의 데이터값이 같은지 다른지 검사하기 -------------
+		
+		var sPasswd2Val = document.getElementById("passwd2").value.trim(); /* id value 값 확인 */
+		
+		if( sPasswd1Val != sPasswd2Val) {
+			alert("암호와 암호확인 값이 서로 다릅니다!");
+			
+			frm.passwd.value = ""; /* name 값 */
+			document.getElementById("passwd2").value = ""; /* id 값 */
+			frm.passwd.focus();
+			return;
+		}
+
+		// 4. 성명 입력란에 데이터값이 들어왔는지 검사하기--------------------------
+		var sNameVal = frm.name.value.trim();
+		
+		if( sNameVal == "") {
+			alert("성명을 입력하세요!");
+			
+			frm.name.value = "";
+			frm.name.focus();
+			return; // 종료
+		}	
+		
+		// 5. e메일 입력란에 데이터값이 들어왔는지 검사하기--------------------------
+		var sEmailVal = frm.email.value.trim();
+		
+		if( sEmailVal == "") {
+			alert("e메일을 입력하세요!");
+			
+			frm.email.value = "";
+			frm.email.focus();
+			return; // 종료
+		}	
+		
+		// 6. 전화번호 입력란에 데이터값이 들어왔는지 검사하기-------------------------
+		var sTelVal = frm.tel.value.trim();
+		
+		if( sTelVal == "") {
+			alert("전화번호를 입력하세요!");
+			
+			frm.tel.value = "";
+			frm.tel.focus();
+			return; // 종료
+		}	
+		
+		
+		   
+		// 7. 모든 입력란이 올바르게 입력이 되었더라면 폼에 있던 데이터를 전송하기 	-----------
+	
+		frm.action = "register.do"; // form 태그에 직접 넣어도 된다.
+		frm.method = "post"; // <form name="registerFrm" method="get"> 
+		frm.submit(); // button type="submit"도 된다.
+		
+		// alert("다음으로 진행합니다.");
+	} //  end of function goSubmit()------------------------------------
+
+</script>
+
+</head>
+<body>
+
+	<div id="container">
+		<h2 id="underline">회원가입</h2>
+		
+		<div id="frm">
+			<!-- form 태그가 없으면 데이터 전송이 불가능하다. name -->
+			<!-- ★암기 method="post" 내가 입력한 값을 숨긴 채 전송한다.
+					  method="get" 입력한 정보를 공개한채 전송한다. 
+					  http://localhost:9090/JavaScriptStudy/03_form/register.do?userid=leess&passwd=qwer&name=%EC%9D%B4%EC%88%9C%EC%8B%A0&email=leess%40gmail.com&tel=01012344567
+					  URL 주소창에서 ? 왼편은 URL 주소 / 오른쪽은 전송되어질 데이터 값 / & 그리고
+					    보안상 post를 사용한다. / 속도는 get이 빠르다. -->
+					    
+			<!-- get 방식 ==> 웹브라우저 URL 주소창에 data 까지 실어서 보낸다.
+							 보안상 위험
+							 기본은 get 방식이다.
+							 쇼핑몰 검색(노트북) 게시판 검색(글쓴이)
+							 select
+							 where '이순신'
+							 
+				 post 방식 ==> 웹브라우저 URL 주소창에는 주소만 있다.
+				 			   보내야 할 data는 감추어서 보낸다. 감추는 작업이 부하가 크다
+				 			   보안상 안전
+				 			  insert(회원가입), update(회원정보수정), delete(회원탈퇴)
+				 			  DML 작업  -->
+			<form name="registerFrm" > 
+				<ul>
+					<li>
+						<label for="userid">아이디</label>
+						<input type="text" name="userid" id="userid" size="20" maxlength="20" required autofocus />       
+					</li>
+					
+					<li>
+						<label for="passwd1">암호</label>
+						<input type="password" name="passwd" id="passwd1" size="20" maxlength="20" required />
+					</li>
+					
+					<li>
+						<label for="passwd2">암호확인</label>
+						<input type="password" id="passwd2" size="20" maxlength="20" required /> 
+						<!-- 암호는 한번만 보내기 때문에 name 값이 없다. id로 값 비교 -->
+					</li>
+					
+					<li>
+						<label for="name">성명</label>
+						<input type="text" name="name" id="name" size="20" maxlength="20" required />
+					</li>
+					
+					<li>
+						<label for="email">e메일</label>
+						<input type="email" name="email" id="email" size="40" maxlength="40" placeholder="예 abc@gmail.com" /> 
+					</li>
+					
+					<li>
+						<label for="tel">전화번호</label>
+						<input type="tel" name="tel" id="tel" size="20" maxlength="11" placeholder="-는 제외하고 입력" />
+					</li>
+					
+					<li>
+						<label for="birthYear">출생년도</label>
+						<select id="birthYear"></select>
+					</li>
+					
+					<li>
+						<label>현재나이</label>
+						<div id="age"></div>세
+					</li>
+										
+					<li>
+				        <button type="button" class="btn" onclick="goSubmit();">확인</button>
+						<button type="reset" class="btn">취소</button>
+					</li>
+				</ul>	
+			</form>
+		</div>
+	
+	</div>
+
+</body>
+</html>
+
+
+

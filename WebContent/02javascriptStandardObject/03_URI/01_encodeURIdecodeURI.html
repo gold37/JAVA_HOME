@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>문자열을 유효한 URI(Uniform Resource Identifier UTF-8로 인코딩)로 인코드 / 디코드 한다.</title>
+<!-- encode -> UTF-8 로 바꾸기
+	 decode -> 원래대로 표현하게 하기  -->
+	 
+<style type="text/css">
+
+	div#container {
+		/* border: solid 1px gray; */
+		width: 90%;
+		margin: 0 auto;
+		padding: 2%;
+	}
+	
+	table,tr,td {
+		border: solid 1px gray;
+		border-collapse: collapse;
+	}
+	
+	td {
+		width: 200px;
+		height: 50px;
+		text-align: center;
+	}
+
+</style>
+
+<script type="text/javascript">
+	
+	window.onload = function() {
+		
+		document.getElementById("inputText").focus();
+		/* focus() 자동포커스(커서위치지정) 하기 */
+		
+		var btnOK = document.getElementById("btnOK");
+		//alert(typeof(btnOK)); // object
+		
+		btnOK.addEventListener("click", function(){
+			var inputText = document.getElementById("inputText").value;
+			var encodeVal = encodeURI(inputText);
+			
+			document.getElementById("encode").innerHTML = encodeVal;
+			
+			document.getElementById("decode").innerHTML = decodeURI(encodeVal);
+			
+		});
+		
+		var btnReset1 = document.getElementById("btnReset1");
+		/* 버튼 잡아주기 */
+		
+		btnReset1.addEventListener('click', function() {
+			document.getElementById("inputText").value = "";
+			document.getElementById("encode").innerHTML = "";
+			document.getElementById("decode").innerHTML = "";
+		});
+		
+		var btnReset2 = document.getElementById("btnReset2");
+		
+		btnReset2.addEventListener('click', function() {
+			/* 웹 페이지 새로고침 */
+			window.location.reload();
+		});
+
+	} // end of window.onload = function()--------------------
+	
+</script>
+ 
+</head>
+<body>
+
+	<div id="container">
+		<table>
+			<tr>
+			    <td>문자열 입력</td>
+				<td><input type="text" id="inputText" /></td>
+			</tr>
+			
+			<tr>
+			    <td>URI로 인코딩 된 값</td>
+				<td id="encode"></td>
+			</tr>
+			
+			<tr>
+			    <td>URI를 디코딩 한 값</td>
+				<td id="decode"></td>
+			</tr>
+			
+			<tr>
+			    <td><button type="button" id="btnOK">변경</button></td>
+				<td>
+					<button type="button" id="btnReset1">다시1</button>
+					<button type="button" id="btnReset2">다시2</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

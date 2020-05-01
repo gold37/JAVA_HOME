@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>버튼을 클릭하면 색상이 나오는 것</title>
+
+<style type="text/css">
+
+	div#container {
+		/* border: solid 1px gray; */
+		
+		width: 90%;
+		margin: 0 auto;
+		padding: 2%;
+	}
+
+	span#notice {
+		font-size: 20pt; 
+		background-color: navy; 
+		color: white; 
+		margin-right: 60px;
+	}
+
+	button.btns {
+		margin-right: 20px;
+		width: 100px;
+		height: 50px;
+		font-size: 20pt;
+	}
+
+	div.answer {
+		display: inline-block;
+	}
+
+	div#hangulDiv {
+		font-size: 60pt;
+	}
+
+</style>
+
+<script type="text/javascript">
+
+	window.onload = function() {
+		
+		var arrBtnName = ["red","orange","yellow","green","blue","navy","purple"]; 
+		
+		var sHtml = "<span id='notice'>버튼을 눌러보세요</span>";
+		for(var i=0; i<arrBtnName.length; i++) {
+			sHtml += "<button type='button' class='btns'>" +arrBtnName[i]+ "</button>";
+		}
+		
+		document.getElementById("btnsDiv").innerHTML = sHtml;
+		
+		var btnArr = document.getElementsByTagName("button"); 
+		
+		for(var i=0; i<btnArr.length; i++) {
+			btnArr[i].addEventListener('click', function(){
+				var colorDiv = document.getElementById("colorDiv"); 
+				colorDiv.style.width = "200px";
+				colorDiv.style.height = "200px";
+				colorDiv.style.backgroundColor = this.innerText;
+				
+				var hangulDiv = document.getElementById("hangulDiv");
+				
+				switch(this.innerText) {
+					case "red" :
+						hangulDiv.innerText = "빨강";  
+						break;
+						
+					case "orange" :
+						hangulDiv.innerText = "주황";  
+						break;
+						
+					case "yellow" :
+						hangulDiv.innerText = "노랑";  
+						break;
+						
+					case "green" :
+						hangulDiv.innerText = "초록";  
+						break;
+						
+					case "blue" :
+						hangulDiv.innerText = "파랑";  
+						break;
+						
+					case "navy" :
+						hangulDiv.innerText = "남색";  
+						break;
+						
+					case "purple" :
+						hangulDiv.innerText = "보라";  
+						break;	
+				}
+				
+				hangulDiv.style.color = this.innerText;
+				
+			});
+		}// end of for--------------------------
+		
+	}// end of window.onload = function()-----------
+	
+</script>
+
+</head>
+<body>
+
+	<div id="container">
+		<div id="btnsDiv"></div>
+	    <div id="colorDiv" class="answer"></div>
+	    <div id="hangulDiv" class="answer"></div>
+	</div>
+
+</body>
+</html>
+
+
+
+
+
+
