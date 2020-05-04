@@ -42,60 +42,77 @@
 
 	window.onload = function() {
 		
-		var arrBtnName = ["red","orange","yellow","green","blue","navy","purple"]; 
+		// 시험출제 ☆★
 		
-		var sHtml = "<span id='notice'>버튼을 눌러보세요</span>";
-		for(var i=0; i<arrBtnName.length; i++) {
-			sHtml += "<button type='button' class='btns'>" +arrBtnName[i]+ "</button>";
+		var arrBtnName = ["red", "orange", "yellow", "green", "blue", "navy", "purple"];
+		/* 
+		또는 
+		
+		var arrArray = new Array();
+		arrArray.push("red");
+		arrArray.push("orange");
+		
+		로 배열을 나타낼 수 있다.
+		 */
+		
+		var sHtml = "<span id='notice'>버튼을 눌러보세요</span>"; // 겉에 "쌍따옴표" 있으면 안에는 '홑따옴표'로 쓰기
+		
+		for(var i=0; i<arrBtnName.length; i++){
+			sHtml += "<button type='button' class='btns'>"+arrBtnName[i]+"</button>";
 		}
 		
 		document.getElementById("btnsDiv").innerHTML = sHtml;
 		
-		var btnArr = document.getElementsByTagName("button"); 
+		var btnArr = document.getElementsByTagName("button"); // 버튼 7개 잡아주기위해 element생성
 		
-		for(var i=0; i<btnArr.length; i++) {
-			btnArr[i].addEventListener('click', function(){
-				var colorDiv = document.getElementById("colorDiv"); 
-				colorDiv.style.width = "200px";
+		for(var i=0; i<btnArr.length; i++){
+			btnArr[i].addEventListener('click', function() {
+				var colorDiv = document.getElementById('colorDiv');
+				colorDiv.style.width = "200px"; // JavaScript에 CSS줄때 .style 하면 됨
 				colorDiv.style.height = "200px";
-				colorDiv.style.backgroundColor = this.innerText;
+				/* colorDiv.style.backgroundColor= "blue"; // 어떤 버튼 눌러도 다 파란색 나옴  */
+				colorDiv.style.backgroundColor= this.innerText; // 이벤트가 발생되어진 버튼에 (this) 배경색을 넣어라(innerText)
 				
-				var hangulDiv = document.getElementById("hangulDiv");
+				var hangulDiv = document.getElementById("hangulDiv"); // 컬러명 나타내주기 위해 element생성
+				switch (this.innerText) {
+				case "red":
+					hangulDiv.innerText = "빨강";
+					// 또는 innerHTML
+					break;
+					
+				case "orange":
+					hangulDiv.innerText = "주황";
+					break;
+					
+				case "yellow":
+					hangulDiv.innerText = "노랑";
+					break;
+					
+				case "green":
+					hangulDiv.innerText = "초록";
+					break;
+					
+				case "blue":
+					hangulDiv.innerText = "파랑";
+					break;
+					
+				case "navy":
+					hangulDiv.innerText = "남색";
+					break;
+					
+				case "purple":
+					hangulDiv.innerText = "보라";
+					break;
+
+				default:
+					break;
+				} // end of switch() -----------
 				
-				switch(this.innerText) {
-					case "red" :
-						hangulDiv.innerText = "빨강";  
-						break;
-						
-					case "orange" :
-						hangulDiv.innerText = "주황";  
-						break;
-						
-					case "yellow" :
-						hangulDiv.innerText = "노랑";  
-						break;
-						
-					case "green" :
-						hangulDiv.innerText = "초록";  
-						break;
-						
-					case "blue" :
-						hangulDiv.innerText = "파랑";  
-						break;
-						
-					case "navy" :
-						hangulDiv.innerText = "남색";  
-						break;
-						
-					case "purple" :
-						hangulDiv.innerText = "보라";  
-						break;	
-				}
-				
-				hangulDiv.style.color = this.innerText;
+				hangulDiv.style.color = this.innerText; // 글자색깔 자기 색깔에 맞게 나타냄
 				
 			});
-		}// end of for--------------------------
+		} // end of for -------------
+		
 		
 	}// end of window.onload = function()-----------
 	
