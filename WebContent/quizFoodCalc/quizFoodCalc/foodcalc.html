@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>음식 계산서</title>
+
+<style type="text/css">
+	#underline {
+		text-decoration: underline;
+	}
+	
+	table, td {
+		border: 1px solid gray;
+    	padding: 5px;
+    	border-collapse:collapse; 
+    }
+    		   
+	td {
+		height: 30px;
+	}
+	
+	td.title {
+		text-align:right; 
+		background-color:ivory; 
+		font-weight:bold; 
+		color:#ff6600
+	}
+	
+	input[type="number"] {
+		text-align: right;
+		margin-right: 20px;	
+	}
+	
+	input#totalMoney {
+		text-align: center;
+		border-style: hidden;
+		font-size: 15pt; 
+		font-weight: bold; 
+		color: maroon;
+	}
+	
+</style>
+
+<script type="text/javascript" src="/JavaScriptStudy/util/myutil.js"></script>
+<script type="text/javascript">
+
+ 	window.onload = function() {
+ 		
+ 		// 1. 식사류 및 음료에 가격 입력하기
+ 		var arrFoodName = document.getElementsByName("foodName");
+ 		var arrUnitPriceFood = document.getElementsByClassName("unitPriceFood");
+
+ 		for(var i=0; i<arrUnitPriceFood.length; i++) {
+ 			arrUnitPriceFood[i].innerHTML = func_comma(arrFoodName[i].value);
+ 		}
+ 		
+ 	    // 2. 커피샷추가에 가격 입력하기
+ 		var arrShot = document.getElementsByName("shot");
+ 		var arrUnitPriceShot = document.getElementsByClassName("unitPriceShot");
+ 		for(var i=0; i<arrUnitPriceShot.length; i++) {
+ 			arrUnitPriceShot[i].innerHTML = func_comma(arrShot[i].value);
+ 		}
+ 		
+ 	}// end of window.onload = function()------------------------
+ 	
+
+ 	// 식사류 및 음료의 체크박스에 클릭한 경우에 호출되어지는 함수 생성하기 
+    function choiceFood(obj) {
+    		
+    		var foodNameArr = document.getElementsByName("foodName");
+		    var num = "";
+		    
+		 	// 어떤 체크박스를 클릭했는지 알아오도록 한다.
+			for(var i=0; i<foodNameArr.length; i++) { 
+				if(foodNameArr[i] == obj) {
+					num = foodNameArr[i].id.substring(8); 
+					// 만약에 id 가 "foodName0" 이라면 숫자 0 만을 뽑아온다.
+					break;
+				}   
+		    }// end of for---------------------------------
+		      
+		    if(obj.checked) { // 체크박스가 체크가 된 경우이라면
+		        document.getElementById("foodOrdercnt"+num).value = "1";
+		        // 주문량을 1 로 설정한다.
+		    }
+		    
+		    else { // 체크박스가 체크가 해제된 경우이라면
+		    	document.getElementById("foodOrdercnt"+num).value = "0";
+		        // 주문량을 0 으로 설정한다.
+		        
+		        if(obj.id == "foodName5") {
+		        	// 커피를 선택하지 않은 경우
+		        	// 모든 커피샷 추가 체크박스는 해제한다.
+		        	var shotArr = document.getElementsByName("shot");
+		        	for(var i=0; i<shotArr.length; i++) {
+		        		shotArr[i].checked = false;
+		        	}// end of for---------------------------------
+		        } 
+		          
+		    }
+		  
+		   calcSumTotal();
+		   
+ 	}// end of function choiceFood(obj)-------------------------------	    
+
+    
+    // 식사류 및 음료의 개수에 클릭한 경우에 호출되어지는 함수 생성하기 
+    function choiceCnt(obj) {
+    	    		
+    		var foodOrdercntArr = document.getElementsByName("foodOrdercnt");
+	  	    var num = "";
+	
+	  	    // 어떤 number를 클릭했는지 알아오도록 한다.
+	        for(var i=0; i<foodOrdercntArr.length; i++) {
+	    	    if(foodOrdercntArr[i] == obj) {
+	    		    num = foodOrdercntArr[i].id.substring(12);
+	    		    // 만약에 id 가 "foodOrdercnt0" 이라면 숫자 0 만을 뽑아온다.
+	    		 
+	    		    break;
+	    	    }   
+		    }// end of for---------------------------------
+	    		    
+		    if(obj.value != "0") { // 주문량이 0 이 아니라면 체크박스에 체크를 해둔다.
+	    	   document.getElementById("foodName"+num).checked = true;
+	        } 
+	    		    
+	    	else { // 주문량이 0 이라면 체크박스에 체크를 해제한다.
+		       document.getElementById("foodName"+num).checked = false;
+	    	}
+	    	
+    	    calcSumTotal();
+    	
+    }// end of function function choiceCnt(obj)------------------
+    
+    
+    // 커피샷 추가하기 체크박스에 클릭한 경우에 호출되어지는 함수 생성하기 
+    function checkShot(obj) {
+		
+    	// 먼저 음료에서 커피를 선택했는지 알아와서 커피를 선택했을 경우에만 커피샷추가를 허용하도록 한다.  
+		var bChecked = document.getElementById("foodName5").checked;
+    	
+		if(!bChecked) {
+			alert("커피를 선택하지 않으셨습니다.");
+			obj.checked = false; // 커피샷추가에서 선택한 체크박스 해제하기  
+			
+			return; // 음료에서 커피를 선택하지 않은 경우라면 종료.
+		}	
+		
+		// 음료에서 커피를 선택한 경우라면 커피샷추가 체크박스는 라디오 처럼 1개만 선택하도록 하기
+		var shotArr = document.getElementsByName("shot"); 
+		
+		for(var i=0; i<shotArr.length; i++) {
+			if(shotArr[i] != obj) {
+				shotArr[i].checked = false;
+			}
+		}
+
+		calcSumTotal();
+	}// end of function checkShot(obj)----------------------------
+
+	
+	/////////// 청구금액 구하기 함수 생성하기 ///////////////
+	function calcSumTotal() {
+
+		var sumTotal = 0;
+		var arrFoodName = document.getElementsByName("foodName");
+		var arrFoodOrdercnt = document.getElementsByName("foodOrdercnt");
+		
+		for(var i=0; i<arrFoodName.length; i++) {
+			// 단가구하기
+			var price = Number( arrFoodName[i].value  );
+			
+			// 주문량구하기
+			var cnt = Number( arrFoodOrdercnt[i].value );
+			
+			sumTotal += price * cnt;
+		}
+		
+		/// 샷추가 금액구하기 ///
+		var arrShot = document.getElementsByName("shot"); 
+		for(var i=0; i<arrShot.length; i++) {
+			if(arrShot[i].checked) {
+				sumTotal += Number( arrShot[i].value );
+			}
+		}
+		
+		sumTotal = String(sumTotal); // number 타입인 sumTotal 을 문자열로 변환한다.
+				
+		document.getElementById("totalMoney").value = func_comma(sumTotal); 
+	}// end of function calcSum()--------------------------------------------
+	
+	
+	/////////// 주문하기 함수 생성하기 ///////////////
+	function order() {
+		
+	  var frm =	document.frmData;	
+	  
+	  var totalMoney = document.getElementById("totalMoney").value.trim();
+	  
+	  if(totalMoney == "0") {
+		  alert("식사류나 음료를 주문하셔야 합니다.");
+	  }
+	  else {
+	      frm.method="post";
+	      frm.action="order.do";
+	      frm.submit();
+	  }
+		
+	}// end of function order()------------------
+	
+</script>
+
+</head>
+<body>
+
+<div align="center">
+	<h2 id="underline">계산서</h2>
+	<form name="frmData">
+	<table>
+	<tr>
+		<td class="title">식사류</td>
+		<td>
+			<input type="checkbox" id="foodName0" name="foodName" value="4000" onClick="choiceFood(this);"><label for="foodName0">짜장면(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt0" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			
+			<input type="checkbox" id="foodName1" name="foodName" value="5000" onClick="choiceFood(this);"><label for="foodName1">짬뽕(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt1" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			
+			<input type="checkbox" id="foodName2" name="foodName" value="6000" onClick="choiceFood(this);"><label for="foodName2">볶음밥(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt2" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+		</td>
+	</tr>
+	<tr>
+	<td class="title">음료</td>
+		<td>
+			<input type="checkbox" id="foodName3" name="foodName" value="1000" onClick="choiceFood(this);"><label for="foodName3">사이다(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt3" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			
+			<input type="checkbox" id="foodName4" name="foodName" value="1000" onClick="choiceFood(this);"><label for="foodName4">콜라(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt4" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			
+			<input type="checkbox" id="foodName5" name="foodName" value="2000" onClick="choiceFood(this);"><label for="foodName5">커피(<span class="unitPriceFood"></span>)</label>
+			<input type="number" id="foodOrdercnt5" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+		</td>
+	</tr>
+	<tr>
+	<td class="title">커피샷추가</td>
+		<td>
+			<input type="checkbox" id="shot1" name="shot" value="500" onClick="checkShot(this);"><label for="shot1">2샷(<span id="priceshot0" class="unitPriceShot"></span>)</label>
+			<input type="checkbox" id="shot2" name="shot" value="1000" onClick="checkShot(this);"><label for="shot2">3샷(<span id="priceshot1" class="unitPriceShot"></span>)</label>
+			<input type="checkbox" id="shot3" name="shot" value="1500" onClick="checkShot(this);"><label for="shot3">4샷(<span id="priceshot2" class="unitPriceShot"></span>)</label>
+		</td>
+	</tr>
+	<tr align="center">
+	<td class="title">청구금액</td>
+		<td>
+			<input type="text" id="totalMoney" name="totalMoney" size="15" value="0"> 원
+		</td>
+	</tr>
+	<tr align="center">
+		<td colspan="2">
+			<input type="button" value="주문" onClick="order();">&nbsp;
+			<input type="reset" value="취소">&nbsp;
+		</td>
+	</tr>
+	</table>
+	</form>
+</div>
+
+</body>
+</html>
