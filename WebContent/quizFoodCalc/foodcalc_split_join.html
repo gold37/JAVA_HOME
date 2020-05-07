@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>음식 계산서</title>
+<title>음식 계산서 (split , join 사용해서 금액 세자리 마다 콤마 찍어주기)</title>
 
 <style type="text/css">
 	#underline {
@@ -41,25 +41,34 @@
 	
 </style>
 
-<script type="text/javascript" src="/JavaScriptStudy/util/myutil.js"></script>
+
 <script type="text/javascript">
 
  	window.onload = function() {
  		
- 		// 1. 식사류 및 음료에 가격 입력하기
- 		var arrFoodName = document.getElementsByName("foodName");
+ 		// 1. 식사류 및 음료에 체크박스 value에 span 태그에 있는 가격을 콤마(,)를 제외하고서 식사류 및 음료 체크박스 value에 입력해주기
  		var arrUnitPriceFood = document.getElementsByClassName("unitPriceFood");
-
+ 		var arrFoodName = document.getElementsByName("foodName");
+ 		
  		for(var i=0; i<arrUnitPriceFood.length; i++) {
- 			arrUnitPriceFood[i].innerHTML = func_comma(arrFoodName[i].value);
+ 			/* 
+ 			console.log(arrUnitPriceFood[i].innerText); // 4,000 -> 콤마를 자른것을
+ 			
+ 			arrUnitPriceFood[i].innerText.split(",").join // 4 000 -> 배열로 만들었다가
+ 			console.log( arrUnitPriceFood[i].innerText.split(",").join("") ); // 4000 -> 다시합침
+ 			*/
+ 			arrFoodName[i].value = arrUnitPriceFood[i].innerText.split(",").join("");
+ 			
  		}
  		
- 	    // 2. 커피샷추가에 가격 입력하기
- 		var arrShot = document.getElementsByName("shot");
+ 	    // 2. 커피샷추가 span 태그에 있는 가격을 콤마(,)를 제외하고서 입력해주기
  		var arrUnitPriceShot = document.getElementsByClassName("unitPriceShot");
+ 		var arrShot = document.getElementsByName("shot");
+ 		
  		for(var i=0; i<arrUnitPriceShot.length; i++) {
- 			arrUnitPriceShot[i].innerHTML = func_comma(arrShot[i].value);
+ 			arrShot[i].value = arrUnitPriceShot[i].innerText.split(",").join("");
  		}
+ 		
  		
  	}// end of window.onload = function()------------------------
  	
@@ -67,18 +76,9 @@
  	// 식사류 및 음료의 체크박스에 클릭한 경우에 호출되어지는 함수 생성하기 
     function choiceFood(obj) {
     		
-    		var foodNameArr = document.getElementsByName("foodName");
-		    var num = "";
-		    
-		 	// 어떤 체크박스를 클릭했는지 알아오도록 한다.
-			for(var i=0; i<foodNameArr.length; i++) { 
-				if(foodNameArr[i] == obj) {
-					num = foodNameArr[i].id.substring(8); 
-					// 만약에 id 가 "foodName0" 이라면 숫자 0 만을 뽑아온다.
-					break;
-				}   
-		    }// end of for---------------------------------
-		      
+		    var num = obj.id.substring(8); // 어떤 체크박스를 클릭했는지 알아오도록 한다.
+		    	                           // 만약에 id 가 "foodName0" 이라면 숫자 0 만을 뽑아온다.
+		 	  
 		    if(obj.checked) { // 체크박스가 체크가 된 경우이라면
 		        document.getElementById("foodOrdercnt"+num).value = "1";
 		        // 주문량을 1 로 설정한다.
@@ -106,20 +106,10 @@
     
     // 식사류 및 음료의 개수에 클릭한 경우에 호출되어지는 함수 생성하기 
     function choiceCnt(obj) {
-    	    		
-    		var foodOrdercntArr = document.getElementsByName("foodOrdercnt");
-	  	    var num = "";
-	
-	  	    // 어떤 number를 클릭했는지 알아오도록 한다.
-	        for(var i=0; i<foodOrdercntArr.length; i++) {
-	    	    if(foodOrdercntArr[i] == obj) {
-	    		    num = foodOrdercntArr[i].id.substring(12);
-	    		    // 만약에 id 가 "foodOrdercnt0" 이라면 숫자 0 만을 뽑아온다.
-	    		 
-	    		    break;
-	    	    }   
-		    }// end of for---------------------------------
-	    		    
+    	    
+	  	    var num = obj.id.substring(12); // 어떤 number를 클릭했는지 알아오도록 한다.
+	  	                                    // 만약에 id 가 "foodOrdercnt0" 이라면 숫자 0 만을 뽑아온다.
+	  	    	    
 		    if(obj.value != "0") { // 주문량이 0 이 아니라면 체크박스에 체크를 해둔다.
 	    	   document.getElementById("foodName"+num).checked = true;
 	        } 
@@ -184,9 +174,10 @@
 			}
 		}
 		
-		sumTotal = String(sumTotal); // number 타입인 sumTotal 을 문자열로 변환한다.
-				
-		document.getElementById("totalMoney").value = func_comma(sumTotal); 
+		// >>>> 숫자를 세자리 마다 콤마를 찍어서 문자열 타입으로 변환하여 넣어주기 <<<<
+		sumTotal = sumTotal.toLocaleString('en'); // en은 3자리마다 콤마 찍어주는 역할을 함. 조건:sumTotal이 숫자여야됨.
+		
+		document.getElementById("totalMoney").value = sumTotal; 
 	}// end of function calcSum()--------------------------------------------
 	
 	
@@ -220,35 +211,35 @@
 	<tr>
 		<td class="title">식사류</td>
 		<td>
-			<input type="checkbox" id="foodName0" name="foodName" value="4000" onClick="choiceFood(this);"><label for="foodName0">짜장면(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt0" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName0" name="foodName" onClick="choiceFood(this);"><label for="foodName0">짜장면(<span class="unitPriceFood">4,000</span>)</label>
+			<input type="number" id="foodOrdercnt0" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 			
-			<input type="checkbox" id="foodName1" name="foodName" value="5000" onClick="choiceFood(this);"><label for="foodName1">짬뽕(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt1" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName1" name="foodName" onClick="choiceFood(this);"><label for="foodName1">짬뽕(<span class="unitPriceFood">5,000</span>)</label>
+			<input type="number" id="foodOrdercnt1" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 			
-			<input type="checkbox" id="foodName2" name="foodName" value="6000" onClick="choiceFood(this);"><label for="foodName2">볶음밥(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt2" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName2" name="foodName" onClick="choiceFood(this);"><label for="foodName2">볶음밥(<span class="unitPriceFood">6,000</span>)</label>
+			<input type="number" id="foodOrdercnt2" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 		</td>
 	</tr>
 	<tr>
 	<td class="title">음료</td>
 		<td>
-			<input type="checkbox" id="foodName3" name="foodName" value="1000" onClick="choiceFood(this);"><label for="foodName3">사이다(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt3" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName3" name="foodName" onClick="choiceFood(this);"><label for="foodName3">사이다(<span class="unitPriceFood">1,000</span>)</label>
+			<input type="number" id="foodOrdercnt3" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 			
-			<input type="checkbox" id="foodName4" name="foodName" value="1000" onClick="choiceFood(this);"><label for="foodName4">콜라(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt4" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName4" name="foodName" onClick="choiceFood(this);"><label for="foodName4">콜라(<span class="unitPriceFood">1,000</span>)</label>
+			<input type="number" id="foodOrdercnt4" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 			
-			<input type="checkbox" id="foodName5" name="foodName" value="2000" onClick="choiceFood(this);"><label for="foodName5">커피(<span class="unitPriceFood"></span>)</label>
-			<input type="number" id="foodOrdercnt5" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onClick="choiceCnt(this);" />
+			<input type="checkbox" id="foodName5" name="foodName" onClick="choiceFood(this);"><label for="foodName5">커피(<span class="unitPriceFood">2,000</span>)</label>
+			<input type="number" id="foodOrdercnt5" name="foodOrdercnt" min="0" max="99" step="1" value="0" required onchange="choiceCnt(this);" />
 		</td>
 	</tr>
 	<tr>
 	<td class="title">커피샷추가</td>
 		<td>
-			<input type="checkbox" id="shot1" name="shot" value="500" onClick="checkShot(this);"><label for="shot1">2샷(<span id="priceshot0" class="unitPriceShot"></span>)</label>
-			<input type="checkbox" id="shot2" name="shot" value="1000" onClick="checkShot(this);"><label for="shot2">3샷(<span id="priceshot1" class="unitPriceShot"></span>)</label>
-			<input type="checkbox" id="shot3" name="shot" value="1500" onClick="checkShot(this);"><label for="shot3">4샷(<span id="priceshot2" class="unitPriceShot"></span>)</label>
+			<input type="checkbox" id="shot1" name="shot" onClick="checkShot(this);"><label for="shot1">2샷(<span id="priceshot0" class="unitPriceShot">500</span>)</label>
+			<input type="checkbox" id="shot2" name="shot" onClick="checkShot(this);"><label for="shot2">3샷(<span id="priceshot1" class="unitPriceShot">1,000</span>)</label>
+			<input type="checkbox" id="shot3" name="shot" onClick="checkShot(this);"><label for="shot3">4샷(<span id="priceshot2" class="unitPriceShot">1,500</span>)</label>
 		</td>
 	</tr>
 	<tr align="center">

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>자바스크립트에서 선택자를 잡는 예제 및 폼 유효성 검사</title>
+
+<style type="text/css">
+
+	body {
+		/* border: solid 1px blue; */
+		margin: 0;
+		padding: 30px 0 0 0;
+		font-family: Arial, "MS Trebuchet", sans-serif;
+	}
+
+	#container {
+		/* border: solid 1px gray; */
+		width: 80%;
+		margin: 0 auto;
+	}
+	
+	ul {
+		/* border: solid 1px yellow; */
+		list-style-type: none;
+		padding: 0;
+	}
+	
+	ul > li > label {
+		/* border: solid 1px blue;   */
+		display: inline-block; 
+		width: 100px;
+		color: navy;
+		font-weight: bold;
+		height: 20px;
+		margin: 2px 0 0 0;
+	} 
+	
+	label.gender , label.hobby {
+		display: inline;
+	}
+	
+	ul > li {
+		margin: 0 0 10px 0;
+	}
+	
+	input.myinput {
+		height: 20px;
+	}
+	
+	select {
+		width: 150px;
+	}
+	
+	select.myselect {
+		height: 25px;	
+	}
+	
+	button.btn {
+		width: 100px;
+		height: 40px;
+		background-color: #000;
+		color: #fff;
+		border: none;
+		font-size: 16pt;
+		margin: 20px 0 0 40px;
+	}
+	
+	legend {
+		font-size: 20pt;
+	}
+
+</style>
+
+<script type="text/javascript">
+
+	var now = new Date(); // 자바스크립트에서 현재 날짜와 시각을 알려주는 것
+	
+	var currentYear = now.getFullYear(); // 현재년도
+
+   window.onload = function() {
+	   
+	   var sOption = "<option>출생년도</option>";
+	   for(var i=0; i<currentYear-1950+1; i++){
+		   
+		   sOption += "<option>"+(1950+i)+"</option>";
+		   
+	   }
+	   document.getElementById("birthYear").innerHTML = sOption;
+	   
+   } // end of window.onload = function()--------------
+    
+   
+    function goCurrentAge() {
+
+    	var sBirthYear = document.getElementById("birthYear").value;
+	/* 	
+	   	alert(sBirthYear);
+	   	alert(typeof sBirthYear); // string 
+	   	
+   	 */
+   	 
+  	 	var bNaN = isNaN(Number(sBirthYear)) // Number(sBirthYear)이 숫자가 아니라면("ex)출생년도") true이고 
+  	 										 // 숫자라면 false이다.
+  	 	
+  	 	if(bNaN) {
+  	 		alert("출생년도를 선택하세요");
+  	 	}else {
+	   	 	var currentAge = currentYear - Number(sBirthYear)+1; // 현재년도 - 태어난 년도 + 1 = 현재나이
+	   	 	document.getElementById("currentAge").innerHTML = currentAge;
+  	 	}
+  	 	
+  	 	
+  	 	
+   	 
+    }// end of function goCurrentAge()-------------
+    
+
+    
+    function goSubmit() {
+    	/* form 태그 잡아오기 --> document.getId 아니고 document.name명  */
+    	var frm = document.registerFrm;
+    	
+    	/* 1. 사용자 ID는 첫글자는 대문자로 시작해야 하며, 
+    		    두번째부터 끝까지는 영문자 또는 숫자로만 이뤄져야한다.
+    		    그리고 총 글자수는 5글자 이상 10글자 이하여야 한다.
+    	*/
+    	var sUseridVal = frm.userid.value;
+    	
+    	/* *** === 정규표현식 객체 만들기 === ***
+    		항상 /로 시작해서 /로 끝나고 ;을 붙인다.
+    		-----------------------------
+    	*/
+    	
+		var regExp_ID = /^[A-Z][A-Za-z0-9]{4,9}$/; // ^는 시작, $는 끝났음을 말함
+		
+		// 생성된 정규표현식 객체(ex)regExp)속에 데이터(ex)sUseridVal)를 넣어서 검사하기
+    	var bResult = regExp_ID.test(sUseridVal); // 리턴타입은 boolean이다.
+		// sUseridVal 값이 정규표현식 패턴에 맞으면 true, 틀리면 false
+		
+		if( !bResult ) {
+			alert("ID는 영문 대문자로 시작, 나머지는 영문자 또는 숫자로 이뤄진 5글자~10글자 이하여야합니다!");
+			
+			frm.userid.value = "";
+			frm.userid.focus();
+			return; // 종료
+		}		
+		
+		
+		// 2. 암호 입력란에 데이터값이 들어왔는지 검사하기
+		var sPasswd1Val = frm.passwd.value;
+		
+		var regExp_PW = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).*$/g; //g는 global
+		
+		bResult = regExp_PW.test(sPasswd1Val); 
+		
+		if (!bResult) {
+			alert("암호는 8글자 이상 15글자 이하로 영문,숫자,특수기호가 혼합돼야합니다!");
+			
+			frm.passwd.value = "";
+			frm.passwd.focus();
+			return; // 종료			
+		}		
+		
+		// 3. 암호 입력란과 암호확인 입력란의 데이터값이 같은지 다른지 검사하기
+		
+		var sPasswd2Val = document.getElementById("passwd2").value.trim(); /* id value 값 확인 */
+		
+		if( sPasswd1Val != sPasswd2Val) {
+			alert("암호와 암호확인 값이 서로 다릅니다!");
+			
+			frm.passwd.value = ""; /* name 값 */
+			document.getElementById("passwd2").value = ""; /* id 값 */
+			frm.passwd.focus();
+			return;
+		}
+
+		// 4. 성명 입력란에 데이터값이 들어왔는지 검사하기
+		var sNameVal = frm.name.value.trim();
+		
+		if( sNameVal == "") {
+			alert("성명을 입력하세요!");
+			
+			frm.name.value = "";
+			frm.name.focus();
+			return; // 종료
+		}	
+		
+		// 5. e메일 입력란에 데이터값이 들어왔는지 검사하기
+		var sEmailVal = frm.email.value;
+		
+		var regExp_email = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+		
+		bResult = regExp_email.test(sEmailVal);
+		
+		if(!bResult) {
+			alert("올바른 이메일 형식으로 입력하세요!");
+			
+			frm.email.value = "";
+			frm.email.focus();
+			return; // 종료
+		}	
+		
+		// 6. 성별 체크했는지 검사하기 (checked안씀)
+		var arrGender = document.getElementsByName("gender"); 
+		var bFlag = false;
+		
+		for(var i=0; i<arrGender.length; i++) {
+			var bChecked = arrGender[i].checked; // 라디오에서 체크가 된 상태라면 arrGender[i].checked은 true 이고,
+								   				 // 체크가 안된 상태라면  arrGender[i].checked은 false이다.
+			/* alert(bChecked);   */
+			if(bChecked) {
+				bFlag = true;
+				break;
+			}
+		}// end of for ---------
+		
+		if(!bFlag) {
+			alert("성별을 선택하세요");
+			return; // 그 다음거 진행못하게
+		}
+		
+		/* alert("다음으로 진행"); */
+		
+		
+		// 7. 취미 2개 이상 선택했는지 검사하기
+		var arrHobby = document.getElementsByName("hobby");
+		var count = 0;
+
+		for(var i=0; i<arrHobby.length; i++) {
+			var bChecked = arrHobby[i].checked; 
+			   
+			if(bChecked) {
+				count++;
+			}
+		}// end of for ---------
+		
+		if(count<2){
+			alert("취미는 최소한 2개 이상 선택하셔야합니다.");
+			return;
+		}
+		
+		
+		// 8. 출생년도 선택했는지 검사하기
+		var sBirthYear = document.getElementById("birthYear").value;
+		/* alert(sBirthYear); */
+		
+		if(isNaN(Number(sBirthYear))){
+			alert("반드시 출생년도를 선택하세요");
+			return;
+		}
+		
+		// 9. 최종학력을 선택했는지 검사하기
+		var sSchool = document.getElementById("school").value;
+		/*	alert(sSchool); */
+		
+		if(isNaN(Number(sSchool))){
+			alert("학력선택을 하십시오");
+			return;
+		}
+		
+		// 10. 가입인사말 작성했는지 검사하기
+		var sRegisterComment = document.getElementById("registerComment").value.trim(); // 왼쪽 오른쪽 공백 제거
+    	
+		if( sRegisterComment == "") {
+			alert("인사말를 입력하세요!");
+			return; // 종료
+		}		
+		
+		/* alert("다음으로 진행"); */
+		frm.submit(); // 전송하기
+		
+    } // end of function goSubmit()--------------
+
+    
+
+    
+</script>
+
+</head>
+<body>
+
+	<div id="container">
+		<form name="registerFrm" action="register.do" method="post" enctype="multipart/form-data"> 
+	<!-- 
+		 form 태그에서 사용하는  method 는 2가지가 있는데 get 과 post 가 있다.
+		 get 은 전송하고자 하는 데이터를 웹브라우저 주소창에 실어서 보내는 방식이고,
+		 post 는 전송하고자 하는 데이터를 본문속에 감추어서 보내는 방식이다.
+		 그래서 get 은 보안성이 떨어지는 반면에 속도는 post 보다 빠르다.
+		 post는 보안성은 좋지만 속도는 get 보다는 느린편이다.
+		 그러므로 외부에 공개해서는 안되는 작업인 회원가입, 물품구매, 회원수정 등 DML(insert, update, delete)작업은 
+		 일반적으로 post 방식으로 하고, 
+		 외부에 공개하더라도 전혀 무관한 데이터 검색(예: 물품조회, 게시판글 검색)인 select 작업은
+		 일반적으로 get 방식으로 한다.
+		 method 를 기재하지 않으면 get 방식이다. 
+	--> 
+		
+	<!-- 
+		== !!! 중요 !!! ==
+		파일첨부가 있을 경우에는
+		form name="registerFrm" action="register.do" method="post" 와 같이해주면 
+		파일은 절대로 전송이 안되어진다.
+		form name="registerFrm" action="register.do" method="post" enctype="multipart/form-data" 로 
+		해야만 파일이 전송 되어진다. 
+		또한 파일을 첨부하려면 반드시 method="post" 이어야만 한다.!!!
+	-->
+			<fieldset>
+				<legend>회원가입정보</legend>
+				<ul>
+					<li>
+						<label for="userid">아이디</label>
+						<input type="text" name="userid" class="myinput" id="userid" size="20" maxlength="20" autofocus required autocomplete="off" />     
+						<!-- autocomplete="off"는 이전에 입력했던 값 자동기억 하지않겠다는 의미. autocomplete는 자동으로 on 돼있기때문에 이력 안보이려면 off해줘야됨 -->
+					</li>
+					
+					<li>
+						<label for="passwd1">암호</label>
+						<input type="password" name="passwd" class="myinput" id="passwd1" size="20" maxlength="20" required />
+					</li>
+					
+					<li>
+						<label for="passwd2">암호확인</label> <!-- 암호확인은 name 필요없음! -->
+						<input type="password" id="passwd2" class="myinput" size="20" maxlength="20" required />
+					</li>
+					
+					<li>
+						<label for="name">성명</label>
+						<input type="text" name="name" class="myinput" id="name" size="20" maxlength="20" required autocomplete="on" />
+					</li>
+					
+					<li>
+						<label for="email">이메일</label>
+						<input type="email" name="email" class="myinput" id="email" placeholder="예: hongkd@gmail.com" required="required" />
+					</li>
+					
+					<li>
+						<label for="male" class="gender">남자</label> <!-- 남,여 name같게 해줘야 중복체크안됨 -->
+						<input type="radio" name="gender" id="male" value="1" />
+						<label for="femail" class="gender">여자</label>
+						<input type="radio" name="gender" id="femail" value="2" />
+					</li>
+					
+					<li>
+						<label>취미</label> <!-- id 넣은이유는 글자 클릭해도 체크박스에 체크되게 하기위해서 -->
+						  <label for="hobby1" class="hobby">게임</label><input type="checkbox" name="hobby" id="hobby1" value="game" />&nbsp;&nbsp;
+						  <label for="hobby2" class="hobby">영화감상</label><input type="checkbox" name="hobby" id="hobby2" value="movie" />&nbsp;&nbsp;
+						  <label for="hobby3" class="hobby">글쓰기</label><input type="checkbox" name="hobby" id="hobby3" value="writing" />&nbsp;&nbsp;
+						  <label for="hobby4" class="hobby">음악감상</label><input type="checkbox" name="hobby" id="hobby4" value="music" />
+					</li>
+					
+					<li>
+						<label for="birthYear">출생년도</label>
+						<select name="birthYear" id="birthYear" onchange="goCurrentAge();">
+						<!-- select 태그기 때문에 onclick이 아니라 onchange이다! 함수 뒤 세미콜론은 생략해도 됨 -->
+						</select>
+					</li>
+					
+					<li>
+						<label>현재나이</label>
+						<div id="currentAge" style="display: inline; font-size: 12pt; color: red;"></div>세 
+					</li>
+
+					<li>
+						<label for="school">최종학력</label>
+						<select name="school" id="school" class="myselect">
+							<option>학력선택</option> 
+							<option value="1">고졸</option>
+							<option value="2">초대졸</option>
+							<option value="3">대졸</option>
+							<option value="4">대학원졸</option>
+						</select>
+					</li>
+
+					<li>
+						<label for="addFile">파일첨부</label>
+						<input type="file" name="addFile" id="addFile" />
+					</li>
+					
+					<li>
+						<label for="registerComment">가입인사말</label>
+						<textarea rows="5" cols="30" name="registerComment" id="registerComment" placeholder="하고싶은 말 쓰세요" ></textarea>
+					</li>
+					
+					<li>
+						<button type="button" class="btn" onclick="goSubmit();">확인</button> 
+						<button type="reset" class="btn">취소</button>
+					</li>
+				</ul>
+			</fieldset>
+		
+		</form>
+	</div>
+
+</body>
+</html>
+
+
+
