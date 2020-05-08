@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>자바스크립트 버전</title>
+<script type="text/javascript">
+	/*
+		웹브라우저 HTML문서(document)가 로드 되고나면
+		자동적으로 실행할 내용이 있을때 그 내용은 아래와같이 기술해주면된다.
+	*/
+	
+	window.onload = function () {
+		myTest("Hello JavaScript");
+		
+		// 팝업창 띄우기
+		window.open("popupContents.html", "myPopup",
+	  			    "left=100px, top=100px, width=400px, height=350px"); 
+	}
+	
+	function myTest(val) {
+		document.getElementById("test").innerHTML = val;
+	}
+	
+</script>
+</head>
+<body>
+	<span id="test" style="color: blue;"></span>
+</body>
+</html>

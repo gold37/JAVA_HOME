@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+<head>
+<meta charset="UTF-8">
+<title>체크박스로 4지선다 문제만들기- 반복문처럼 쓰이는 each();에 대해 알아보자.</title>
+<style type="text/css">
+	.answerCheck {
+ 		margin: 10px;
+ }
+
+</style>
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		
+		$(".answerCheck").hide(); // 사진 숨김 
+		
+		// === 체크박스를 라디오처럼 1개만 체크되도록 만들기 === //
+		$("input:checkbox[name=answer]").bind("click", function() {			
+			$("input:checkbox[name=answer]").prop("checked", false); // false는 전부 체크 불가
+			$(this).prop("checked", true);
+		});
+		
+		$("#btnOK").bind("click", function(){
+				
+			var cnt = 0;
+			var bFlag = false;
+			
+			$("input:checkbox[name=answer]").each(function() { /* 선택지가 복수개라면 .each만 쓰고 끝남  */
+							    
+					if($(this).prop("checked")){
+						cnt++;  // 1. 선택하면 1
+					}
+				    
+					if( $(this).prop("checked") && $(this).val() == "3" ){ // 정답선택시
+						/* alert("정답입니다"); */
+						$(".answerCheck").hide();
+						$(".ok").show();
+						
+						bFlag = true;
+						return false; 
+					}
+				    	
+			}); // end of $("input:radio[name=answer]").each()------------
+			
+			if(cnt == 0) {
+				alert("정답을 선택하세요!")
+			}
+			
+			if( cnt == 1 && !bFlag ) {
+				$(".answerCheck").hide();
+				$(".no").show();
+			}
+						
+		});
+
+		$("#btnRestart").bind("click", function(){
+			$(".answerCheck").hide(); 
+		});
+		
+	});
+
+
+</script>
+
+</head>
+<body>
+	<form name="frm">
+		[문제] 다음중 8+5*3은 얼마입니까? <br/>
+		<ol>
+			<li><label for="answer1">20</label><input type="checkbox" name="answer" id="answer1" value="1" /></li>	
+			<li><label for="answer2">30</label><input type="checkbox" name="answer" id="answer2" value="2" /></li>	
+			<li><label for="answer3">23</label><input type="checkbox" name="answer" id="answer3" value="3" /></li>	
+			<li><label for="answer4">45</label><input type="checkbox" name="answer" id="answer4" value="4" /></li>	
+		</ol>
+		<br/><br/>
+		<button type="button" id="btnOK">정답확인</button>
+		<button type="reset" id="btnRestart">다시시작</button>
+	</form>
+	
+	<div class="answerCheck ok"><img src="images/ok.png"></div>
+	<div class="answerCheck no"><img src="images/no.png"></div>
+
+</body>
+</html>
