@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>연예인 사진 보이기/감추기 2 (mouseover, mouseout, 선택자.attr("속성"), 선택자.prop("속성"))</title>
+
+<style type="text/css">
+	
+	div#container {
+		/* border: solid 1px gray; */
+		width: 80%;
+		margin: 0 auto;
+	}
+	
+	span.buttons {
+		display: inline-block;
+		width: 100px;
+		margin: 20px;
+		padding: 5px;
+		background-color: purple;
+		color: white;
+		font-size: 15pt;
+		cursor: pointer;
+	}
+	
+	div#face img {
+		border-radius: 50%; /*둥글게*/
+	}
+
+	div#comment {
+		/* border: solid 1px gray; */
+		width: 250px;
+		margin-top: 10px;
+	}
+	
+</style>
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		
+		var arrPerson = [{name:"태연", filename:"ty.jpg", song:"HAPPY", email:"ty@sm.com"}
+						,{name:"류진", filename:"rj.jpg", song:"WANNABE", email:"rj@jyp.com"}
+						,{name:"아이린", filename:"ir.jpg", song:"PSYCHO", email:"ir@sm.com"}]; 
+			
+		var html = "";
+		
+		for(var i=0; i<arrPerson.length; i++){
+			
+			html += "<span class='buttons'>"+arrPerson[i].name+"</span>"; // 태연 i=0, 류진 i=1, 아이린 i=2	
+
+		} // end of for()-------------------
+		
+		$("#firstDiv").html(html);
+		
+		$(".buttons").mouseover(function(event){
+			
+			console.log($(this).index());
+			
+			/*
+				$(this).index() ==> 마치 배열 요소의 i 값을 알려주는것과 같은것이다.
+			*/
+			
+			var index = $(this).index();
+			
+			$("div#face").html("<img src='images/"+arrPerson[index].filename+"' />");
+			
+			html="<ol>"+
+					"<li>성명:&nbsp;"+arrPerson[index].name+"</li>"+
+					"<li>신곡:&nbsp;"+arrPerson[index].song+"</li>"+
+					"<li>e메일:&nbsp;"+arrPerson[index].email+"</li>"+
+				 "</ol>";
+
+			$("div#comment").html(html);
+			
+			$("#secondDiv").show();
+			
+			$(this).css({'background-color':'navy', 'color':'white'});
+			
+		});
+		
+		
+		$(".buttons").mouseout(function(){
+			$("#secondDiv").hide();
+			$(this).css({'background-color':'purple', 'color':'white'}); // 원래값주기
+			// ▲ 실제로 마우스가 올라간 곳 $(".buttons")
+		});
+		
+		
+	}); // end of $(document).ready(function(){})----------------------
+	
+	
+</script>	
+
+</head>
+<body>
+
+	<div id="container" align="center">
+		<div id="firstDiv">
+			<span class="buttons btn1">태연</span>
+			<span class="buttons btn2">류진</span>
+			<span class="buttons btn3">아이린</span>
+		</div>
+		
+		<div id="secondDiv">
+			<div id="face"></div>
+			<div id="comment" align="left"></div>
+		</div>
+	</div>
+
+</body>
+</html>

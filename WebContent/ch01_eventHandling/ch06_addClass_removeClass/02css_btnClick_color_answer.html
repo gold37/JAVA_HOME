@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>javaScript를 jQuery로 바꾸기</title>
+
+<style type="text/css">
+
+	div#container {
+		/* border: solid 1px gray; */
+		
+		width: 90%;
+		margin: 0 auto;
+		padding: 2%;
+	}
+
+	span#notice {
+		font-size: 20pt; 
+		background-color: navy; 
+		color: white; 
+		margin-right: 60px;
+	}
+
+	button.btns {
+		margin-right: 20px;
+		width: 100px;
+		height: 50px;
+		font-size: 20pt;
+	}
+
+	div.answer {
+		display: inline-block;
+	}
+
+	div#hangulDiv {
+		font-size: 60pt;
+	}
+
+</style>
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+
+</script>
+
+<script type="text/javascript">
+
+	$(document).ready(function() {
+		
+		var arrBtnName = ["red", "orange", "yellow", "green", "blue", "navy", "purple"];
+		
+		var sHtml = "<span id='notice'>버튼을 눌러보세요</span>"; // 겉에 "쌍따옴표" 있으면 안에는 '홑따옴표'로 쓰기
+		
+		for(var i=0; i<arrBtnName.length; i++){
+			sHtml += "<button type='button' class='btns'>"+arrBtnName[i]+"</button>";
+		}
+		
+	
+		$("#btnsDiv").html(sHtml);
+		
+		$("button").click(function(){
+			$("#colorDiv").css({'width':'200px'
+							   ,'height':'200px'
+							   ,'background-color':$(this).text() });
+			
+		switch ($(this).text()) {
+			case "red":
+				$("#hangulDiv").text("빨강");
+				break;
+				
+			case "orange":
+				$("#hangulDiv").text("주황");
+				break;
+				
+			case "yellow":
+				$("#hangulDiv").text("노랑");
+				break;
+				
+			case "green":
+				$("#hangulDiv").text("초록");
+				break;
+				
+			case "blue":
+				$("#hangulDiv").text("파랑");
+				break;
+				
+			case "navy":
+				$("#hangulDiv").text("남색");
+				break;
+				
+			case "purple":
+				$("#hangulDiv").text("보라");
+				break;
+
+			} // end of switch() -----------
+			
+			$("#hangulDiv").css('color', $(this).text());
+		});
+		
+	}); // end of $(document).ready(function(){})-------------------------
+	
+</script>
+
+</head>
+<body>
+
+	<div id="container">
+		<div id="btnsDiv"></div>
+	    <div id="colorDiv" class="answer"></div>
+	    <div id="hangulDiv" class="answer"></div>
+	</div>
+
+</body>
+</html>
+
+
+
+
+
+
