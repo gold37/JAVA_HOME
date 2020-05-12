@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>이벤트처리로 태그내용 추가하기[ prepend(), append() ], 태그 내용물 제거하기[ empty(), remove() ]</title>
+<style type="text/css">
+	div#container {
+		/* border: solid 1px gray; */
+		width: 90%;
+		margin: 0 auto;
+		padding: 3%;
+	}
+	
+	div#divBtn {
+		/* border: solid 1px red; */
+		display: table; /* 테이블 처럼 보겠음 */
+		width: 50%;
+		min-height: 10px;
+		margin: 20px;
+	}
+	
+	span.buttons {
+		border: solid 2px orange;
+		display: table-cell; /* 테이블 처럼 보겠음 */
+		width: 100px;
+		height: 30px;
+		text-align: center;
+		vertical-align: middle;
+		font-weight: bolder;
+		cursor: pointer;
+	}
+	
+	span.empty {
+		border-left: none;
+		border-right: none;
+	}
+	
+
+</style>
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+	
+	$(document).ready(function () {
+		var cnt = 0;
+		var lovecountrysong = "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 <span style='color:red; font-weight:bold;'> 우리나라  </span>만세";
+		var lovecountrysong2 = "무궁화 삼천리 화려강산 대한사람 대한으로<span style='color:blue; font-weight:bold;'> 길이 보전 </span>하세";
+		
+		$(".add").click(function () {
+			cnt++; // 누를때마다 cnt 증가
+			
+			$(".div1").prepend("<p>"+cnt+"."+lovecountrysong+"</p>"); // .prepend는 내용물을 선택자 앞쪽 방향으로 덧붙여 가는것
+			// 		  ▲ .html은 기존 내용물 지우고 내용 덮어씌움
+			$(".div2").append("<p>"+cnt+"."+lovecountrysong2+"</p>"); // .append는 내용물을 선택자 뒤쪽 방향으로 덧붙여 가는것
+		});
+		
+		$(".empty").click(function() {
+			$(".div1").empty(); // .empty();는 선택자 태그속에 있는 내용물을 비우는 것
+			$(".div2").empty();
+		})
+		
+		
+		$(".remove").click(function() {
+			$(".div1").remove(); // .remove();는 선택자 태그를 삭제하는 것
+			$(".div2").remove();
+		})
+		
+	}); 
+	
+</script>
+</head>
+
+<body>
+
+	<div id="container" align="center">
+	
+		<div id="divBtn" align="center">
+			<span class="buttons add">추가</span>
+			<span class="buttons empty">empty</span>
+			<span class="buttons remove">remove</span>
+		</div>
+
+	<div align="left">
+		<div class="content div1">
+				<span style="color:red; font-weight:bold;">애국가(prepend)</span>
+		</div>
+		
+		<div class="content div2">
+				<span style="color:blue; font-weight:bold;">애국가(append)</span>
+		</div>
+	</div>
+	
+	</div>
+</body>
+</html>

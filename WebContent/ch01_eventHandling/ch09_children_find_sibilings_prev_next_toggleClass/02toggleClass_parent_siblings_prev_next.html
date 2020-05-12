@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>toggleClass, checkbox, parent(), siblings(), prev(), next() 에 대해서 알아본다.</title>
+<!-- 
+         선택자.toggleClass("클래스명1");
+     ==> 이것은 선택자에 "클래스명1" 이 이미 적용되어 있으면 선택자에 "클래스명1" 을 제거해주고,
+                만약에 선택자에 "클래스명1" 이 적용되어 있지 않으면 선택자에 "클래스명1" 을 추가해주는 것.
+-->
+
+<style type="text/css">
+
+div#container { width: 96.5%;
+				margin: 0 auto;
+				padding: 2%;
+				/* border: 1px solid green; */
+}
+
+div#firstDiv { width: 100%;
+			   margin: 2%;
+			  /*  border: 1px solid red; */
+}
+
+.buttons, .buttons2 { border: 2px solid orange;
+           margin: 10px;
+           padding: 5px;
+           color: #ff0000;
+           background-color: yellow;
+           font-size: 15pt;
+           cursor: pointer;
+}
+
+.changeCSSname {color: #fff;
+                background-color: navy;
+}
+
+button#btnOK {width: 90px;
+              height: 40px; 
+              font-size: 12pt;
+              background-color: navy;
+              color: white;
+              border: none;
+              cursor: pointer;
+              margin-top: 50px;
+}
+
+div#checkboxCnt {font-size: 16pt;}
+
+.blueColor {color: blue;}
+.greenColor {color: green;}
+
+</style>
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script>
+
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		
+		$("#firstDiv .buttons > label").click(function(){
+			$(this).toggleClass("changeCSSname");
+			/* 
+		         선택자.toggleClass("클래스명1");
+		     ==> 이것은 선택자에 "클래스명1" 이 이미 적용되어 있으면 선택자에 "클래스명1" 을 제거하고,
+		                  만약에 선택자에 "클래스명1" 이 적용되어 있지 않으면 선택자에 "클래스명1" 을 추가해주는 것.
+		                  모 아니면 도 ex) 키보드 한/영, 성별 
+		    */
+		});
+		
+	
+		// == 체크박스 전체선택 / 전체해제 == //
+		$("input:checkbox[id=checkall]").click(function(){
+			
+		//	var bool = $(this).is(":checked");
+		//  또는 
+			var bool = $(this).prop("checked");
+		//	console.log(bool);
+		
+		    $("input:checkbox[name=person]").prop("checked", bool);
+		});
+		
+		
+		// == 체크박스 전체선택 / 전체해제 에서
+		/*
+		   하위 체크박스에 체크가 1개라도 체크가 해제되면 체크박스 전체선택/전체해제 체크박스도 체크가 해제되고,
+		   하위 체크박스에 체크가 모두 체크가 되어지면  체크박스 전체선택/전체해제 체크박스도  체크가 되어지도록 해야 한다. 
+		*/
+		$("input:checkbox[name=person]").click(function(){
+			
+			var flag = false;
+			
+			$("input:checkbox[name=person]").each(function(){
+				var bool = $(this).prop("checked");
+				if(!bool) {
+					$("input:checkbox[id=checkall]").prop("checked", false);
+					flag = true;
+					return false;
+				}
+			});// end of $("input:checkbox[name=person]").each()--------------
+			
+			if(!flag) 
+				$("input:checkbox[id=checkall]").prop("checked", true); 
+		});
+		
+		
+		// *** jQuery에서 radio, checkbox 에 대해서 알아본다. *** //
+		/*
+			1. checkbox(또는 radio)의 갯수(길이)가 몇개인지 알고자 한다.
+			   ==> $("input:checkbox[name=person]").length;
+		*/
+	//	$("div#checkboxCnt").hide();
+		$("div#checkboxCnt").css('display','none');
+		
+		$("button#btnOK").click(function(){
+			
+			$("div#checkboxCnt").css('display','');
+			
+			//////// == 체크박스의 갯수 == ////////
+			var length = $("input:checkbox[name=person]").length;
+			$("span#cnt").text(length);
+					
+			
+		    ///// == 체크박스의 체크된 갯수(checked 속성이용) == /////
+		    checkCnt = $("input:checkbox[name=person]:checked").length;
+		    $("span#checkedCnt").text(checkCnt);
+			
+		    
+			//// == 체크박스에서 체크된 value값(each 이용) == ////
+			var arrCheckedVal = new Array(); 
+			
+			$("input:checkbox[name=person]").each(function(){
+				if($(this).prop("checked")) {
+					arrCheckedVal.push($(this).val());
+				}
+			});
+			
+						
+			$("span#checkedValue").text(arrCheckedVal.join(","));
+			
+		});// end of $("button#btnOK").click()----------            
+		
+	/*	
+		$("span#btnssk").click(function(){
+			$(this).siblings().css({'border':'solid 2px navy'
+				                   ,'background-color':'#ccc'
+				                   ,'color':'blue'
+				                   ,'font-size':'14pt'});
+			
+			// 선택자.siblings() 은 
+			// 선택자의 형제요소(형제태그)중 선택자(자기자신)를 제외한 나머지 모든 형제요소(형제태그)를 가리키는 것이다.
+		});
+	*/	
+	
+	/*
+		$("input:checkbox[id=person2-2]").click(function(){
+			$(this).parent().css({'border':'solid 2px navy'
+				                 ,'background-color':'#ccc'
+				                 ,'color':'blue'
+				                 ,'font-size':'14pt'});
+			
+		   // 선택자.parent()는 선택자의 부모요소(부모태그)를 가리키는 것이다.
+		   // 선택자.parent().parent()는 선택자의 부모요소의 부모요소(부모태그의 부모태그)를 가리키는 것이다.
+		});
+	*/
+		// == 체크박스 여러개중 라디오 처럼 1개만 선택하도록 만든다. == //
+		$("input:checkbox[name=person2]").click(function(){
+			$("input:checkbox[name=person2]").prop("checked", false);
+			$(this).prop("checked", true);
+			
+			$(this).parent().siblings().css('opacity','0.2'); 
+			// 		 →여기서는 span태그
+			$(this).parent().css('opacity','1.0');
+			
+		//	$("span.buttons2>label").removeClass("blueColor");
+		//	$("span.buttons2>label").removeClass("greenColor");
+		//  또는
+		    $("span.buttons2 > label").removeClass("blueColor greenColor");
+		
+			$(this).prev().addClass("blueColor");
+			$(this).next().addClass("greenColor");
+			
+		});
+	
+	});// end of $(document).ready()--------------------
+
+</script>
+
+</head>
+<body>
+<div id="container">
+		<div id="firstDiv" align="center">
+			<h2>마음에 드는 사람 2명을 선택하세요</h2>
+			<p>
+				<span class="buttons"><label for="checkall">모두 체크/해제</label><input type="checkbox" name="checkall" id="checkall" value="" /></span>
+				<span class="buttons"><label for="person0">일순신</label><input type="checkbox" name="person" id="person0" value="일순신" /></span>
+				<span class="buttons">
+					<label for="person1">이순신</label>
+					<input type="checkbox" name="person" id="person1" value="이순신" />
+				</span>
+			    <span class="buttons"><label for="person2">삼순신</label><input type="checkbox" name="person" id="person2" value="삼순신" /></span>
+			    <span class="buttons"><label for="person3">사순신</label><input type="checkbox" name="person" id="person3" value="사순신" /></span>
+			    <span class="buttons"><label for="person4">오순신</label><input type="checkbox" name="person" id="person4" value="오순신" /></span>
+			    <span class="buttons"><label for="person5">육순신</label><input type="checkbox" name="person" id="person5" value="육순신" /></span>
+			<p>
+			    <button type="button" id="btnOK">확인</button>     
+		</div>
+		
+		<div id="checkboxCnt">
+		  <p>  
+		    체크박스의 갯수 : <span id="cnt" style="color: blue;"></span>
+		  </p><p>
+		    체크박스의 체크된 갯수(checked 속성이용) : <span id="checkedCnt" style="color: red;"></span> 
+		  </p><p>
+		    체크박스에서 체크된 value값(each 이용) : <span id="checkedValue" style="color: blue;"></span>     
+		  </p>
+		</div>
+		
+		<div style="border: 1px solid gold;"></div>
+		
+		<h2>마음에 드는 사람 1명을 선택하세요</h2>
+		<p id="p">
+			<span class="buttons2">
+			    <label for="person2-0">한석규</label>
+			    <input type="checkbox" name="person2" id="person2-0" value="한석규" />
+			    <label for="person2-0">입니다</label>
+			</span>
+			<span class="buttons2">
+			    <label for="person2-1">두석규</label>
+			    <input type="checkbox" name="person2" id="person2-1" value="두석규" />
+			    <label for="person2-1">입니다</label>
+			</span>
+		    <span class="buttons2" id="btnssk" >
+		        <label for="person2-2">세석규</label>
+		        <input type="checkbox" name="person2" id="person2-2" value="세석규" />
+		        <label for="person2-2">입니다</label>
+		    </span>
+		    <span class="buttons2">
+		        <label for="person2-3">네석규</label>
+		        <input type="checkbox" name="person2" id="person2-3" value="네석규" />
+		        <label for="person2-3">입니다</label>
+		    </span>
+		    <span class="buttons2">
+		        <label for="person2-4">오석규</label>
+		        <input type="checkbox" name="person2" id="person2-4" value="오석규" />
+		        <label for="person2-4">입니다</label>
+		    </span>
+		    <span class="buttons2">
+		        <label for="person2-5">육석규</label>
+		        <input type="checkbox" name="person2" id="person2-5" value="육석규" />
+		        <label for="person2-5">입니다</label>
+		    </span>
+		</p>
+		
+	</div>
+</body>
+</html>
