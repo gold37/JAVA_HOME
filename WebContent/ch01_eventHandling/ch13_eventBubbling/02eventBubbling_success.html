@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>이벤트 버블링 막기(이벤트 버블링 문제발생 해결 하지 못한것)</title>
+<!-- 
+	 이벤트 버블링 문제가 있어서 예상치 못한 결과가 나온다.
+	 이것을 막아보도록 하자.
+ -->
+
+<script type="text/javascript" src="/JqueryStudy/js/jquery-3.3.1.min.js"></script> 
+
+<script type="text/javascript">
+
+	$(document).ready(function() { 
+		
+		$("div").click(function() { // 제일 큰 부분 클릭했을 때
+			
+			var $target = $(event.target);
+			
+			if($target.is("div")) { // 실제로 클릭한 태그가 div 태그이라면
+				alert("div 엘리먼트를 클릭했습니다.")
+			}
+			
+			if($target.is("p")) { // 실제로 클릭한 태그가 p 태그이라면
+				alert("p 엘리먼트를 클릭했습니다.")
+			}
+			
+			if($target.is("span")) { // 실제로 클릭한 태그가 span 태그이라면
+				alert("span 엘리먼트를 클릭했습니다.")
+			}
+			
+		});
+
+	});
+
+	
+</script>
+
+</head>
+<body>
+	<div>
+		div엘리먼트
+		<p>
+			단락구분의 엘리먼트<br/>
+			<span>스팬태크의 엘리먼트</span>
+		</p>
+	</div>
+</body>
+</html>

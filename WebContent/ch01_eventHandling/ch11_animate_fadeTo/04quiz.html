@@ -31,7 +31,7 @@
 		   == 0 부터 2까지 의 난수를 발생시키기 ==
 		      공식 :  Math.floor( Math.random()*(max-min+1) ) + min;
 		*/
-		var arrOld = [];
+		var arrOld = []; // JavaScript는 배열의 크기 처음부터 잡아주지않고 계속 push만 함
 		for(var i=0; i<3; i++) {
 			arrOld[i] = -1;
 		}
@@ -54,8 +54,8 @@
 			}// end of for-----------------------------------------
 			
 			if(!bFlag) {
-				arrOld[i] = nRandom;
-				arrRndIdex[i] = nRandom;
+				arrOld[i] = nRandom;	// arrOld[0] <-- 1
+				arrRndIdex[i] = nRandom;	// arrRndIdex[0] <--1
 			}
 			 else {
 				i--;
