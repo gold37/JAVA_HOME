@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>정규표현식으로 유효성 검사하기1</title>
+<title>정규표현식으로 유효성 검사하기2</title>
 
 <style type="text/css">
 	
@@ -83,6 +83,11 @@
 		color: red;
 		font-size: 10pt;
 	}
+	
+	label#agree {
+		font-size: 10px;
+	}
+	
 
 </style>
 
@@ -315,7 +320,7 @@
 		$("input:password[id=jubun2]").bind("blur", function () {
 			
 			var sGender = $(this).val().substring(0,1);
-			console.log(sGender);
+			
 			switch (sGender) {
 			case "1":
 			case "3":
@@ -345,7 +350,7 @@
 		}); // $("input:password[id=jubun2]").bind("blur", function () {}) ----------
 		
 		
-		$("form[name=registerFrm]").submit(function() {
+		$("#btnRegister").click(function() {
 			// name이 registerFrm인 form을 submit하려고 할 때 발생하는 이벤트
 			
 			// 1. 주민번호가 올바른 주민번호인지 아닌지를 검사한다.
@@ -362,7 +367,7 @@
 				
 				$("input#jubun1").focus();
 				
-				return false; // submit 하지말고 끝내라는 뜻 
+				return; // submit 하지말고 끝내라는 뜻 
 				
 			}
 			
@@ -372,11 +377,7 @@
 			
 			if(nSchoolCheckedLen == 0) { // 선택안한 경우
 				alert("학력을 선택하세요!");
-				$(":input").attr("disabled", true);
-				$("input:radio[name=school]").attr("disabled", false);
-				$("input:checkbox[name=interest]").attr("disabled", false);
-				
-				return false;
+				return;
 			}
 
 			
@@ -385,31 +386,26 @@
 			
 			if(nInterestCheckedLen < 2) { // 1개 이하일때
 				alert("관심분야는 최소한 2개이상 선택하세요");
-				$(":input").attr("disabled", true);
-				$("input:checkbox[name=interest]").attr("disabled", false);
-				$("input:submit").attr("disabled", false);
-				$("input:reset").attr("disabled", false);
-				
-				return false;
+				return;
 			}
 			
 			
 			// 약관동의
-			var bAgreeChecked = $("input:checkbox[id=agree]").prop("checked");
+			var bAgree = $("input:checkbox[name=agree]").prop("checked");
 			
-			if(!bAgreeChecked) {
+			if(bAgree == 0){
 				alert("약관에 동의하셔야 회원가입이 가능합니다.");
-				
-				$(":input").attr("disabled", true);
-				$("input:checkbox[id=agree]").attr("disabled", false);
-				$("input:submit").attr("disabled", false);
-				$("input:reset").attr("disabled", false);
-				
-				return false;
+				return;
 			}
 			
 			
-		});
+			var frm = document.registerFrm;
+			frm.action = "register.do";
+			frm.method = "post";
+			frm.submit();
+			
+			
+		}); // end of $("#btnRegister").click(function() {})----------------
 		
 		
 	});// end of $(document).ready()------------------
@@ -419,7 +415,7 @@
 </head>
 <body>
 <div id="container">
-	<form name="registerFrm" action="register.do" method="post">
+	<form name="registerFrm">
 		<fieldset>
 			<legend>회원가입</legend>
 			<ul>
@@ -483,7 +479,7 @@
 					</div> 
 				</li>
 				<li>
-					<label for="agree">약관동의 <input type="checkbox" id="agree"/></label>
+					<label for="agree">약관동의 <input type="checkbox" name="agree"/></label>
 				</li>
 				<li>
 					<iframe src="iframeAgree/agree.html" width="85%" height="150px" style="border: solid 1px navy; margin: 20px 0px"></iframe>
@@ -491,7 +487,7 @@
 				</li>
 				
 				<li>
-					<input type="submit" value="회원가입" />
+					<input type="button" id="btnRegister" value="회원가입" />
 					<input type="reset" value="취소" />
 				</li>
 			</ul>

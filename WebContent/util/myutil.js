@@ -114,7 +114,7 @@ function func_jubunCheck(jubun) {
 		
 		// nSum ==> 134
 		var nResult = nSum%11; // nSum을 11로 나눈 나머지 ==> 2
-		nResult -= 11;// 11 - nResult ==> 11-2 = 9
+		nResult = 11 - nResult;// ==> 11-2 = 9
 		
 		nResult %= 10; // 9%10 (9를 10으로 나눈 나머지) ==> 9
 		
