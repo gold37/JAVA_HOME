@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
-  <display-name>JqueryStudy</display-name>
+  <display-name>MyMVC</display-name>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.htm</welcome-file>
@@ -9,4 +9,16 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  
+  <!-- == 서블릿(Servlet) 등록하기 == -->
+  <servlet> 
+  	<servlet-name>getMethodTest1</servlet-name>  <!-- WAS에 기억시켜주기 -->
+  	<servlet-class>begin.ch02.GetMethodTest1</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>getMethodTest1</servlet-name> 
+  	<!-- <url-pattern>/MyMVC/getMethodTest1.do</url-pattern> ==> 맨앞에는 context name이 들어오기때문에 웹에서는 /MyMVCMyMVC/getMethodTest1.do로 인식함 -->
+  	<url-pattern>/getMethodTest1.do</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
