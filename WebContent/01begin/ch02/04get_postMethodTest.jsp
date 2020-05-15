@@ -5,51 +5,49 @@
 
 	// 컨텍스트명(context name)을 알아오고자 한다.
 	String ctxPath = request.getContextPath();
-	
-	System.out.println("ctxPath => "+ ctxPath);
-	// ctxPath => /MyMVC
 
+	// System.out.println("ctxPath => " + ctxPath);
+	// ctxPath => /MyMVC
+	
 %>    
     
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>getMethodTest1.jsp 페이지</title>
+<title>04get_postMethodTest.jsp 페이지</title>
 
 <style type="text/css">
-	ul {
-		list-style: none;
-	}
+
+	ul {list-style: :none;}
+	li {line-height: 200%;}
 	
-	li {
-		line-height: 200%:
-	}
-
-
 </style>
 
 </head>
 <body>
-<%--  <form name="memberFrm" action="/MyMVC/getMethodTest1.do" method="get">  --%>
-<%--  컨텍스트명(context name)을 알아오는 것이 <%= request.getContextPath()%> 이다.
-	    즉, 지금은 <%= request.getContextPath()%> 를 찍으면 /MyMVC로 나온다. --%>
-	    
-	<form name="memberFrm" action="<%= request.getContextPath()%>/MyMVC/getMethodTest1.do" method="get">
-	
-	<%-- 
-		submit 을 하면 <%= ctxPath%>/getMethodTest1.do 로 보내어서 처리를 요청한다.
-	    /MyMVC/getMethodTest1.do 은 누가 처리를 해주는지 배치서술자인 web.xml 에 기술되어져 있어야 한다.
-	    web.xml 에 가보면 <servlet-mapping>에 URL 패턴으로 /getMethodTest1.do 이 기술되어져 있고,
-	        실제로 처리를 해주는 <servlet>에 클래스가 기술되어져 있다.
-	        해당 <servlet>클래스가 일처리를 해준다.
+
+	<%-- /MyMVC ==> context name--%>
+	<%--<form name="memberFrm" action="/MyMVC/get_postMethodTest3.do" method="get" > --%>
+	<%-- 컨텍스트명(context name)을 알아오는것 <%= request.getContextPath() %> 이다. 
+		  즉, <%= request.getContextPath() %> 이 /MyMVC 으로 나온다.  --%>	
+		  
+	<form name="memberFrm" action="<%= ctxPath %>/get_postMethodTest4.do" method="post" >
+	<%-- submit 을 하면 <%= ctxPath%>/get_postMethodTest4.do 로 보내어서 처리를 요청한다.
+	     /MyMVC/get_postMethodTest4.do 은 누가 처리를 해주는지 배치서술자인 web.xml 에 기술되어져 있어야 한다.
+	     web.xml 에 가보면 <servlet-mapping>에 URL 패턴으로 /get_postMethodTest4.do 이 기술되어져 있고,
+	         실제로 처리를 해주는 <servlet>에 클래스가 기술되어져 있다.
+	         해당 <servlet>클래스가 일처리를 해준다.
 	     
-	      ☆★☆★ web.xml은 언제 읽어들이는냐? 하면
-	        WAS가 구동되어질때 딱 1번만 읽어들여서 WAS가 web.xml에 기술된 내용을 기억하도록 되어있다.
-	                그러므로 web.xml에 내용이 변경되어지면 변경된 내용대로 작동하려면 반드시 WAS를 껐다가 켜야 한다. ☆★☆★ 
+	     !!! web.xml은 언제 읽어들이는냐? 하면
+	         WAS가 구동되어질때 딱 1번만 읽어들여서 WAS가 web.xml에 기술된 내용을 기억하도록 되어있다.
+	                그러므로 web.xml에 내용이 변경되어지면 변경된 내용대로 작동하려면 반드시 WAS를 껐다가 켜야 한다.       !!!    
 	--%>
+	
+
+
 	<fieldset>
-		<legend>개인성향 테스트(GET method)</legend>
+		<legend>개인성향 테스트(method)</legend>
 		<ul>
 			<li>
 				<label for="name">성명</label>
