@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-public class Example01_iframe_login {
+public class Example02_iframe_login_alert {
 
 	public static void main(String[] args) {
 		
@@ -15,16 +15,12 @@ public class Example01_iframe_login {
 		WebDriver driver = new ChromeDriver();
 		
 		// 목적지 사이트 주소 지정. get()으로 시작해서 close()로 닫아야 한다.
-		driver.get("http://localhost:9090/JqueryStudy/seleniumtest/iframeLogin/login.html");
+		driver.get("http://localhost:9090/JqueryStudy/seleniumtest/iframeLogin/loginAlert.html");
 		
 		driver.switchTo().frame("subIframe"); // 실행하면 아이디와 암호가 적힘
 		// frame을 name이 subIframe인 곳으로 바꿔준다. 기본은 parentFrame이다. 
 		
 		WebElement inputId = driver.findElement(By.id("id"));
-		
-		// Exception in thread "main" org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"#id"}
-		// -> .frame 안쓰면 Exception발생함
-		
 		WebElement inputPassword = driver.findElement(By.id("password"));
 		
 		inputId.sendKeys("leess");
@@ -37,6 +33,13 @@ public class Example01_iframe_login {
 		// 							▲ 자바스크립트를 실행하라는 의미 ▲ 현재 보여지고 있는 웹 창 
 		jsexec.executeScript("fnLogin()");
 		// ▲ loginInput.html
+		
+		/*
+		  	Exception in thread "main" org.openqa.selenium.UnhandledAlertException: unexpected alert open: {Alert text : 로그인 성공!!}
+  			(Session info: chrome=83.0.4103.61): 로그인 성공!!
+  			위와 같은 오류는 alert() 대화상자 확인을 안해주었기 때문이다.
+		 */
+		driver.switchTo().alert().accept(); // alert 대화상자에 와서 확인함
 		
 		// 다시 부모 프레임으로 전환한다.
 		driver.switchTo().parentFrame(); // parentFrame 으로 바꿈
