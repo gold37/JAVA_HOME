@@ -9,12 +9,13 @@ public class MemberVO {
 	private String email;
 	private String gender;
 	private String[] interest;
+	private String introduce;
 	
 	private String registerday; 
 	
 	public MemberVO() {}
 	
-	public MemberVO(String userid, String passwd, String name, String email, String gender, String[] interest) {
+	public MemberVO(String userid, String passwd, String name, String email, String gender, String[] interest, String introduce) {
 		super();
 		this.userid = userid;
 		this.passwd = passwd;
@@ -22,6 +23,7 @@ public class MemberVO {
 		this.email = email;
 		this.gender = gender;
 		this.interest = interest;
+		this.introduce = introduce;
 	}
 
 	public String getUserid() {
@@ -94,6 +96,14 @@ public class MemberVO {
 		else { // null 이라면
 			return "관심사 없음";
 		}
+	}
+	
+	public String getIntroduce() {
+		return introduce;
+	}
+
+	public void setIntroduce(String introduce) {
+		this.introduce = introduce;
 	}
 	
 	

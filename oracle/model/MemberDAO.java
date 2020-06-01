@@ -54,8 +54,8 @@ public class MemberDAO {
 			
 			conn = ds.getConnection(); // 풀장에 튜브 깔아놓음
 			
-			String sql = " insert into mymvc_member(userid, passwd, name, email, gender, interest) "
-					   + " values(?, ?, ?, ?, ?, ?) ";
+			String sql = " insert into mymvc_member(userid, passwd, name, email, gender, interest, introduce) "
+					   + " values(?, ?, ?, ?, ?, ?, ?) ";
 			
 			pstmt = conn.prepareStatement(sql);
 			
@@ -72,7 +72,8 @@ public class MemberDAO {
 				// 그래서 if문 써줌
 			}
 			pstmt.setString(6, interest);
-	
+			pstmt.setString(7, mvo.getIntroduce());
+
 			result = pstmt.executeUpdate(); // DML문 이므로
 			
 			System.out.println(result);
@@ -86,8 +87,6 @@ public class MemberDAO {
 	} // end of memberRegister(MemberVO mvo) throws SQLException------------
  
 	
-
-	
 	// === 특정 회원정보 조회 메소드 생성하기 ===
 	public MemberVO memberOneInfoView(String userid) throws SQLException {
 		
@@ -97,7 +96,7 @@ public class MemberDAO {
 			conn = ds.getConnection();
 			
 			String sql = " select userid, name, email, gender, interest, " + 
-						 " to_char(registerday, 'yyyy-mm-dd hh24:mi:ss') AS registerday " + 
+						 " to_char(registerday, 'yyyy-mm-dd hh24:mi:ss') AS registerday, introduce " + 
 						 " from mymvc_member " + 
 						 " where userid = ? ";
 			
@@ -122,6 +121,8 @@ public class MemberDAO {
 				mvo.setInterest(interest);
 				
 				mvo.setRegisterday(rs.getString(6));
+				
+				mvo.setIntroduce(rs.getString(7));
 			}
 			
 		} finally {
@@ -178,5 +179,71 @@ public class MemberDAO {
 		
 		return memberList;
 	} // end of public MemberVO memberOneInfoView() throws SQLException ----------
+
+	
+	// === 회원을 삭제하는 메소드 생성하기 === 
+	public int memberDelete(String userid) throws SQLException {
+		
+		int result = 0;
+		
+		try {
+			
+			conn = ds.getConnection(); // 풀장에 튜브 깔아놓음
+			
+			String sql = " delete from mymvc_member "
+					   + " where userid = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, userid);
+			
+			result = pstmt.executeUpdate(); // DML문 이므로
+			
+			
+		} finally {
+			close(); // 자원반납
+		}
+		
+		return result;
+		
+	} // end of public int memberDelete(String[] useridArr) throws SQLException -----------
+
+	
+	
+	// === 회원의 정보를 수정하는 메소드 생성하기 === 
+	public int memberUpdate(MemberVO mvo) throws SQLException {
+		
+		int result = 0;
+
+		try {
+			
+			conn = ds.getConnection(); // 풀장에 튜브 깔아놓음
+			
+			String sql = " update mymvc_member set name = ? "
+					   + "							,	passwd = ? "
+					   + "							,	email = ? "
+					   + "							, 	interest = ? "
+					   + " where userid = ? ";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, mvo.getName());
+			pstmt.setString(2, mvo.getPasswd());
+			pstmt.setString(3, mvo.getEmail());
+			pstmt.setString(4, mvo.getAttention());
+			pstmt.setString(5, mvo.getUserid());
+			
+			result = pstmt.executeUpdate(); // DML문 이므로
+			
+			
+		} finally {
+		
+			close(); // 자원반납
+		}
+		
+		return result;
+		
+	} // end of public int memberUpdate(MemberVO mvo) throws SQLException ------------
+	
+	
 	
 }

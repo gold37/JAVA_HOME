@@ -12,7 +12,11 @@
 
 <style type="text/css">
 
-	table, td {
+	table {
+		border-collapse: collapse;
+	}
+	
+	td {
 		border: solid 1px gray;
 		border-collapse: collapse;
 	}
@@ -21,6 +25,16 @@
 		color: red;
 	}
 
+	#allMemberView {
+		display: inline-block;
+		border: solid 1px gray;
+		margin: 10px;
+		padding: 2px;
+		background-color: orange;
+		border-radius: 10px;
+		cursor: pointer; 
+	}
+	
 </style>
 
 </head>
@@ -87,6 +101,14 @@
 			<tr>
 				<td>가입일자</td>
 				<td>${mvo.registerday}</td>
+			</tr>
+			
+			<tr>
+				<td>가입인사</td>
+				<td>${mvo.introduce}</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center" style="border: none;"><span id="allMemberView" onclick="javascript:location.href='/MyMVC/selectAllMember.do'">모든회원정보조회</span></td>
 			</tr>	
 		</table>
 	</c:if>

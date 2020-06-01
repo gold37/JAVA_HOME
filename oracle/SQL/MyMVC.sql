@@ -20,7 +20,6 @@ select *
 from mymvc_member;
 
 
-
 select userid, name, email, gender, interest,
        to_char(registerday, 'yyyy-mm-dd hh24:mi:ss') AS registerday
 from mymvc_member
@@ -31,3 +30,21 @@ select userid, name, email, gender, interest,
 from mymvc_member
 order by registerday desc;
 
+
+-- mvmvc_member 테이블에 가입인사(introduce) 칼럼 추가하기
+alter table mymvc_member
+add introduce varchar2(500);
+
+select userid, name, email, gender, interest,
+       to_char(registerday, 'yyyy-mm-dd hh24:mi:ss') AS registerday,
+       introduce
+from mymvc_member
+order by registerday desc;
+
+delete mymvc_member
+where userid = 'Rainism';
+
+commit;
+
+update mymvc_member set introduce = '<script>window.onload=function(){var arrBody = document.getElementsByTagName("body"); arrBody[0].style.backgroundColor="green"; }</script>'
+where userid = 'Sunny';

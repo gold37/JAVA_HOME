@@ -13,7 +13,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>회원가입</title>
+<title>회원정보 변경하기</title>
 
 <style type="text/css">
 	
@@ -108,68 +108,30 @@
 <script type="text/javascript">
 
 	$(document).ready(function(){
-		/* 
-		$("span.error").hide();
 		
-		또는
-		 */
+		var attention = "${mvo.attention}";
+	//	alert(attention);	Oracle
+	
+		if(attention != "없음") {
+			
+			var arrAttention = attention.split(","); // 쪼개서 배열로 만들기
+			
+			$("input:checkbox[name=interest]").each(function(){ // each는 반복문
+				
+				for(var i=0; i<arrAttention.length; i++) {
+					
+					if( $(this).val() == arrAttention[i] ) { // Oracle == Oracle 일치하면
+						$(this).prop("checked", true); // 체크박스에 체크
+						break;
+					}
+					
+				} // end of for ----------------
+				
+			}); // end of $("input:checkbox[name=interest]").each() ------------
+		}
+		
 		$("span.error").css('display', 'none'); // 맨 처음엔 error메세지 감추기
 		
-		/* 
-		$("input#userid").bind('blur', function() { // userid에 포커스 들어왔다가 포커스를 잃어버리면 발생되는 이벤트 -> blur 
-			alert("ㅎㅎㅎ");
-		});
-		
-		또는
-		 */
-		$("input#userid").blur(function () {
-			/* alert("ㅎㅋㅎㅋ"); */
-			
-			// 아이디는 5글자 이상 10글자 이하로 첫글자는 영문대문자이고 나머지는 영문자,숫자로 혼합되어져야 한다.
-			// == 정규표현식 객체 만들기 == //
-			// 	    항상 / 로 시작해서 / 로 끝나고 끝에 ; 을 붙인다.
-			
-			var regExp = /^[A-Z][A-Za-z0-9]{4,9}$/;
-			// 생성된 정규표현식 객체 속에 데이터를 넣어서 검사하기
-			var bool = regExp.test($(this).val()); // userid에 들어온 값이 올바른 값인지 유효성검사를 함
-			// 리턴타입 boolean.
-			
-			if(!bool){ // 올바르지 않을 때
-				$("span.userid_error").show();
-				$("span.userid_error").css('display','');
-				
-				/* 
-				$(":input").prop("disabled", true);
-				
-				또는
-				 */
-				$(":input").attr("disabled", true); // 모든 input태그 비활성화
-				//$(":input")은 모든 input태그를 말함
-				
-				/* 
-				$(this).attr("disabled", false);
-				
-				또는
-				 */
-				$(this).prop("disabled", false); // 나(userid)만 활성화
-
-				$(this).val(""); // 값 비움
-				$(this).focus(); // 다시 포커스 줌
-				
-			}
-			else { // 올바를 때
-				/*
-				$("span.userid_error").hide();
-				
-				또는
-				 */
-				$("span.userid_error").css('display', 'none'); // error메세지 감추기
-				$(":input").prop("disabled", false);
-				$("input#passwd").focus();
-			}
-			
-		}); // end of $("input#userid").blur(function (){})---------------
-		 
 		
 		$("input#passwd").blur(function () {
 			
@@ -273,32 +235,13 @@
 		});
 		
 		
-		
-		
-		$("#btnRegister").click(function() {
+		$("#btnUpdate").click(function() {
 			// name이 registerFrm인 form을 submit하려고 할 때 발생하는 이벤트
-			
-			// 성별 선택 검사
-			var nLength = $("input:radio[name=gender]:checked").length;
-			if( nLength == 0 ) {
-				alert("성별을 선택하세요");
-				return;
-			}
-			
-			// 약관동의 검사
-			var bAgree = $("input:checkbox[name=agree]").prop("checked");
-			
-			if(bAgree == 0){
-				alert("약관에 동의하셔야 회원가입이 가능합니다.");
-				return;
-			}
-			
-			
-			var frm = document.registerFrm;
-			frm.action = "memberRegister.do";
+
+			var frm = document.updateFrm;
+			frm.action = "updateMember.do";
 			frm.method = "post";
 			frm.submit();
-			
 			
 		}); // end of $("#btnRegister").click(function() {})----------------
 		
@@ -310,13 +253,13 @@
 </head>
 <body>
 <div id="container">
-	<form name="registerFrm">
+	<form name="updateFrm">
 		<fieldset>
-			<legend>회원가입 ( ${requestScope.method} )</legend>
+			<legend>회원정보 변경하기 ( ${method} )</legend>
 			<ul>
 				<li>
 					<label for="userid">아이디</label>
-					<input type="text" name="userid" id="userid" value="" maxlength="20" required autofocus autocomplete="off" />
+					<input type="text" name="userid" id="userid" value="${requestScope.mvo.userid}" readonly />
 					<span class="error userid_error">아이디는 5글자 이상 10글자 이하로 첫글자는 영문대문자이고 나머지는 영문자,숫자로 혼합되어져야 합니다.</span>     
 				</li>
 				<li>
@@ -331,19 +274,14 @@
 				</li>
 				<li>
 					<label for="name">성명</label>
-					<input type="text" name="name" id="name" value="" maxlength="20" required />
+					<input type="text" name="name" id="name" value="${mvo.name}" maxlength="20" required />
 				    <span class="error name_error"></span>
 				</li>
 				<li>
                		<label for="email">e메일</label>
-               		<input type="email" name="email" id="email" value="" maxlength="40" placeholder="예 abc@gmail.com" required />
+               		<input type="email" name="email" id="email" value="${mvo.email}" maxlength="40" placeholder="예 abc@gmail.com" required />
                 	<span class="error email_error"></span>
             	</li>
-				<li>
-					<label>성별</label>
-					<label>남<input type="radio" name="gender" value="M" /></label>&nbsp;
-					<label>여<input type="radio" name="gender" value="F" /></label>
-				</li>
 				<li>
 					<label>관심분야</label>
 					<div class="schoolInterest">
@@ -354,19 +292,7 @@
 					</div> 
 				</li>
 				<li>
-					<label for="introduce">자기소개</label>
-					<textarea rows="5" cols="20" id="introduce" name="introduce" placeholder="인사말을 적어주세요"></textarea>
-				</li>
-				<li>
-					<label for="agree">약관동의 <input type="checkbox" name="agree"/></label>
-				</li>
-				<li>
-					<iframe src="<%= ctxPath%>/iframeAgree/agree.html" width="85%" height="150px" style="border: solid 1px navy; margin: 20px 0px"></iframe>
-					<!-- html안에 또 다른 html을 넣을 때 iframe을 씀 -->
-				</li>
-				
-				<li>
-					<input type="button" id="btnRegister" value="회원가입" />
+					<input type="button" id="btnUpdate" value="회원변경" />
 					<input type="reset" value="취소" />
 				</li>
 			</ul>

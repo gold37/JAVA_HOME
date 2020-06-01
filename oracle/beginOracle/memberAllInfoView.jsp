@@ -23,9 +23,18 @@
   
 <style type="text/css">
 	
+	body {
+		padding: 20px;
+	}
+
+	a {
+		text-decoration: none !important; /* 부트스트랩 때문에 적용 안돼서 강제로 시킴  */
+		font-size: 13pt;
+	}
+		
 	div#content {
 		width: 80%;	
-		margin-top: 30px;
+		margin: 30px auto;
 	}
 	
 	th {
@@ -71,6 +80,11 @@
 
 </head>
 <body>
+
+	<div id="navi">
+		<a href="index.do">HOME</a>		
+	</div>
+	
 	<h2>모든 회원정보를 조회 해주는 페이지</h2>
 	<div id="content">
 	<table class="table table-hover">
@@ -80,6 +94,7 @@
 			<th>관심분야</th>
 			<th>가입일자</th>
 			<th>상세정보 조회</th>
+			<th>회원변경</th>
 			<th>회원삭제</th>
 		</tr>
 		
@@ -91,6 +106,7 @@
 				<td>${mvo.attention}</td>			
 				<td>${mvo.registerday}</td>			
 				<td><button onclick="javascript:location.href='<%= ctxPath%>/myInfoView.do?userid=${mvo.userid}'">조회</button></td>			
+				<td><button onclick="javascript:location.href='<%= ctxPath%>/updateMember.do?userid=${mvo.userid}'">변경</button></td>			
 				<td><input type="checkbox" name="chkboxUserid" value="${mvo.userid}" /></td>			
 			</tr>
 		</c:forEach>

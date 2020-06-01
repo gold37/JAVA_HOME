@@ -27,6 +27,26 @@ public class MemberRegisterCtrl extends HttpServlet {
 		execute(request, response);
 	}
 	
+	
+	// !!!!!!! === 크로스 사이트 스크립트 공격에 대응하는  안전한 코드 (시큐어 코드)를 작성해주는 메소드 생성하기 === !!!!!!! //
+	
+	private String replaceParameter(String param) {
+		
+		String result = param;
+		
+		if(param != null) {
+					// 태그가 아닌 부등호로 인식하게 함 ▼
+			result = result.replaceAll("<", "&lt;");
+			result = result.replaceAll(">", "&gt;");
+		//	result = result.replaceAll("&", "&amp;");
+		//	result = result.replaceAll("\"", "&quot;");
+		}
+		
+		return result;
+		
+	} // end of private String replaceParameter(String param) -----
+	
+	
 	private void execute(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
 	
@@ -68,6 +88,15 @@ public class MemberRegisterCtrl extends HttpServlet {
 			String gender = request.getParameter("gender");		
 			
 			String[] interestArr = request.getParameterValues("interest");
+		
+			
+			// !!!!!!! === 크로스 사이트 스크립트 공격에 대응하는  안전한 코드 (시큐어 코드)를 작성해주는 메소드 생성하기 === !!!!!!! //
+			String introduce = request.getParameter("introduce");
+			introduce = this.replaceParameter(introduce); // 원본을 넣어줌
+			
+			introduce = introduce.replaceAll("\r\n", "<br/>");
+			// 가입인사 내용물에서 \r\n(엔터)가 있으면 줄바꿈인 <br/>로 변경한다.
+			
 			
 			/*
 			
@@ -88,7 +117,7 @@ public class MemberRegisterCtrl extends HttpServlet {
 			
 			*/
 			
-			MemberVO mvo = new MemberVO(userid, passwd, name, email, gender, interestArr);
+			MemberVO mvo = new MemberVO(userid, passwd, name, email, gender, interestArr, introduce);
 			
 			MemberDAO mdao = new MemberDAO();
 			
